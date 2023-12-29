@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Btn, EditText, EditTextFilled, Mgin, appName, myEles, setTitle } from "../../../helper/general"
-import useWindowDimensions from "../../../helper/dimension";
-import { MsgAlert } from "../../../helper/adsi";
 import { InfoOutlined } from "@mui/icons-material";
-import coin from '../../../assets/coin.png'
-import thumb from '../../../assets/thumbs.png'
+import coin from '../../assets/coin.png'
+import thumb from '../../assets/thumbs.png'
+import { MsgAlert } from "../../helper/adsi";
+import useWindowDimensions from "../../helper/dimension";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn } from "../../helper/general";
 
 
 

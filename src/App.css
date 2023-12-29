@@ -28,6 +28,7 @@ html{
   --bordercolor: #cccccc;
   --btnstripbk: #D8DAE9;
   --btnstrip: rgba(4,153,81,0.1);
+  --btnstrip50: rgba(4,153,81,0.5);
   --btnstrip5: rgba(4,153,81,0.1);
   --redstrip: #D600001A;
   --greenstrip: #63DE161A;
@@ -383,6 +384,24 @@ button{
 }
 
 /*------------*/
+
+/*Pin code style*/
+
+.pincode{
+  border: var(--btnstrip50) solid;
+  border-radius: 10px;
+  margin:10px;
+  width:45px;
+  height:45px;
+  text-align:center;
+  font-size:22px;
+  outline: none;
+}
+
+
+/*------------*/
+
+
 
 
 

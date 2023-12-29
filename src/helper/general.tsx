@@ -85,7 +85,7 @@ export function TextBox(prop:{isNgt:boolean,text:string, size?: number, color?: 
     }
     return (
         <p  style={{margin:"1px",fontSize: prop.size!==undefined?prop.size:14,color: prop.color||MyCols(prop.isNgt).black,
-        cursor:prop.onClick!==undefined?"pointer":"default", maxLines:ln,whiteSpace:prop.wrapit?"normal":"nowrap", textAlign:prop.center?"center":"start"}}
+        cursor:prop.onClick!==undefined?"pointer":"default", maxLines:ln,whiteSpace:prop.wrapit?"normal":"nowrap",textDecoration:prop.onClick!=undefined?'underline':undefined, textAlign:prop.center?"center":"start"}}
         onClick={prop.onClick}>{prop.text}</p>
     )
 }
