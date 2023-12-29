@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Routes, Route, useLocation, useParams, useNavig
 import { CircularProgress, createTheme, ThemeProvider } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { MakePayment, Register } from './components/toast/pages/register';
+import { ForgotPin, Login, MemberLogin } from './components/toast/pages/login';
 
 function useQuery(){
   return new URLSearchParams(useLocation().search);
@@ -45,6 +46,9 @@ export default function App() {
           <Route path='/'  element={<Register />}></Route>
             <Route path='/register'  element={<Register />}></Route>
             <Route path='/payments'  element={<MakePayment />}></Route>
+            <Route path='/memlog'  element={<MemberLogin />}></Route>
+            <Route path='/login'  element={<Login />}></Route>
+            <Route path='/forgot'  element={<ForgotPin />}></Route>
           </Routes>
         </Router>
       </div> 

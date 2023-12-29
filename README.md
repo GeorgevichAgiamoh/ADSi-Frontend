@@ -8,6 +8,6 @@ Daniel, Remote Software Developer
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | login         |
-| Payment       |               |
-|               |               |
+| Register      | Reset         |
+| Payment       | Verification  |
+| Login         |               |

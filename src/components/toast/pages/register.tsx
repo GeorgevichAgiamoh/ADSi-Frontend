@@ -35,7 +35,7 @@ export function Register(){
         }}>
             <mye.HTv text="Create an Account" size={35} />
             <Mgin top={20} />
-            <MsgAlert icon={InfoOutlined} mye={mye} msg="Information: Fields marked * are compulsory" />
+            <MsgAlert icon={InfoOutlined} mye={mye} msg="Fields marked * are compulsory" />
             <Mgin top={20} />
             <div className="hlc" style={{
                 width:'100%'

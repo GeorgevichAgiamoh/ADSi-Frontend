@@ -26,7 +26,7 @@ export function MsgAlert(prop:{mye:myEles,icon:icony,msg:string,isError?:boolean
         <div style={{
             flex:1
         }}>
-            <prop.mye.Tv text={prop.msg} color={col} />
+            <prop.mye.Tv text={prop.isError?'Error: ':'Information: '+prop.msg} color={col} />
         </div>
         <Close id='clk' style={{
             color:prop.mye.mycol.black

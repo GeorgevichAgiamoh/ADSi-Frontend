@@ -231,6 +231,7 @@ export function isEmlValid(eml:string){
     return re.test(eml);
 }
 
+
 export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml?: boolean,pwd?: boolean,digi?: boolean
     ,singleLine?: boolean, noSpace?: boolean, icon?: any,value?:string,recv?:(val:string)=>void,finise?:(val:string)=>void}){
 
@@ -260,8 +261,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
                     ok = false;
                     setError({stat: true, msg: "Minimum of "+_min.toString()+" characters"})
                 }else if(_eml){
-                    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                    if(!re.test(inp)){
+                    if(!isEmlValid(inp)){
                         ok = false;
                         setError({stat: true, msg: "Invalid email address"})
                     }
