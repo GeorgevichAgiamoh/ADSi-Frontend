@@ -63,9 +63,9 @@ export function MyCols(isNgt?:boolean){
 }
 //-----------
 
-export function Mgin(prop:{top?:number, right?:number}){
+export function Mgin(prop:{top?:number, right?:number, maxOut?:boolean}){
     return (
-        <div style={{margin:(prop.top || 0).toString()+"px 0 0 "+(prop.right || 0).toString()+"px", height:0, width:0}}></div>
+        <div style={{margin:(prop.maxOut?(prop.top || prop.right)!:(prop.top || 0)).toString()+"px 0 0 "+(prop.right || 0).toString()+"px", height:0, width:prop.maxOut?'100%':0}}></div>
     )
 }
 
@@ -108,12 +108,14 @@ export function HeadText(prop:{isNgt:boolean,text:string,color?:string,size?: nu
     )
 }
 
-export function Btn(prop:{txt:string,onClick?:()=>void,tabbish?:boolean,smallie?:boolean}){
+export function Btn(prop:{txt:string,onClick?:()=>void,round?:boolean,smallie?:boolean,transparent?:boolean}){
     return (
         <button className="btn" id="max_width" onClick={prop.onClick} style={{
-            borderRadius:prop.tabbish?'10px 5px 5px 10px':'10px',
+            borderRadius:prop.round?'30px':'10px',
             height:prop.smallie?'35px':'45px',
-            fontSize:prop.smallie?'12px':'16px'
+            fontSize:prop.smallie?'12px':'16px',
+            backgroundColor:prop.transparent?'transparent':undefined,
+            color: prop.transparent?new myCols(false).primarycol:undefined
         }}>{prop.txt}</button>
     )
 }
@@ -150,6 +152,17 @@ export function StripBtnRnd(prop:{isNgt:boolean,txt:string,onClick?:()=>void,ico
           <TextBox color={MyCols(prop.isNgt).primarycol} text={prop.txt} size={12} isNgt={prop.isNgt}/>
       </div>
   )
+}
+
+export function BtnIcn(prop:{icon:icony, ocl:()=>void, color?:string}){
+    return <div className="ctr" id="clk" style={{
+        width:50,
+        height:50
+    }} onClick={prop.ocl}>
+        <prop.icon style={{
+            color: prop.color ?? new myCols(false).primarycol
+        }} />
+    </div>
 }
 
 export function StripBtnImg(prop:{txt:string,onClick?:()=>void,img?:string}){
@@ -327,10 +340,18 @@ export function ErrorCont(prop:{isNgt:boolean,visible:boolean,retry:()=>void,msg
 }
 
 
-export function LrText(prop:{left:any,right:any}){
+export function LrText(prop:{left:any,right:any,wrap?:boolean}){//TODO use wrap if wrappy fails
     return (
-        <div className="lrtext">
+        <div className="lrtext" style={{
+            flexWrap:prop.wrap?'wrap':undefined,
+        }}>
             <div><div id="wrappy">{prop.left}</div></div>
+            {prop.wrap?<div
+            style={{
+                width:'100%',
+                height:15
+            }}
+            ></div>:<div></div>}
             <div>{prop.right}</div>
         </div>
     )
@@ -513,3 +534,23 @@ export function fixedString(s:string, numDig:number){
   export type icony = OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & {
     muiName: string;
   };
+
+  //-- adsi new
+
+  export function IconBtn(prop:{text:string,mye:myEles,icon:icony,ocl:()=>void}){
+    return <div className="ctr" id="clk" style={{
+        borderRadius:5,
+        width:120,
+        boxSizing:'border-box',
+        padding:10,
+        backgroundColor:prop.mye.mycol.primarycol
+    }} onClick={prop.ocl}>
+        <LrText 
+        left={<prop.mye.HTv text={prop.text} size={12} color={prop.mye.mycol.white} />}
+        right={<prop.icon style={{
+            fontSize:18,
+            color:prop.mye.mycol.white
+        }}/>}
+        />
+    </div>
+  }

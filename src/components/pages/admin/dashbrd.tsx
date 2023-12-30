@@ -1,120 +1,18 @@
-import { useEffect, useState } from "react";
-import useWindowDimensions from "../../helper/dimension";
-import { LrText, Mgin, appName, icony, myEles, setTitle } from "../../helper/general";
-import { AdminNav } from "./nav";
-import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
-import dp from "../../assets/dp.png"
-import { annEle } from "../classes/classes";
+import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail, PieChart } from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import useWindowDimensions from "../../../helper/dimension";
+import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn } from "../../../helper/general";
+import { annEle } from "../../classes/classes";
 
 
-export function Admin(){
-    const mye = new myEles(false);
-    const dimen = useWindowDimensions();
-    const[showNav, setShowNav] = useState(false)
-    const[tabPos, setTabPos] = useState(0)
-    const tabs = [
-        'Overview',
-        'Directory',
-        'Payments',
-        'Messages',
-        'Settings',
-        'Logout'
-    ]
 
-    return <div style={{
-        width: dimen.width,
-        height: dimen.height
-    }}>
-        <div style={{
-            width:'100%',
-            height:'100%',
-            display:'flex'
-        }}>
-            <div style={{
-                width:250,
-                height:'100%',
-                display: dimen.dsk?undefined:'none'
-            }}>
-                <AdminNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
-                    setTabPos(pos)
-                }} showy={()=>{
-
-                }}  />
-            </div>
-            <div style={{
-                flex:1,
-                display:'flex',
-                flexDirection:'column',
-                height:'100%',
-            }}>
-                <div style={{
-                    width:'100%',
-                    padding:'10px 20px',
-                    boxSizing:'border-box',
-                    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.06), 0 2px 5px rgba(0, 0,0,0.1)'
-                }}>
-                    <LrText
-                        left={<div className="hlc">
-                            <div style={{
-                                display: dimen.dsk?'none':undefined,
-                                padding:5,
-                                marginRight:10
-                            }} onClick={()=>{
-                                setShowNav(true)
-                            }}>
-                                <Menu />
-                            </div>
-                            <mye.HTv text={tabs[tabPos]} size={16} color={mye.mycol.primarycol} />
-                        </div>}
-                        right={<div className="hlc">
-                            <NotificationsActiveOutlined className="icon" />
-                            <Mgin right={15}/>
-                            <div style={{
-                                width:1,
-                                height:20,
-                                backgroundColor:mye.mycol.primarycol
-                            }}></div>
-                            <Mgin right={15}/>
-                            <img src={dp} alt="Admin Name" height={42}  />
-                            <Mgin right={5}/>
-                            <ArrowDropDown className="icon" />
-                        </div>}
-                        />
-                </div>
-                <div style={{
-                    flex:1,
-                    width:'100%',
-                    overflowY:'scroll',
-                    backgroundColor:'rgba(0,0,0,0.02)'
-                }}>
-                    {<AdminDashboard />}
-                </div>
-            </div>
-        </div>
-        <div style={{
-            position:'absolute',
-            top:0,
-            left:0,
-            width:'100%',
-            height:'100%',
-            display: (!dimen.dsk && showNav) ? undefined:'none'
-        }}>
-            <AdminNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
-                setShowNav(false)
-                setTabPos(pos)
-            }} showy={()=>{
-                setShowNav(false)
-            }}  />
-        </div>
-    </div>
-
-}
 
 
 export function AdminDashboard(){
     const mye = new myEles(false);
     const myKey = Date.now()
     const dimen = useWindowDimensions();
+    const[showNewAnn, setShowNewAnn] = useState(false)
     const anns = [
         new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
         "28/02/21"),
@@ -144,8 +42,7 @@ export function AdminDashboard(){
             display:'flex',
             width:'100%',
             flexWrap:'wrap',
-            alignItems:'center',
-            justifyContent:'center'
+            alignItems:'center'
         }}>
             <Tab1 icon={PersonOutline} title="Members" value="10000" color={mye.mycol.primarycol} />
             <Tab1 icon={SavingsOutlined} title="Total Revenue" value="10,000,000" color={mye.mycol.hs_blue} />
@@ -175,15 +72,15 @@ export function AdminDashboard(){
             }
              <Mgin top={20} />
              <LrText 
-             left={<div className="hlc" onClick={()=>{
+             left={<div id="clk" className="hlc" onClick={()=>{
 
              }}>
                 <mye.HTv text="View All" color={mye.mycol.primarycol} size={12} />
                 <Mgin right={10} />
                 <ArrowRightOutlined className="icon" />
              </div>}
-             right={<div className="hlc" onClick={()=>{
-                
+             right={<div id="clk" className="hlc" onClick={()=>{
+                setShowNewAnn(true)
              }}>
                 <mye.HTv text="Make Announcement" color={mye.mycol.primarycol} size={12} />
                 <Mgin right={10} />
@@ -191,7 +88,98 @@ export function AdminDashboard(){
              </div>}
              />
         </div>
+
+        {/* Absolutely positioned (dialog) */}
+        <div className="ctr" style={{
+            display:showNewAnn?undefined:'none',
+            position:'absolute',
+            top:0,
+            left:0,
+            width:'100%',
+            height:'100%',
+            boxSizing:'border-box',
+            backgroundColor:'rgba(0,0,0,0.1)',
+            padding: dimen.dsk?'10% 25%':0
+        }}>
+            <NewAnn />
+        </div>
     </div>
+
+    function NewAnn(){
+        const[atitle, setATitle] = useState('')
+        const[amsg, setAMsg] = useState('')
+
+        return <div style={{
+            backgroundColor: mye.mycol.bkg,
+            width:'100%',
+            height:'100%',
+            display:'flex',
+            flexDirection:'column',
+            borderRadius:10
+        }}>
+            <div style={{
+                backgroundColor:mye.mycol.primarycol,
+                padding:'10px 20px',
+                borderRadius:'10px 10px 0 0'
+            }}>
+                <LrText 
+                left={<mye.HTv text="New Announcement" color={mye.mycol.white} size={16} />}
+                right={<BtnIcn icon={Close} color={mye.mycol.white} ocl={()=>{
+                    setShowNewAnn(false)
+                }}  />}
+                />
+            </div>
+            <div style={{
+                width:'100%',
+                flex:1,
+                boxSizing:'border-box',
+                padding:'15px 30px',
+                display:'flex',
+                flexDirection:'column'
+            }}>
+                <Mgin top={20} />
+                <input className="tinp"
+                    type="text"
+                    value={atitle}
+                    placeholder="Title"
+                    onChange={(e)=>{
+                        setATitle(e.target.value)
+                    }}
+                    style={{
+                        width:'100%',
+                    }}
+                />
+                <Mgin top={5} />
+                <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+                <input className="tinp"
+                    type="text"
+                    value={amsg}
+                    placeholder="Type message here"
+                    onChange={(e)=>{
+                        setAMsg(e.target.value)
+                    }}
+                    style={{
+                        flex:1,
+                        width:'100%'
+                    }}
+                />
+                <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+                <Mgin top={20} />
+                <div className="hlc" style={{
+                    alignSelf:'flex-end'
+                }}>
+                    <AttachFile id='clk' className="icon" style={{
+                        fontSize:18
+                    }} />
+                    <Mgin right={10} />
+                    <IconBtn icon={Mail} mye={mye} text="SUBMIT" ocl={()=>{
+                        
+                    }} />
+                </div>
+            </div>
+        </div>
+
+    }
 
     function AnnLay(prop:{ele:annEle}) {
         return <div style={{

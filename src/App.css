@@ -475,6 +475,14 @@ button{
   display: flex;
   align-items: center;
 }
+.tinp{
+  border:none;
+  outline: none;
+}
+
+.tinp:focus{
+  border: none;
+}
 
 
 

@@ -5,7 +5,7 @@ import { CircularProgress, createTheme, ThemeProvider } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { MemberLogin, ForgotPin, Verif, ResetPin, MailLogin, PasswordResetRequest, Login } from './components/pages/login';
 import { Register, MakePayment } from './components/pages/register';
-import { Admin, AdminDashboard } from './components/pages/admin';
+import { Admin } from './components/pages/admin/admin';
 
 function useQuery(){
   return new URLSearchParams(useLocation().search);
