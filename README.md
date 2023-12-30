@@ -10,7 +10,7 @@ First figma page done (1/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Admin Portal  |
+| Register      | Adm Directory |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -18,7 +18,7 @@ First figma page done (1/3)
 | Reset1        |               |
 | Reset2        |               |
 | Verification  |               |
-|               |               |
-|               |               |
+| Admin Portal  |               |
+| Adm Dashboard |               |
 |               |               |
 |               |               |

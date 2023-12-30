@@ -3,9 +3,9 @@ import './App.css';
 import {BrowserRouter as Router, Routes, Route, useLocation, useParams, useNavigate} from 'react-router-dom'
 import { CircularProgress, createTheme, ThemeProvider } from "@mui/material";
 import { useEffect, useState } from 'react';
-import { Login } from '@mui/icons-material';
-import { MemberLogin, ForgotPin, Verif, ResetPin, MailLogin } from './components/pages/login';
+import { MemberLogin, ForgotPin, Verif, ResetPin, MailLogin, PasswordResetRequest, Login } from './components/pages/login';
 import { Register, MakePayment } from './components/pages/register';
+import { Admin, AdminDashboard } from './components/pages/admin';
 
 function useQuery(){
   return new URLSearchParams(useLocation().search);
@@ -53,6 +53,8 @@ export default function App() {
             <Route path='/verif'  element={<Verif />}></Route>
             <Route path='/reset'  element={<ResetPin />}></Route>
             <Route path='/maillogin'  element={<MailLogin />}></Route>
+            <Route path='/passwordreset'  element={<PasswordResetRequest />}></Route>
+            <Route path='/admindash'  element={<Admin />}></Route>
           </Routes>
         </Router>
       </div> 
