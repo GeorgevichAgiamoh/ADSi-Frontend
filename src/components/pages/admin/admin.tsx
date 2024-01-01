@@ -6,7 +6,7 @@ import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, 
 import dp from "../../../assets/dp.png"
 import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
-import { AdminDirectory } from "./directory";
+import { AdminDirectory } from "./directory/directory";
 
 
 export function Admin(){

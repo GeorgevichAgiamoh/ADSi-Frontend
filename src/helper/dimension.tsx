@@ -4,15 +4,18 @@ interface dimension {
     width: number;
     height: number;
     dsk: boolean;
+    dsk2: boolean;
 }
 
 function getWindowDimensions(): dimension{
     const {innerWidth: width, innerHeight: height} = window;
-    var dsk = width>680;
+    const dsk = width>680;
+    const dsk2 = width>1100;
     return {
         width,
         height,
-        dsk
+        dsk,
+        dsk2
     };
 }
 

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
+import { format } from "date-fns";
 
 //----------colors
 class myCols{
@@ -63,6 +66,14 @@ export function MyCols(isNgt?:boolean){
 }
 //-----------
 
+export function Line(prop:{len?:number,col?:string,vertical?:boolean,height?:number}){
+    return <div style={{
+        width:prop.vertical?prop.len || 1:'100%',
+        height: prop.vertical?(prop.height||100):prop.len || 1,
+        backgroundColor: prop.col || new myCols(false).imghint
+    }}></div>
+}
+
 export function Mgin(prop:{top?:number, right?:number, maxOut?:boolean}){
     return (
         <div style={{margin:(prop.maxOut?(prop.top || prop.right)!:(prop.top || 0)).toString()+"px 0 0 "+(prop.right || 0).toString()+"px", height:0, width:prop.maxOut?'100%':0}}></div>
@@ -108,14 +119,15 @@ export function HeadText(prop:{isNgt:boolean,text:string,color?:string,size?: nu
     )
 }
 
-export function Btn(prop:{txt:string,onClick?:()=>void,round?:boolean,smallie?:boolean,transparent?:boolean}){
+export function Btn(prop:{txt:string,onClick?:()=>void,round?:boolean,smallie?:boolean,transparent?:boolean,width?:number,outlined?:boolean,bkg?:string,tcol?:string}){
     return (
-        <button className="btn" id="max_width" onClick={prop.onClick} style={{
+        <button className={prop.outlined?'btnoln':'btn'} id="max_width" onClick={prop.onClick} style={{
             borderRadius:prop.round?'30px':'10px',
             height:prop.smallie?'35px':'45px',
+            width:prop.width,
             fontSize:prop.smallie?'12px':'16px',
-            backgroundColor:prop.transparent?'transparent':undefined,
-            color: prop.transparent?new myCols(false).primarycol:undefined
+            backgroundColor:prop.bkg||((prop.transparent)?'transparent':undefined),
+            color: prop.tcol || (prop.transparent?new myCols(false).primarycol:undefined)
         }}>{prop.txt}</button>
     )
 }
@@ -124,7 +136,7 @@ export function StripBtn(prop:{txt:string,onClick?:()=>void,icon?:JSX.Element,ta
     const mcol = new myCols(false)
     return (
         <div style={{display:"flex"}}>
-            <button className="btnoln"onClick={prop.onClick} style={{
+            <button className="btnstrip"onClick={prop.onClick} style={{
             borderRadius:prop.tabbish?'10px 5px 5px 10px':'10px',
             backgroundColor:prop.lessBold?mcol.primarycol:mcol.primarycol,
             height:prop.smallie?'35px':'45px',
@@ -168,7 +180,7 @@ export function BtnIcn(prop:{icon:icony, ocl:()=>void, color?:string}){
 export function StripBtnImg(prop:{txt:string,onClick?:()=>void,img?:string}){
     return (
         <div style={{display:"flex"}}>
-            <button className="btnoln" id="max_width" onClick={prop.onClick}>{prop.txt}</button>
+            <button className="btnstrip" id="max_width" onClick={prop.onClick}>{prop.txt}</button>
             {prop.img!==undefined?<img src={prop.img} style={{
                 width: 30,
                 height: 30,
@@ -552,5 +564,52 @@ export function fixedString(s:string, numDig:number){
             color:prop.mye.mycol.white
         }}/>}
         />
+    </div>
+  }
+
+  export function DatePicky(prop:{rdy:(day:Date)=>void,closy:()=>void}){
+    const[dob, setDob] = useState<Date>()
+    const[focusYear, setFocusYear] = useState(1990)
+    return <div id="lshdw" className="vlc" style={{
+        width:300,
+        backgroundColor:new myCols(false).white,
+        padding:10,
+        borderRadius:10,
+    }}>
+        <div id="clk" style={{
+            alignSelf:'flex-end',
+            padding:5
+        }} onClick={prop.closy}>
+            <Close className="icon" />
+        </div>
+        <LrText 
+        left={<Btn smallie  width={80} txt="< 2 yrs" onClick={()=>{
+            setFocusYear(focusYear-2)
+        }}/>}
+        right={<Btn smallie  width={80} txt="2 yrs >" onClick={()=>{
+            if(focusYear < new Date().getFullYear()-10){
+                console.log('!!---'+focusYear.toString())
+                setFocusYear(focusYear+2)
+            }
+        }}/>}
+        />
+        <Mgin top={10} />
+        <DayPicker key={focusYear}
+            mode="single"
+            selected={dob}
+            toYear={new Date().getFullYear()-10}
+            fromYear={1940}
+            onSelect={(d)=>{
+                setDob(d)
+            }}
+            defaultMonth={new Date(focusYear,1,1)}
+            footer={dob?<p>You picked {format(dob, 'PP')}.</p>:<p>Please pick a day</p>}
+            />
+        <Mgin top={10} />
+        <Btn txt="SUBMIT" onClick={()=>{
+            if(dob){
+                prop.rdy(dob)
+            }
+        }} />
     </div>
   }
