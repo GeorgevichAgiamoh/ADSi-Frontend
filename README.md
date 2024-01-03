@@ -10,7 +10,7 @@ First figma page done (1/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Adm Messaging |
+| Register      | Adm Msg 2     |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -22,3 +22,4 @@ First figma page done (1/3)
 | Adm Dashboard |               |
 | Adm Dir 1     |               |
 | All Dir done  |               |
+| Adm Msg 1     |               |

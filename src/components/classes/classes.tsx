@@ -72,3 +72,16 @@ export class finInfoEle{
         this.bank = bank
     }
 }
+
+export class msgMeta{
+    lastMsg:string 
+    whosent:string
+    whoreceived:string
+    date:string
+    constructor(lastMsg:string, whosent:string, whoreceived:string, date:string){
+        this.lastMsg = lastMsg
+        this.whosent = whosent
+        this.whoreceived = whoreceived
+        this.date = date
+    } 
+}

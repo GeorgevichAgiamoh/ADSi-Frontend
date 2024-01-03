@@ -7,6 +7,7 @@ import dp from "../../../assets/dp.png"
 import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
 import { AdminDirectory } from "./directory/directory";
+import { AdminMessaging } from "./messages/messages";
 
 
 export function Admin(){
@@ -89,7 +90,7 @@ export function Admin(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {tabPos===0?<AdminDashboard />:<AdminDirectory />}
+                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:<AdminMessaging />}
                 </div>
             </div>
         </div>
