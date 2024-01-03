@@ -74,12 +74,14 @@ export class finInfoEle{
 }
 
 export class msgMeta{
-    lastMsg:string 
+    subject:string 
+    msg:string 
     whosent:string
     whoreceived:string
     date:string
-    constructor(lastMsg:string, whosent:string, whoreceived:string, date:string){
-        this.lastMsg = lastMsg
+    constructor(subject:string,msg:string, whosent:string, whoreceived:string, date:string){
+        this.subject = subject
+        this.msg = msg
         this.whosent = whosent
         this.whoreceived = whoreceived
         this.date = date

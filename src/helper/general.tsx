@@ -549,19 +549,20 @@ export function fixedString(s:string, numDig:number){
 
   //-- adsi new
 
-  export function IconBtn(prop:{text:string,mye:myEles,icon:icony,ocl:()=>void,bkg?:string,width?:number}){
+  export function IconBtn(prop:{text:string,mye:myEles,icon:icony,ocl:()=>void,bkg?:string,width?:number,outld?:boolean}){
     return <div className="ctr" id="clk" style={{
         borderRadius:5,
         width:prop.width || 120,
         boxSizing:'border-box',
         padding:10,
-        backgroundColor:prop.bkg || prop.mye.mycol.primarycol
+        border:prop.outld?`${prop.mye.mycol.primarycol} solid 1px`:'none',
+        backgroundColor:prop.outld?'transparent':prop.bkg || prop.mye.mycol.primarycol
     }} onClick={prop.ocl}>
         <LrText 
-        left={<prop.mye.HTv text={prop.text} size={12} color={prop.mye.mycol.white} />}
+        left={<prop.mye.HTv text={prop.text} size={12} color={prop.outld?prop.mye.mycol.primarycol:prop.mye.mycol.white} />}
         right={<prop.icon style={{
             fontSize:18,
-            color:prop.mye.mycol.white
+            color:prop.outld?prop.mye.mycol.primarycol:prop.mye.mycol.white
         }}/>}
         />
     </div>
