@@ -6,7 +6,7 @@ Daniel, Remote Software Developer
 
 ### Progress update
 
-First figma page done (2/3)
+Working on second figma page (2/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
