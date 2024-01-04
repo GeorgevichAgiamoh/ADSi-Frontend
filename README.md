@@ -10,7 +10,7 @@ First figma page done (1/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Adm Payments  |
+| Register      | Adm Pay List  |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -23,3 +23,6 @@ First figma page done (1/3)
 | Adm Dir 1     |               |
 | All Dir done  |               |
 | All Msg done  |               |
+| Adm Pay Types |               |
+| Adm Pay Create|               |
+|               |               |

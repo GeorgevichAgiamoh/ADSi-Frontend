@@ -3,7 +3,7 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Message, Outbox, Inbox, Done } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, MyCB } from "../../../../helper/general"
 import { msgMeta } from "../../../classes/classes"
 import { NewMsg } from "./messages"
 
@@ -188,7 +188,7 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
                     width:dimen.dsk2?'100%':undefined
                 }}>
                     <div className="hlc">
-                        <MyRadio checked={selMsgs.length == msgMetas.length} ocl={()=>{
+                        <MyCB mye={mye} checked={selMsgs.length == msgMetas.length} ocl={()=>{
                             const all:string[] = []
                             if(selMsgs.length != msgMetas.length){
                                 for (let i = 0; i < msgMetas.length; i++){
@@ -205,7 +205,7 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
                     {
                         msgMetas.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
                             return <div className="hlc" key={myKey+index+showingIndex*20}>
-                               <MyRadio checked={selMsgs.includes((index+showingIndex*20).toString())} ocl={()=>{
+                               <MyCB mye={mye} checked={selMsgs.includes((index+showingIndex*20).toString())} ocl={()=>{
                                     const id = (index+showingIndex*20).toString()
                                     updateSelMsgs(id,selMsgs.includes(id))
                                 }} />
@@ -269,26 +269,6 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
         </div>
     </div>
 
-    function MyRadio(prop:{checked:boolean,ocl:()=>void}) {
-        return <div className="ctr" style={{
-            width:50,
-            height:40,
-        }}>
-            <span id="clk" className="ctr" style={{
-                backgroundColor: prop.checked ? mye.mycol.primarycol : 'transparent',
-                width: '12px', // Adjust the size as needed
-                height: '12px',
-                border: '1px solid black', // You can customize other styles as well
-                borderRadius: '3px', 
-            }} onClick={prop.ocl} >
-                <Done style={{
-                    fontSize:11,
-                    color:prop.checked?"white":'transparent'
-                }} />
-            </span>
-        </div>
-    }
-
     function Opts(prop:{index:number,msg:msgMeta}) {
         return <div className="ctr" style={{
             width:100,
@@ -333,7 +313,7 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
     }
 
     function MyCell(prop:{text:string,isBold?:boolean,alignStart?:boolean,ocl?:()=>void, special?:boolean,big?:boolean}) {
-        return <div className="ctr" style={{
+        return <div id={prop.special?'clk':undefined} className="ctr" style={{
             flex:(dimen.dsk2 && !prop.special)?1:undefined,
             width:(dimen.dsk2 && !prop.special)?undefined:prop.big?200:100,
             height:40,

@@ -24,7 +24,7 @@ export function Register(){
         setTitle(`Register - ${appName}`)
     },[])
 
-    return <div className="ctr" style={{
+    return <div className="vlc" style={{
         width:dimen.width,
         height:dimen.height
     }}>
@@ -33,6 +33,7 @@ export function Register(){
             padding:dimen.dsk?0:20,
             boxSizing:'border-box'
         }}>
+            <Mgin top={40} />
             <mye.HTv text="Create an Account" size={35} />
             <Mgin top={20} />
             <MsgAlert icon={InfoOutlined} mye={mye} msg="Fields marked * are compulsory" />

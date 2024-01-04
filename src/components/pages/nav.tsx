@@ -47,7 +47,7 @@ export function AdminNav(mainprop:{currentTab:number,mye:myEles,isMobile:boolean
     </div>
 
     function Tab(prop:{icon:icony, text:string, pos:number}) {
-        return <div style={{
+        return <div id="clk" style={{
             display:'flex',
             width:'100%',
             height: 45

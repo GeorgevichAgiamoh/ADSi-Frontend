@@ -306,7 +306,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
     }
 
     function MyCell(prop:{text:string,isBold?:boolean,alignStart?:boolean,ocl?:()=>void, special?:boolean}) {
-        return <div className="ctr" style={{
+        return <div id={prop.special?'clk':undefined} className="ctr" style={{
             flex:(dimen.dsk2 && !prop.special)?1:undefined,
             width:(dimen.dsk2 && !prop.special)?undefined:100,
             height:40,

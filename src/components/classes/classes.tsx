@@ -87,3 +87,21 @@ export class msgMeta{
         this.date = date
     } 
 }
+
+export class payTypeEle{
+    name:string
+    amt:number
+    minCount:number 
+    months:number 
+    category:number //0->Dues 1-> Investment 2-> Contribution
+    tiers:number //0-> Flat 1-> Tier
+    constructor(name:string, amt:number, months:number, category:number, tiers:number,minCount:number){
+        this.name = name
+        this.amt = amt
+        this.months = months
+        this.category = category
+        this.tiers =tiers
+        this.minCount = minCount
+    }
+     
+}

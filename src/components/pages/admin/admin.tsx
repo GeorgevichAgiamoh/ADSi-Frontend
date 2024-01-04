@@ -8,6 +8,7 @@ import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
 import { AdminDirectory } from "./directory/directory";
 import { AdminMessaging } from "./messages/messages";
+import { AdminPayments } from "./payments/payments";
 
 
 export function Admin(){
@@ -90,7 +91,7 @@ export function Admin(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:<AdminMessaging />}
+                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:tabPos===2?<AdminPayments />:<AdminMessaging />}
                 </div>
             </div>
         </div>

@@ -102,16 +102,4 @@ export function AdminMsgView(mainprop:{msg:msgMeta,backy:()=>void}){
         </div>
     </div>
 
-    function InfoLay(prop:{sub:string, main:string}) {
-        return <div style={{
-            minWidth:dimen.dsk?120:100,
-            marginTop:dimen.dsk?20:20,
-            marginRight:10
-        }}>
-            <mye.Tv text={prop.sub} color={mye.mycol.imghint} size={12} />
-            <Mgin top={5} />
-            <mye.Tv text={prop.main} size={16} />
-        </div>
-    }
-
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { Close, Done } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -20,6 +20,7 @@ class myCols{
     transparent:string;
     bordercolor:string;
     btnstrip:string;
+    btnstripx2:string;
     btnstrip5:string;
     btnstripbk:string;
     redstrip:string;
@@ -43,6 +44,7 @@ class myCols{
         this.transparent = "#00000000"
         this.bordercolor = "#cccccc"
         this.btnstrip = isNgt?"rgba(255,255,0,0.1)":"rgba(4,153,81,0.1)"
+        this.btnstripx2 = isNgt?"rgba(255,255,0,0.7)":"rgba(4,153,81,0.7)"
         this.btnstrip5 = isNgt?"rgba(255,255,0,0.07)":"rgba(4,153,81,0.05)"
         this.btnstripbk = "#D8DAE9"
         this.redstrip = "#D600001A"
@@ -548,6 +550,26 @@ export function fixedString(s:string, numDig:number){
   };
 
   //-- adsi new
+
+  export function MyCB(prop:{mye:myEles,checked:boolean,ocl:()=>void,noPadding?:boolean}) {
+    return <div className="ctr" style={{
+        width:prop.noPadding?undefined:50,
+        height:prop.noPadding?undefined:40,
+    }}>
+        <span id="clk" className="ctr" style={{
+            backgroundColor: prop.checked ? prop.mye.mycol.primarycol : 'transparent',
+            width: '12px', // Adjust the size as needed
+            height: '12px',
+            border: `1px solid ${prop.mye.mycol.btnstripx2}`, // You can customize other styles as well
+            borderRadius: '3px', 
+        }} onClick={prop.ocl} >
+            <Done style={{
+                fontSize:11,
+                color:prop.checked?"white":'transparent'
+            }} />
+        </span>
+    </div>
+}
 
   export function IconBtn(prop:{text:string,mye:myEles,icon:icony,ocl:()=>void,bkg?:string,width?:number,outld?:boolean}){
     return <div className="ctr" id="clk" style={{

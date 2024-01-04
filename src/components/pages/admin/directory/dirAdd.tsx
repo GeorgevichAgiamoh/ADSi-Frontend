@@ -200,7 +200,9 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                     <mye.Tv text="Country" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={country?.isoCode || ''} onChange={(e)=>{
-                        setCountry(Country.getCountryByCode(e.target.value))
+                        const ele = Country.getCountryByCode(e.target.value)
+                        console.log(ele?.latitude+', '+ele?.longitude)
+                        setCountry(ele)
                     }}>
                         {
                             Country.getAllCountries().map((ele, index)=>{
@@ -217,7 +219,9 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={state?.isoCode||''} onChange={(e)=>{
                         if(country){
-                            setState(State.getStateByCodeAndCountry(e.target.value,country!.isoCode))
+                            const ele = State.getStateByCodeAndCountry(e.target.value,country!.isoCode)
+                            console.log(ele?.latitude+', '+ele?.longitude)
+                            setState(ele)
                         }
                         
                     }}>
@@ -237,6 +241,7 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                     <select id="dropdown" name="dropdown" value={city?.name||''} onChange={(e)=>{
                         if(country && state){
                             const ele = City.getCitiesOfState(country!.isoCode,state!.isoCode).find((ele)=> ele.name == e.target.value)
+                            console.log(ele?.latitude+', '+ele?.longitude)
                             setCity(ele)
                         }
                     }}>
