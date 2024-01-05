@@ -170,3 +170,26 @@ export class payInfo{
         return `${this.months} Months`
     }
 }
+
+
+// Admin User
+
+export class adminUserEle{
+    name:string 
+    email:string 
+    role:number;//0-Admin 1- Accountant
+    constructor(name:string, email:string, role:number){
+        this.name = name
+        this.email = email
+        this.role = role
+    }
+    getRole(){
+        if(this.role==0){
+            return 'Admin'
+        }
+        if(this.role==1){
+            return 'Accountant'
+        }
+        return 'Unknown'
+    }
+}

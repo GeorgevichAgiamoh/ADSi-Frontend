@@ -9,6 +9,7 @@ import { AdminDashboard } from "./dashbrd";
 import { AdminDirectory } from "./directory/directory";
 import { AdminMessaging } from "./messages/messages";
 import { AdminPayments } from "./payments/payments";
+import { AdminSettings } from "./settings/settings";
 
 
 export function Admin(){
@@ -91,7 +92,7 @@ export function Admin(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:tabPos===2?<AdminPayments />:<AdminMessaging />}
+                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:tabPos===2?<AdminPayments />:tabPos===3?<AdminMessaging />:<AdminSettings />}
                 </div>
             </div>
         </div>

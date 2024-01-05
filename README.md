@@ -1,16 +1,19 @@
 # Stable Shield Solutions
 ## ADSI
-Daniel, Remote Software Developer
+Daniel, 
+Remote Software Developer
 
 
 
 ### Progress update
 
-Working on second figma page (2/3)
+STARTED: 28/12/23
+
+Working on last figma page (3/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Adm Settings  |
+| Register      | Admin Actions |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -26,3 +29,5 @@ Working on second figma page (2/3)
 | Adm Pay Types |               |
 | Adm Pay Create|               |
 | All pay done  |               |
+| All settings  |               |
+| Admin UI Done |               |
