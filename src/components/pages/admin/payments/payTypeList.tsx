@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
@@ -86,9 +87,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                                 <MyCell text={(index+1).toString()} />
                                 <MyCell text={ele.name} />
                                 <MyCell text={'N'+ele.amt} />
-                                <MyCell text={ele.months==-1?'None':ele.months==0?'One-time':`${ele.months} months`} />
-                                <MyCell text={ele.category==0?'Dues':'Investment'} />
-                                <MyCell text={ele.tiers==0?'Flat Rate':'Tier Type'} />
+                                <MyCell text={ele.getinterval()} />
+                                <MyCell text={ele.getType()} />
+                                <MyCell text={ele.getTier()} />
                                 <Opts index={index} payType={ele} />
                             </div>
                         })
@@ -104,7 +105,6 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             left:0,
             width:'100%',
             height:'100%',
-            boxSizing:'border-box',
             backgroundColor:'rgba(0,0,0,0.1)'
         }}>
             <NewPayType closy={()=>{
@@ -149,6 +149,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             backgroundColor:mye.mycol.bkg,
             borderRadius:10,
             padding:20,
+            boxSizing:'border-box',
             overflow:'scroll',
             height:'75%',
             width:'50%'
@@ -252,7 +253,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                 marginRight:10,
                 marginTop:10
             }}>
-                <MyCB noPadding checked={prop.me == month} mye={mye} ocl={()=>{
+                <MyCB noPadding checked={prop.me.month == month.month} mye={mye} ocl={()=>{
                     setMonth(prop.me)
                 }}/>
                 <Mgin right={5} />
@@ -295,6 +296,10 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                 }} />
                 <MyCell text="View" ocl={()=>{
                     mainprop.actiony(0,prop.payType)
+                }} alignStart special />
+                <Line />
+                <MyCell text="Payments" ocl={()=>{
+                    mainprop.actiony(1,prop.payType)
                 }} alignStart special />
                 <Line />
                 <MyCell text="Delete" ocl={()=>{

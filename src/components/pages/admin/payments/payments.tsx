@@ -4,6 +4,8 @@ import { appName, myEles, setTitle } from "../../../../helper/general"
 import { payTypeEle } from "../../../classes/classes"
 import { CircularProgress } from "@mui/material"
 import { AdminPayTypes } from "./payTypeList"
+import { AdminPayTypesView } from "./payTypeView"
+import { PaymentList } from "./paymentList"
 
 
 
@@ -25,10 +27,14 @@ export function AdminPayments(){
         }} />
     }
     if(stage == 0 && payType){
-        
+        return <AdminPayTypesView payType={payType} backy={()=>{
+            setStage(-1)
+        }} />
     }
-    if(stage == 1){
-        
+    if(stage == 1  && payType){
+        return <PaymentList payType={payType} backy={()=>{
+            setStage(-1)
+        }} />
     }
     if(stage == 2 && payType){
         

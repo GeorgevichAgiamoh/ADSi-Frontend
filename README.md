@@ -10,7 +10,7 @@ Working on second figma page (2/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Adm Pay List  |
+| Register      | Adm Settings  |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -25,4 +25,4 @@ Working on second figma page (2/3)
 | All Msg done  |               |
 | Adm Pay Types |               |
 | Adm Pay Create|               |
-|               |               |
+| All pay done  |               |

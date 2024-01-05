@@ -1,3 +1,4 @@
+import { myEles } from "../../helper/general";
 
 // Announcement
 export class annEle{
@@ -103,5 +104,69 @@ export class payTypeEle{
         this.tiers =tiers
         this.minCount = minCount
     }
+    getType(){
+        return this.category==0?'Dues':this.category==1?'Investment':'Contribution'
+    }
+    getinterval(){
+        if(this.months==-1){
+            return 'None'
+        }
+        if(this.months == 0){
+            return 'One-time'
+        }
+        if(this.months < 1){
+            if(this.months == 0.1){
+                return 'Everyday';
+            }
+        }
+        if(this.months==12){
+            return 'Annually'
+        }
+        return `${this.months} Months`
+    }
+    getTier(){
+        return this.tiers==0?'Flat Rate':'Tier Type'
+    }
      
+}
+
+//These info will be retrieved dyamically! Only memID matters
+export class payInfo{
+    name: string
+    amt:number 
+    memId:string 
+    months:number 
+    type:number 
+    date:string
+    constructor(name: string, amt:number, memId:string, months:number, type:number, date:string){
+        this.name = name
+        this.amt = amt
+        this.memId = memId
+        this.months = months
+        this.type = type
+        this.date = date
+    }
+    getColor(mye:myEles){
+        return this.type==0?mye.mycol.primarycol:mye.mycol.secondarycol
+    }
+    getType(){
+        return this.type==0?'Dues':this.type==1?'Investment':'Contribution'
+    }
+    getinterval(){
+        if(this.months==-1){
+            return 'None'
+        }
+        if(this.months == 0){
+            return 'One-time'
+        }
+        if(this.months < 1){
+            if(this.months == 0.1){
+                return 'Everyday';
+            }
+        }
+        if(this.months==12){
+            return 'Annually'
+        }
+        return `${this.months} Months`
+    }
 }

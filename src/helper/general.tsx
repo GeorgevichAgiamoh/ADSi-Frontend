@@ -15,6 +15,7 @@ class myCols{
     hs_blue:string;
     hint:string;
     imghint:string;
+    imghintr2:string;
     red:string;
     green:string;
     transparent:string;
@@ -39,6 +40,7 @@ class myCols{
         this.hs_blue = isNgt?"#e6d118":"#e6d118";
         this.hint = isNgt?"rgba(255,255,255,0.9)":"#333333";
         this.imghint = isNgt?"rgba(255,255,255,0.5)":"#00000080";
+        this.imghintr2 = isNgt?"rgba(255,255,255,0.5)":"rgba(0,0,0,0.05)";
         this.red = "#ff0000";
         this.green = "#00ff00";
         this.transparent = "#00000000"
@@ -68,11 +70,11 @@ export function MyCols(isNgt?:boolean){
 }
 //-----------
 
-export function Line(prop:{len?:number,col?:string,vertical?:boolean,height?:number}){
+export function Line(prop:{len?:number,col?:string,vertical?:boolean,height?:number,broken?:boolean}){
     return <div style={{
-        width:prop.vertical?prop.len || 1:'100%',
-        height: prop.vertical?(prop.height||100):prop.len || 1,
-        backgroundColor: prop.col || new myCols(false).imghint
+        width:prop.vertical?0:'100%',
+        height: prop.vertical?(prop.height||100):0,
+        border:`${prop.len || 1}px ${prop.broken?'dashed':'solid'} ${prop.col || new myCols(false).imghintr2}`
     }}></div>
 }
 
