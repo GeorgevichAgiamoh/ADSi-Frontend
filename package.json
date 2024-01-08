@@ -1,5 +1,6 @@
 {
   "name": "adsi",
+  "homepage": "https://portal.adsicoop.com.ng",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -14,6 +15,7 @@
     "@types/node": "^16.18.11",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "axios": "^1.6.5",
     "country-state-city": "^3.2.1",
     "date-fns": "^3.0.6",
     "react": "^18.2.0",

@@ -247,7 +247,7 @@ button{
   z-index: 100;
 }
 .prgcont{
-  /* background-color: rgba(0, 0, 0, 0.2); */
+  background-color: rgba(0, 0, 0, 0.2);
   position: fixed;
   right: 0;
   left: 0;
@@ -256,6 +256,7 @@ button{
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 100;
 }
 
 .errorcont{

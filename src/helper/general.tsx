@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
+import { CircularProgress, InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
 import { Close, Done } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format } from "date-fns";
+import { AxiosResponse } from "axios";
+import { useLocation } from "react-router-dom";
 
 //----------colors
 class myCols{
@@ -255,6 +257,16 @@ export function EditText(prop:{isNgt:boolean, hint: string,min?: number, max?: n
     )
 }
 
+export function isPhoneNigOk(phn:string){
+    if(phn.startsWith('+')){
+        phn = phn.substring(1)
+    }
+    if(phn.startsWith('234')){
+        phn = '0'+phn.substring(3)
+    }
+    return phn.length == 11 && /^[0-9]+$/.test(phn) && (phn.startsWith('070') || phn.startsWith('071') || phn.startsWith('080') || phn.startsWith('081') || phn.startsWith('090') || phn.startsWith('091') )
+}
+
 export function isEmlValid(eml:string){
     let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(eml);
@@ -350,7 +362,7 @@ export function ErrorCont(prop:{isNgt:boolean,visible:boolean,retry:()=>void,msg
         <div className="errorcont" style={{display:prop.visible?"flex":"none"}}>
             <TextBox text={prop.msg??"AN ERROR OCCURRED, PLEASE RETRY"} isNgt={prop.isNgt}/>
             <Mgin top={20}/>
-            <Btn txt="RETRY" onClick={()=>prop.retry()} />
+            <Btn txt="RETRY" onClick={()=>prop.retry()} width={200} />
         </div>
     )
 }
@@ -553,6 +565,19 @@ export function fixedString(s:string, numDig:number){
 
   //-- adsi new
 
+  export function LoadLay(){
+    return <div className="ctr" style={{
+        width:'100%',
+        height:'100%'
+    }}>
+        <CircularProgress style={{color:new myCols(false).primarycol}} />
+    </div>
+  }
+
+  export function useQuery(){
+    return new URLSearchParams(useLocation().search);
+  }
+
   export function MyCB(prop:{mye:myEles,checked:boolean,ocl:()=>void,noPadding?:boolean}) {
     return <div className="ctr" style={{
         width:prop.noPadding?undefined:50,
@@ -637,4 +662,8 @@ export function fixedString(s:string, numDig:number){
             }
         }} />
     </div>
+  }
+
+  export function isMemID(txt:string){
+    return /^[0-9]+$/.test(txt) && !isEmlValid(txt)
   }

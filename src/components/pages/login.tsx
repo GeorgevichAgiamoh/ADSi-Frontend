@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { ErrorOutline, Info } from "@mui/icons-material";
+import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
 import { MsgAlert, PincodeLay } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery } from "../../helper/general";
+import { useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
+import Toast from "../toast/toast";
+import axios from "axios";
+import { makeRequest, saveMemId } from "../../helper/requesthandler";
 
 
 
@@ -324,33 +329,89 @@ export function ResetPin(){
 
 
 export function MailLogin(){
+    const qry = useQuery();
+    const rdr  = qry.get('rdr')||""
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
-    const[eml,setEml] = useState('')
+    const[eml,setEml] = useState(qry.get('eml') ?? '')
     const[pwd,setPwd] = useState('')
+    const navigate = useNavigate();
 
     useEffect(()=>{
         setTitle(`Login - ${appName}`)
     },[])
 
-    return <div className="ctr" style={{
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
+
+    return <div className="vlc" style={{
         width:dimen.width,
         height:dimen.height
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <div className="vlc" style={{
             width:dimen.dsk?500:'100%',
             padding:dimen.dsk?0:20,
             boxSizing:'border-box'
         }}>
+            <Mgin top={40} />
             <mye.HTv text="Login" size={30} />
             <Mgin top={20} />
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email" />
+                <mye.Tv text="Email or member ID" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter Email" value={eml} eml noSpace min={3} recv={(v)=>{
-                    setEml(v)
+                <EditTextFilled hint="Enter Email or member ID" value={eml} noSpace min={8} recv={(v)=>{
+                    setEml(v.trim())
                 }} />
             </div>
             <Mgin top={20} />
@@ -359,19 +420,53 @@ export function MailLogin(){
             }}>
                 <mye.Tv text="Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="********" value={pwd} pwd min={8} recv={(v)=>{
-                    setPwd(v)
+                <EditTextFilled hint="********" value={pwd} pwd min={6} recv={(v)=>{
+                    setPwd(v.trim())
                 }} />
             </div>
             <Mgin top={20} />
             <Btn txt="LOGIN" onClick={()=>{
-                //TODO implement
+                console.log(eml.length)
+                if(eml.length<8 || pwd.length < 6){
+                    toast('Invalid Email/ID or password',0)
+                    return;
+                }
+                if(!isMemID(eml) && !isEmlValid(eml)){
+                    toast('Invalid Email/ID',0)
+                    return;
+                }
+                let memId = '', email = ''
+                if(isMemID(eml)){
+                    memId = eml
+                }else{
+                    email = eml
+                }
+                setLoad(true)
+                new makeRequest().post('login',{
+                    memid: memId,
+                    email: email,
+                    password: pwd
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        saveMemId(task.getData()['memid'])
+                        navigate(`/${rdr}`)
+                    }else{
+                        toast(task.getErrorMsg(),0)
+                    }
+                },true)
             }} />
-            <Mgin top={20} />
+            <Mgin top={10} />
             <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
             right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
-                //TODO Login
+
             }} />}/>
+            <Mgin top={10} />
+            <mye.Tv text="Haven't registered yet ?"  />
+            <Mgin top={10} />
+            <Btn txt="REGISTER" onClick={()=>{
+                navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
+            }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
         </div>
 
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { Btn, DatePicky, EditTextFilled, IconBtn, Line, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../../helper/general"
+import { Btn, DatePicky, EditTextFilled, IconBtn, Line, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../../helper/general"
 import { AccountBalance, Add, ArrowBack, ArrowForward, CalendarMonth, CalendarViewDayOutlined, Close, CloudDownloadOutlined, Filter1Outlined, FilterOutlined, KeyboardArrowDown, ListAltOutlined, MoreVert, PersonOutline, SearchOutlined, SortOutlined, TroubleshootRounded } from "@mui/icons-material"
 import { indivEle } from "../../../classes/classes"
 import { format } from "date-fns"
@@ -44,14 +44,6 @@ export function AdminDirectory(){
             setStage(-1)
         }}/>
     }
-    return <div className="ctr" style={{
-        width:'100%',
-        height:'100%'
-    }}>
-        <CircularProgress className="icon" />
-    </div>
-
-    
-
+    return LoadLay()
 }
 
