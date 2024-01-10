@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios"
 
 
 
-export const endpoint = 'http://api.adsicoop.com.ng/api'
+export const endpoint = 'http://127.0.0.1:8000/api'//https://api.adsicoop.com.ng/api
 
 export function getACT(){
     return localStorage.getItem('adsi_act') ?? ''
@@ -70,7 +70,7 @@ export class resHandler{
             return this.response.data.message
         }else{
             console.error(this.response.data)
-            return `Request Failed (${this.response.status})`
+            return this.response.data.message ?? `Request Failed (${this.response.status})`
         }
     }
   }

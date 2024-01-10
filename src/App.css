@@ -67,6 +67,19 @@ html{
   background-color: transparent;
 }
 
+/* For modern browsers that support the appearance property */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
+}
+
+/* For Webkit browsers like Chrome and Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Hide the scrollbar for Firefox and some other browsers */
 body {
   scrollbar-width: thin;

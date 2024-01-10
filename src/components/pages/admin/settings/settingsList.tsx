@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB } from "../../../../helper/general"
 import { adminUserEle, indivEle } from "../../../classes/classes"
-import { City, Country, ICity, ICountry, IState, State } from "country-state-city"
+import { mLoc } from "monagree-locs/dist/classes"
+import { mCountry, mLga, mState } from "monagree-locs"
 
 
 
@@ -54,9 +55,9 @@ export function SettingsList(){
     ]
     
 
-    const[country, setCountry] = useState<ICountry>()
-    const[state, setState] = useState<IState>()
-    const[city, setCity] = useState<ICity>()
+    const[country, setCountry] = useState<mLoc>()
+    const[state, setState] = useState<mLoc>()
+    const[city, setCity] = useState<mLoc>()
 
     useEffect(()=>{
         setTitle(`Settings - ${appName}`)
@@ -177,14 +178,13 @@ export function SettingsList(){
                 }}>
                     <mye.Tv text="Country" />
                     <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={country?.isoCode || ''} onChange={(e)=>{
-                        const ele = Country.getCountryByCode(e.target.value)
-                        console.log(ele?.latitude+', '+ele?.longitude)
+                    <select id="dropdown" name="dropdown" value={country?.getId() || ''} onChange={(e)=>{
+                        const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
                     }}>
                         {
-                            Country.getAllCountries().map((ele, index)=>{
-                                return <option key={myKey+index+10000} value={ele.isoCode}>{ele.name}</option>
+                            mCountry.getAllCountries().map((ele, index)=>{
+                                return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                             })
                         }
                     </select>
@@ -195,17 +195,16 @@ export function SettingsList(){
                 }}>
                     <mye.Tv text="State" />
                     <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={state?.isoCode||''} onChange={(e)=>{
+                    <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
                         if(country){
-                            const ele = State.getStateByCodeAndCountry(e.target.value,country!.isoCode)
-                            console.log(ele?.latitude+', '+ele?.longitude)
+                            const ele = mState.getStateByCode(country!.getId(),e.target.value)
                             setState(ele)
                         }
                         
                     }}>
                         {
-                            country?State.getStatesOfCountry(country!.isoCode).map((ele, index)=>{
-                                return <option key={myKey+index+1000} value={ele.isoCode}>{ele.name}</option>
+                            country?mState.getStatesByCountry(country!.getId()).map((ele, index)=>{
+                                return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country First</option>
                         }
                     </select>
@@ -216,16 +215,15 @@ export function SettingsList(){
                 }}>
                     <mye.Tv text="City" />
                     <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={city?.name||''} onChange={(e)=>{
+                    <select id="dropdown" name="dropdown" value={city?.getId()||''} onChange={(e)=>{
                         if(country && state){
-                            const ele = City.getCitiesOfState(country!.isoCode,state!.isoCode).find((ele)=> ele.name == e.target.value)
-                            console.log(ele?.latitude+', '+ele?.longitude)
+                            const ele = mLga.getLgaByCode(country!.getId(),state!.getId(),e.target.value)
                             setCity(ele)
                         }
                     }}>
                         {
-                            (country&& state)?City.getCitiesOfState(country!.isoCode,state!.isoCode).map((ele, index)=>{
-                                return <option key={myKey+index+100} value={ele.name}>{ele.name}</option>
+                            (country&& state)?mLga.getLgasByState(country!.getId(),state!.getId()).map((ele, index)=>{
+                                return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country & State First</option>
                         }
                     </select>

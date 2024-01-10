@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { CircularProgress, InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
-import { Close, Done } from "@mui/icons-material";
+import { CircularProgress, IconButton, InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
+import { Close, Done, Visibility, VisibilityOff } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -279,6 +279,11 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
         const [error, setError] = useState<{stat:boolean, msg?:string}>({stat: false,msg: undefined})
         const [label, showLabel] = useState(true)
         const [inpp, setInpp] = useState("")
+        const [showPassword, setShowPassword] = useState(false);
+
+        const handleTogglePassword = () => {
+            setShowPassword(!showPassword);
+          };
         
     var _min = prop.min ?? 0
     var _max = prop.max ?? 300
@@ -340,16 +345,25 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
             error = {error.stat}
             helperText = {error.msg}
             inputProps = {{maxLength:_max}}
-            type= {_eml?"email":_pwd?"password":_digi?"number":"text"}
+            type= {_eml?"email":(_pwd && !showPassword)?"password":_digi?"number":"text"}
             multiline= {!_singleLine}
             placeholder={prop.hint}
             hiddenLabel={true}
             
-            InputProps= {prop.icon!==undefined?{startAdornment:(
-                <InputAdornment position="start">
-                    {prop.icon}
-                </InputAdornment>
-            ),disableUnderline:true}:{disableUnderline:true}}
+            InputProps= {{
+                startAdornment:prop.icon!==undefined?(
+                    <InputAdornment position="start">
+                        {prop.icon}
+                    </InputAdornment>
+                ):undefined,disableUnderline:true,
+                endAdornment: _pwd?(
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePassword} edge="end">
+                        {showPassword ? <Visibility className="icon" /> : <VisibilityOff className="icon"/>}
+                      </IconButton>
+                    </InputAdornment>
+                  ):undefined,
+            }}
             size="small"
         />
     )
@@ -666,4 +680,11 @@ export function fixedString(s:string, numDig:number){
 
   export function isMemID(txt:string){
     return /^[0-9]+$/.test(txt) && !isEmlValid(txt)
+  }
+
+  export function saveWhoType(admin:boolean){
+    localStorage.setItem('iaa',admin?'1':'0')
+  }
+  export function amAdmin(){
+    return localStorage.getItem('iaa')=='1'
   }

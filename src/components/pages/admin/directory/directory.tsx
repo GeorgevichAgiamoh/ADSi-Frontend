@@ -4,7 +4,6 @@ import { Btn, DatePicky, EditTextFilled, IconBtn, Line, LoadLay, LrText, Mgin, a
 import { AccountBalance, Add, ArrowBack, ArrowForward, CalendarMonth, CalendarViewDayOutlined, Close, CloudDownloadOutlined, Filter1Outlined, FilterOutlined, KeyboardArrowDown, ListAltOutlined, MoreVert, PersonOutline, SearchOutlined, SortOutlined, TroubleshootRounded } from "@mui/icons-material"
 import { indivEle } from "../../../classes/classes"
 import { format } from "date-fns"
-import { Country, State, City, ICountry, IState, ICity }  from 'country-state-city';
 import { AdminDirAdd } from "./dirAdd"
 import { AdminDirList } from "./dirList"
 import { AdminDirView } from "./dirView"

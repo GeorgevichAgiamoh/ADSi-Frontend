@@ -1,13 +1,13 @@
 //import logo from './logo.svg';
 import './App.css';
-import {BrowserRouter as Router, Routes, Route, useLocation, useParams, useNavigate} from 'react-router-dom'
-import { CircularProgress, createTheme, ThemeProvider } from "@mui/material";
-import { useEffect, useState } from 'react';
-import { MemberLogin, ForgotPin, Verif, ResetPin, MailLogin, PasswordResetRequest, Login } from './components/pages/login';
-import { Register, MakePayment } from './components/pages/register';
-import { Admin } from './components/pages/admin/admin';
-import { Members } from './components/pages/members/members';
+import {BrowserRouter as Router, Routes, Route, useLocation, } from 'react-router-dom'
+import { createTheme, ThemeProvider } from "@mui/material";
+import { lazy, useEffect, useState } from 'react';
+import {  ForgotPin, MailLogin, MemberLogin, PasswordResetRequest, ResetPin, Verif, } from './components/pages/login';
+import { MakePayment, Register } from './components/pages/register';
 import { CompleteProfile } from './components/pages/completeprofile';
+import { Members } from './components/pages/members/members';
+import { Admin } from './components/pages/admin/admin';
 
 function useQuery(){
   return new URLSearchParams(useLocation().search);
@@ -49,9 +49,10 @@ export default function App() {
           <Route path='/'  element={<Members />}></Route>
             <Route path='/register'  element={<Register />}></Route>
             <Route path='/completeprofile'  element={<CompleteProfile />}></Route>
+            <Route path='/login'  element={<MailLogin />}></Route>
+            <Route path='/adminlogin'  element={<MailLogin isAdmin />}></Route>
             <Route path='/payments'  element={<MakePayment />}></Route>
             <Route path='/memlog'  element={<MemberLogin />}></Route>
-            <Route path='/login'  element={<MailLogin />}></Route>
             <Route path='/forgot'  element={<ForgotPin />}></Route>
             <Route path='/verif'  element={<Verif />}></Route>
             <Route path='/reset'  element={<ResetPin />}></Route>

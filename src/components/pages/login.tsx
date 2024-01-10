@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
 import { MsgAlert, PincodeLay } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -328,7 +328,7 @@ export function ResetPin(){
 
 
 
-export function MailLogin(){
+export function MailLogin(mainprop:{isAdmin?:boolean}){
     const qry = useQuery();
     const rdr  = qry.get('rdr')||""
     const mye = new myEles(false);
@@ -450,23 +450,29 @@ export function MailLogin(){
                     setLoad(false)
                     if(task.isSuccessful()){
                         saveMemId(task.getData()['memid'])
+                        saveWhoType(mainprop.isAdmin??false)
                         navigate(`/${rdr}`)
                     }else{
                         toast(task.getErrorMsg(),0)
                     }
                 },true)
             }} />
-            <Mgin top={10} />
-            <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
-            right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
+            <div className="vlc" style={{
+                width:'100%',
+                display:mainprop.isAdmin?'none':undefined
+            }}>
+                <Mgin top={10} />
+                <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
+                right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
 
-            }} />}/>
-            <Mgin top={10} />
-            <mye.Tv text="Haven't registered yet ?"  />
-            <Mgin top={10} />
-            <Btn txt="REGISTER" onClick={()=>{
-                navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
-            }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
+                }} />}/>
+                <Mgin top={10} />
+                <mye.Tv text="Haven't registered yet ?"  />
+                <Mgin top={10} />
+                <Btn txt="REGISTER" onClick={()=>{
+                    navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
+                }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
+            </div>
         </div>
 
     </div>

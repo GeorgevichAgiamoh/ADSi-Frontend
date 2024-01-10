@@ -110,9 +110,9 @@ export function Register(){
                     flex:1,
                     marginLeft:20
                 }}>
-                    <mye.Tv text="*Middle Name" />
+                    <mye.Tv text="Middle Name" />
                     <Mgin top={5} />
-                    <EditTextFilled hint="Middle Name" value={mname} noSpace min={3} recv={(v)=>{
+                    <EditTextFilled hint="Middle Name" value={mname} noSpace min={0} recv={(v)=>{
                         setMName(v.trim())
                     }} />
                 </div>
@@ -126,7 +126,7 @@ export function Register(){
                         setLName(v.trim())
                     }} />
                 </div>
-            </div>,
+            </div>
             <Mgin top={5} />
             <div style={{
                 width:'100%'
@@ -181,8 +181,12 @@ export function Register(){
             </div>
             <Mgin top={35} />
             <Btn txt="CREATE ACCOUNT" onClick={()=>{
-                if(fname.length < 3 || lname.length < 3 || mname.length < 3){
-                    toast('Invalid Name Input',0)
+                if(fname.length < 3){
+                    toast('Invalid First Name Input',0)
+                    return;
+                }
+                if(lname.length < 3){
+                    toast('Invalid Last Name Input',0)
                     return;
                 }
                 if(eml.length >0 && !isEmlValid(eml)){
@@ -202,7 +206,7 @@ export function Register(){
                     return
                 }
                 if(memid.length != 8){
-                    toast('Invalid member ID',0)
+                    toast('Invalid member ID. Must be 8 characters',0)
                     return
                 }
                 setLoad(true)

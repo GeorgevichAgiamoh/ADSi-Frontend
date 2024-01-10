@@ -10,8 +10,9 @@ import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
 import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../classes/models";
-import { City, Country, ICity, ICountry, IState, State } from "country-state-city";
 import { format } from "date-fns";
+import { mLoc } from "monagree-locs/dist/classes";
+import { mCountry, mLga, mState } from "monagree-locs";
 
 
 
@@ -34,9 +35,9 @@ export function CompleteProfile(){
     const[marital,setMarital] = useState('')
     const[dob,setDob] = useState<Date>()
     const[askdob,setAskDOB] = useState(false)
-    const[nationality,setNationality] = useState<ICountry>()
-    const[state,setState] = useState<IState>()
-    const[lga,setLga] = useState<ICity>()
+    const[nationality,setNationality] = useState<mLoc>()
+    const[state,setState] = useState<mLoc>()
+    const[lga,setLga] = useState<mLoc>()
     const[town,setTown] = useState('')
     const[addr,setAddr] = useState('')
     const[job,setJob] = useState('')
@@ -61,6 +62,10 @@ export function CompleteProfile(){
     function getMemInfo(){
         setError(false)
         setRdy(false)
+        if(getMemId().length==0){
+            navigate('/login')
+            return;
+        }
         new makeRequest().get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData())
@@ -76,9 +81,9 @@ export function CompleteProfile(){
                             setSex(mgi.getGender())
                             setMarital(mgi.getMarital())
                             setDob(new Date(parseFloat(mgi.getDob())))
-                            setNationality(Country.getCountryByCode(mgi.getCountry()))
-                            setState(State.getStateByCodeAndCountry(mgi.getState(),mgi.getCountry()))
-                            setLga(City.getCitiesOfState(mgi.getCountry(),mgi.getState()).find((ele)=> ele.name == mgi!.getLga()))
+                            setNationality(mCountry.getCountryByCode(mgi.getCountry()))
+                            setState(mState.getStateByCode(mgi.getCountry(), mgi.getState()))
+                            setLga(mLga.getLgaByCode(mgi.getCountry(),mgi.getState(),mgi.getLga()))
                             setTown(mgi.getTown())
                             setAddr(mgi.getAddr())
                             setJob(mgi.getJob())
@@ -363,15 +368,14 @@ export function CompleteProfile(){
             }}>
                 <mye.Tv text="*Nationality" />
                 <Mgin top={5}/>
-                <select id="dropdown" name="dropdown" value={nationality?.isoCode || ''} onChange={(e)=>{
-                    const ele = Country.getCountryByCode(e.target.value)
-                    console.log(ele?.latitude+', '+ele?.longitude)
+                <select id="dropdown" name="dropdown" value={nationality?.getId() || ''} onChange={(e)=>{
+                    const ele = mCountry.getCountryByCode(e.target.value)
                     setNationality(ele)
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        Country.getAllCountries().map((ele, index)=>{
-                            return <option key={myKey+index+10000} value={ele.isoCode}>{ele.name}</option>
+                        mCountry.getAllCountries().map((ele, index)=>{
+                            return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                         })
                     }
                 </select>
@@ -382,18 +386,17 @@ export function CompleteProfile(){
             }}>
                 <mye.Tv text="*State Of Origin" />
                 <Mgin top={5}/>
-                <select id="dropdown" name="dropdown" value={state?.isoCode||''} onChange={(e)=>{
+                <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
                     if(nationality){
-                        const ele = State.getStateByCodeAndCountry(e.target.value,nationality!.isoCode)
-                        console.log(ele?.latitude+', '+ele?.longitude)
+                        const ele = mState.getStateByCode(nationality!.getId(),e.target.value)
                         setState(ele)
                     }
                     
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        nationality?State.getStatesOfCountry(nationality!.isoCode).map((ele, index)=>{
-                            return <option key={myKey+index+1000} value={ele.isoCode}>{ele.name}</option>
+                        nationality?mState.getStatesByCountry(nationality!.getId()).map((ele, index)=>{
+                            return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                         }):<option value="option1">Choose Country First</option>
                     }
                 </select>
@@ -404,17 +407,16 @@ export function CompleteProfile(){
             }}>
                 <mye.Tv text="*Local Government Area" />
                 <Mgin top={5}/>
-                <select id="dropdown" name="dropdown" value={lga?.name||''} onChange={(e)=>{
+                <select id="dropdown" name="dropdown" value={lga?.getId()||''} onChange={(e)=>{
                     if(nationality && state){
-                        const ele = City.getCitiesOfState(nationality!.isoCode,state!.isoCode).find((ele)=> ele.name == e.target.value)
-                        console.log(ele?.latitude+', '+ele?.longitude)
+                        const ele = mLga.getLgaByCode(nationality!.getId(),state!.getId(),e.target.value)
                         setLga(ele)
                     }
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        (nationality&& state)?City.getCitiesOfState(nationality!.isoCode,state!.isoCode).map((ele, index)=>{
-                            return <option key={myKey+index+100} value={ele.name}>{ele.name}</option>
+                        (nationality&& state)?mLga.getLgasByState(nationality!.getId(),state!.getId()).map((ele, index)=>{
+                            return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                         }):<option value="option1">Choose Country & State First</option>
                     }
                 </select>
@@ -623,9 +625,9 @@ export function CompleteProfile(){
                     sex:sex,
                     marital:marital,
                     dob:dob.getTime().toString(),
-                    nationality:nationality.isoCode,
-                    state:state.isoCode,
-                    lga:lga.name,
+                    nationality:nationality.getId(),
+                    state:state.getId(),
+                    lga:lga.getId(),
                     town:town,
                     addr:addr,
                     job:job,
