@@ -1,12 +1,20 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony } from "../../../../helper/general"
-import { indivEle } from "../../../classes/classes"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, hexToRgba, ErrorCont } from "../../../../helper/general"
+import tabcard from "../../../../assets/tabcard.png"
+import { CircularProgress } from "@mui/material"
+import Toast from "../../../toast/toast"
+import { makeRequest, resHandler } from "../../../../helper/requesthandler"
+import { useLocation, useNavigate } from "react-router-dom"
+import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
+import { format } from "date-fns"
 
 
 
-export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>void}){
+export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGeneralinfo)=>void}){
+    const location = useLocation()
+    const navigate = useNavigate()
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
@@ -14,76 +22,132 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
     const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
-    const indivs = [
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
-        new indivEle('00000001','Femi','Adeyinka','Davies','M','21/04/1987','07069636261','davies@yinka.com','Some place in Nigeria','Nigeria','Lagos','Lagos'),
+    const[vStats,setVStats] = useState<verifStat>()
+    const[vu,setVu] = useState<memberGeneralinfo[]>([])
+    const[uvu,setUvu] = useState<memberGeneralinfo[]>([])
+    
+    
 
-    ]
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
 
     useEffect(()=>{
         setTitle(`Directory List - ${appName}`)
+        getVS()
     },[])
 
+    function getVS(){
+        setLoad(true)
+        setError(false)
+        makeRequest.get('getVerificationStats',{},(task)=>{
+            if(task.isSuccessful()){
+                setVStats(new verifStat(task.getData()))
+                getUsers(true)
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+    function getUsers(verified:boolean){
+        setShowVerified(verified)
+        setError(false)
+        setLoad(true)
+        makeRequest.get(`getMembersByV/${verified?'1':'0'}`,{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const tem:memberGeneralinfo[] = []
+                for(const key in task.getData()){
+                    const basic = task.getData()[key]['b']
+                    const general = task.getData()[key]['g']
+                    const mbi = new memberBasicinfo(basic)
+                    const mgi = new memberGeneralinfo(general)
+                    mgi.setBasicData(mbi)
+                    tem.push(mgi)
+                }
+                if(verified){
+                    setVu(tem)
+                }else{
+                    setUvu(tem)
+                }
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
 
     return <div style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            getVS()
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <div style={{
             display:'flex',
             width:'100%',
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={PersonOutline} title="Verified Members" value="19670" color={mye.mycol.primarycol} />
-            <Tab1 icon={PersonOutline} title="Unverified Members" value="19670" color={mye.mycol.primarycol} />
+            <Tab1 icon={PersonOutline} title="Verified Members" value={vStats?vStats.getTotalVerified():'...'} color={mye.mycol.primarycol} />
+            <Tab1 icon={PersonOutline} title="Unverified Members" value={vStats?vStats.getTotalUnverified():'...'} color={mye.mycol.primarycol} />
         </div>
         <div style={{
             display:'flex',
@@ -143,7 +207,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                 flex:1
             }}>
                 <Btn txt="Verified" round onClick={()=>{
-                    setShowVerified(true)
+                    getUsers(true)
                 }} transparent={!showVerified} />
             </div>
             <Mgin right={10} />
@@ -151,7 +215,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                 flex:1
             }}>
                 <Btn txt="Unverified" round onClick={()=>{
-                    setShowVerified(false)
+                    getUsers(false)
                 }} transparent={showVerified}/>
             </div>
         </div>}
@@ -195,7 +259,8 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                 overflowX:'scroll'
             }}>
                 <div style={{
-                    width:dimen.dsk2?'100%':undefined
+                    width:dimen.dsk2?'100%':undefined,
+                    paddingBottom:optToShow!=-1?150:0,
                 }}>
                     <div className="hlc">
                         <MyCell text="S/N"  isBold/>
@@ -208,15 +273,15 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                         <MyCell text="Action"  isBold/>
                     </div>
                     {
-                        indivs.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
+                        (showVerified?vu:uvu).slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
                             return <div className="hlc" key={myKey+index+showingIndex*20}>
                                 <MyCell text={(index+1+showingIndex*20).toString()} />
-                                <MyCell text={ele.lName} />
-                                <MyCell text={ele.fName+' '+ele.mName} />
-                                <MyCell text={ele.gender} />
-                                <MyCell text={ele.dob} />
-                                <MyCell text={ele.memId} />
-                                <MyCell text={ele.phone} />
+                                <MyCell text={ele.basicData!.getlastName()} />
+                                <MyCell text={ele.basicData!.getFirstName()+' '+ele.basicData!.getMiddleName()} />
+                                <MyCell text={ele.getGender()} />
+                                <MyCell text={ele.getFormattedDOB()} />
+                                <MyCell text={ele.getMemberID()} />
+                                <MyCell text={ele.basicData!.getPhone()} />
                                 <Opts index={index} user={ele} />
                             </div>
                         })
@@ -232,7 +297,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor(indivs.length/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((showVerified?vu:uvu).length/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
@@ -247,7 +312,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor(indivs.length/20)
+                    const len = Math.floor((showVerified?vu:uvu).length/20)
                     console.log(len)
                     console.log(showingIndex)
                     if(showingIndex < len){
@@ -258,9 +323,26 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
         </div>
     </div>
 
-    function Opts(prop:{index:number,user:indivEle}) {
+    function Opts(prop:{index:number,user:memberGeneralinfo}) {
+
+        function doIt(action:number){
+            if(prop.user.isPrepared()){
+                mainprop.actiony(action,prop.user)
+            }else{
+                makeRequest.get(`getMemberFinancialInfo/${prop.user.getMemberID()}`,{},(task)=>{
+                    if(task.isSuccessful()){
+                        prop.user.setFinData(new memberFinancialinfo(task.getData()))
+                        mainprop.actiony(action,prop.user)
+                    }else{
+                        handleError(task)
+                    }
+                })
+            }
+        }
+
         return <div className="ctr" style={{
-            width:100,
+            flex:(dimen.dsk2)?1:undefined,
+            width:(dimen.dsk2)?undefined:100,
             height:40,
             position:'relative'
         }}>
@@ -291,15 +373,15 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
                     setOptToShow(-1)
                 }} />
                 <MyCell text="View" ocl={()=>{
-                    mainprop.actiony(0,prop.user)
+                    doIt(0)
                 }} alignStart special />
                 <Line />
                 <MyCell text="Edit" ocl={()=>{
-                    mainprop.actiony(1,prop.user)
+                    doIt(1)
                 }} alignStart special/>
                 <Line />
                 <MyCell text="Deactivate" ocl={()=>{
-                    mainprop.actiony(2,prop.user)
+                    doIt(2)
                 }} alignStart special />
             </div>
         </div>
@@ -371,13 +453,14 @@ export function AdminDirList(mainprop:{actiony:(action:number,user:indivEle)=>vo
             height:150,
             boxSizing:'border-box',
             position:'relative',
-            borderRadius:5,
-            backgroundColor:mye.mycol.btnstrip5,
+            borderRadius:10,
+            backgroundImage: `url(${tabcard})`,
+            backgroundSize: 'cover',
         }}>
             <div className="ctr" style={{
                 width:70,
                 height:70,
-                backgroundColor:prop.color,//TODO: With Opacity
+                backgroundColor:hexToRgba(prop.color,0.1),
                 borderRadius:'50%',
                 position:'absolute',
                 top:20,

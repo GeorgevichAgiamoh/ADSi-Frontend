@@ -5,12 +5,13 @@ import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
+import { defVal, memberGeneralinfo } from "../../../classes/models"
 
 
-export function AdminDirAdd(mainprop:{backy:()=>void}){
+export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user?:memberGeneralinfo}){
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
-    const myKey = Date.now()
+    const [myKey, setMyKey] = useState(Date.now())
     const[fname, setFname] = useState('')
     const[mname, setMname] = useState('')
     const[lname, setLname] = useState('')
@@ -22,31 +23,53 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
     const[acctNum, setAcctNum] = useState('')
     const[bank, setBank] = useState('')
 
-    const[gender, setGender] = useState('Male')
+    const[gender, setGender] = useState('')
     const[country, setCountry] = useState<mLoc>()
     const[state, setState] = useState<mLoc>()
     const[city, setCity] = useState<mLoc>()
 
     const[dob, setDOB] = useState<Date>()
     const[askdob, setAskDOB] = useState(false)
-    const[focusMonth, setFocusMonth] = useState<Date>()
 
 
     useEffect(()=>{
-        setTitle(`Add User - ${appName}`)
+        setTitle(`Edit Member - ${appName}`)
+        if(mainprop.user){
+            setFname(mainprop.user.basicData!.getFirstName())
+            setMname(mainprop.user.basicData!.getMiddleName())
+            setLname(mainprop.user.basicData!.getlastName())
+            setMemID(mainprop.user.getMemberID())
+            setPhn(mainprop.user.basicData!.getPhone())
+            setEml(mainprop.user.basicData!.getEmail())
+            setAddr(mainprop.user.getAddr())
+            setAcctname(mainprop.user.finData!.getAccountName())
+            setAcctNum(mainprop.user.finData!.getAccountNumber())
+            setBank(mainprop.user.finData!.getFormattedbank())
+
+            setGender(mainprop.user.getGender())
+            setCountry(mCountry.getCountryByCode(mainprop.user.getCountry()))
+            setState(mCountry.getCountryByCode(mainprop.user.getState()))
+            setCity(mCountry.getCountryByCode(mainprop.user.getLga()))
+            
+            if(mainprop.user.getDob()!=defVal){
+                setDOB(new Date(mainprop.user.getDob()))
+            }
+            setMyKey(Date.now())
+        }
+        
     },[])
 
     function gimmeWidth(long?:boolean){
         return dimen.dsk?long?'450px':'300px':'100%'
     }
 
-    return <div style={{
+    return <div key={myKey} style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
         <div id="clk" className="hlc" onClick={()=>{
-            mainprop.backy()
+            mainprop.backy(-1)
         }}>
             <ArrowBack className="icon" />
             <Mgin right={10} />
@@ -127,6 +150,7 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                     <select id="dropdown" name="dropdown" value={gender} onChange={(e)=>{
                         setGender(e.target.value)
                     }}>
+                        <option value="">Choose One</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
                     </select>
@@ -204,6 +228,7 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                         const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
                     }}>
+                        <option value="">Choose One</option>
                         {
                             mCountry.getAllCountries().map((ele, index)=>{
                                 return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
@@ -224,8 +249,9 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                         }
                         
                     }}>
+                        <option value="">Choose One</option>
                         {
-                            country?mState.getStatesByCountry(country!.getId()).map((ele, index)=>{
+                            country?mState.getStatesByCountry(country!.getId(),true).map((ele, index)=>{
                                 return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country First</option>
                         }
@@ -243,8 +269,9 @@ export function AdminDirAdd(mainprop:{backy:()=>void}){
                             setCity(ele)
                         }
                     }}>
+                        <option value="">Choose One</option>
                         {
-                            (country&& state)?mLga.getLgasByState(country!.getId(),state!.getId()).map((ele, index)=>{
+                            (country&& state)?mLga.getLgasByState(country!.getId(),state!.getId(),true).map((ele, index)=>{
                                 return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country & State First</option>
                         }

@@ -32,7 +32,7 @@ export function Members(){
     ]
 
     useEffect(()=>{
-        new makeRequest().get('checkTokenValidity',{},(task)=>{
+        makeRequest.get('checkTokenValidity',{},(task)=>{
           if(task.isSuccessful()){
             //OK
             getMemInfo()
@@ -44,14 +44,14 @@ export function Members(){
 
 
     function getMemInfo(){
-        new makeRequest().get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
+        makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 setMBI(new memberBasicinfo(task.getData()))
             }else{
                 setError(true)
             }
         })
-        new makeRequest().get(`getMemberGeneralInfo/${getMemId()}`,{},(task)=>{
+        makeRequest.get(`getMemberGeneralInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 if(task.exists()){
                     setMGI(new memberGeneralinfo(task.getData()))
@@ -131,7 +131,7 @@ export function Members(){
                 <MemberNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                     setTabPos(pos)
                     if(pos==4){
-                        new makeRequest().get('logout',{},(task)=>{
+                        makeRequest.get('logout',{},(task)=>{
                             navigate('/login')
                         })
                     }
@@ -201,7 +201,7 @@ export function Members(){
                 setShowNav(false)
                 setTabPos(pos)
                 if(pos==4){
-                    new makeRequest().get('logout',{},(task)=>{
+                    makeRequest.get('logout',{},(task)=>{
                         navigate('/login')
                     })
                 }

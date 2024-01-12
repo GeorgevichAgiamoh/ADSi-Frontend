@@ -210,23 +210,24 @@ export function Register(){
                     return
                 }
                 setLoad(true)
-                new makeRequest().post('register',{
+                makeRequest.post('register',{
                     memid:memid,
-                    email:eml,
+                    phn:phn,
                     password:pwd1
                 },(task)=>{
                     if(task.isSuccessful()){
                         //Set Basic Data
-                        new makeRequest().post('setMemberBasicInfo',{
+                        makeRequest.post('setMemberBasicInfo',{
                             memid:memid,
                             fname:fname,
                             lname:lname,
                             mname:mname,
                             eml:eml,
-                            phn:phn
+                            phn:phn,
+                            verif:'0'
                         },(task)=>{
                             saveMemId(memid)
-                            new makeRequest().get('logout',{},(task)=>{
+                            makeRequest.get('logout',{},(task)=>{
                                 setLoad(false)
                                 navigate('/login')
                             })

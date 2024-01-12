@@ -15,6 +15,7 @@ Working on last figma page (3/3)
 
 > Roadmap adjusted to meet new timeline demands
 
+### UI
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
@@ -39,11 +40,21 @@ Working on last figma page (3/3)
 | Member Dash   |               |
 | Member Profile|               |
 
+### Code (actions)
+
+| Done          | Upcoming      |
+| ------------- | ------------- |
+| Admin Dash    | Admin Payments|
+| Admin Dir     |               |
+|               |               |
+|               |               |
+
 
 
 ## Data Structure
 
 > (,,) means implied
+> All time are in milliseconds since Epoch
 
 
 
@@ -59,6 +70,7 @@ Working on last figma page (3/3)
   "mname": "(,,)",
   "eml": "(,,)",
   "phn": "(,,)",
+  "verif": "(0/1)",
 }
 ```
 
@@ -103,5 +115,44 @@ Working on last figma page (3/3)
   "memid": "(,,)",
   "bnk": "(Bank Code (3 digits code))",
   "anum": "(Account Number)",
+  "aname": "(Account Name)",
+}
+```
+
+
+
+### Highlights for Admin (highlightEle)
+
+ Shown on admin's dashboard (Not a table, built by endpoint)
+
+```json
+{
+  "totalUsers": "(,,)",
+  "totalMales": "(,,)",
+  "totalFemales": "(,,)",
+}
+```
+
+
+
+### Announcement (annEle)
+
+
+```json
+{
+  "title": "(,,)",
+  "msg": "(,,)",
+  "time": "(,,)",
+}
+```
+
+
+
+### Verification Stat (verifStat)
+
+```json
+{
+  "totalVerified": "(,,)",
+  "totalUnverified": "(,,)",
 }
 ```

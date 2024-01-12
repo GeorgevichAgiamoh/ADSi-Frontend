@@ -10,7 +10,7 @@ export function getACT(){
 
 export class makeRequest{
 
-    post(path:string,data:any,finise:(task:resHandler)=>void,isAuth?:boolean){
+    static post(path:string,data:any,finise:(task:resHandler)=>void,isAuth?:boolean){
         axios.post(`${endpoint}/${path}`, data, {headers:{
             "Content-Type":'application/json',
             Authorization:`Bearer ${getACT()}`
@@ -24,7 +24,7 @@ export class makeRequest{
         });
     }
 
-    get(path:string,params:any,finise:(task:resHandler)=>void){
+    static get(path:string,params:any,finise:(task:resHandler)=>void){
         axios.get(`${endpoint}/${path}`,{params:params, headers:{
             "Content-Type":'application/json',
             Authorization:`Bearer ${getACT()}`
@@ -50,8 +50,8 @@ export class resHandler{
             console.log('AUTH SAVED!!! '+response!.data.token)
         }
     }
-    getData(){
-        return this.response!.data.pld
+    getData(customPld?:string){
+        return this.response!.data[customPld??'pld']
     }
     exists(){
         return this.response?.data.pld != undefined && this.response?.data.pld != null

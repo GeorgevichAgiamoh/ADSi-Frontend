@@ -1,38 +1,130 @@
-import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail, PieChart } from "@mui/icons-material";
+import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail, PieChart, MonetizationOnOutlined } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import useWindowDimensions from "../../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn } from "../../../helper/general";
-import { annEle } from "../../classes/classes";
+import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn, ErrorCont, MyPieChart, hexToRgba } from "../../../helper/general";
+import { annEle, highlightEle } from "../../classes/models";
+import { CircularProgress } from "@mui/material";
+import Toast from "../../toast/toast";
+import { makeRequest, resHandler } from "../../../helper/requesthandler";
+import { useLocation, useNavigate } from "react-router-dom";
+import tabcard from "../../../assets/tabcard.png"
 
 
 
 
 
 export function AdminDashboard(){
+    const location = useLocation()
+    const navigate = useNavigate()
     const mye = new myEles(false);
     const myKey = Date.now()
     const dimen = useWindowDimensions();
     const[showNewAnn, setShowNewAnn] = useState(false)
-    const anns = [
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-    ]
+    const[hele,setHele] = useState<highlightEle>()
+    const[anns,setAnns] = useState<annEle[]>([])
 
     useEffect(()=>{
         setTitle(`Admin Dashboard - ${appName}`)
+        getHgl()
     },[])
+
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
+    function getHgl(){
+        setError(false)
+        setLoad(true)
+        makeRequest.get('getHighlights',{},(task)=>{
+            if(task.isSuccessful()){
+                setHele(new highlightEle(task.getData()))
+                getAnns()
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+    function getAnns(){
+        setError(false)
+        setLoad(true)
+        makeRequest.get('getAnnouncements',{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const tem:annEle[] = []
+                for(const key in task.getData()){
+                    tem.push(new annEle(task.getData()[key]))
+                }
+                setAnns(tem)
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
 
     return <div style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            getHgl()
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <Mgin top={20} />
         <mye.BTv text="Hello Admin" size={26} color={mye.mycol.primarycol} />
         <Mgin top={20} />
@@ -44,8 +136,8 @@ export function AdminDashboard(){
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={PersonOutline} title="Members" value="10000" color={mye.mycol.primarycol} />
-            <Tab1 icon={SavingsOutlined} title="Total Revenue" value="10,000,000" color={mye.mycol.hs_blue} />
+            <Tab1 icon={PersonOutline} title="Members" value={hele?hele.getTotalUsers():'...'} color={mye.mycol.primarycol} />
+            <Tab1 icon={MonetizationOnOutlined} title="Total Revenue" value="..." color={mye.mycol.hs_blue} />
             <Tab2 />
         </div>
         <Mgin top={20} />
@@ -151,8 +243,7 @@ export function AdminDashboard(){
                 />
                 <Mgin top={5} />
                 <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
-                <input className="tinp"
-                    type="text"
+                <textarea
                     value={amsg}
                     placeholder="Type message here"
                     onChange={(e)=>{
@@ -160,7 +251,11 @@ export function AdminDashboard(){
                     }}
                     style={{
                         flex:1,
-                        width:'100%'
+                        marginTop:10,
+                        width:'100%',
+                        border:'none',
+                        outline:'none',
+                        resize:'none'
                     }}
                 />
                 <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
@@ -172,9 +267,31 @@ export function AdminDashboard(){
                         fontSize:18
                     }} />
                     <Mgin right={10} />
-                    <IconBtn icon={Mail} mye={mye} text="SUBMIT" ocl={()=>{
-                        
-                    }} />
+                    <IconBtn icon={Mail} mye={mye} text={"SUBMIT"} ocl={()=>{
+                        if(atitle.trim().length ==0){
+                            toast('Please enter title',0)
+                            return;
+                        }
+                        if(amsg.trim().length <3){
+                            toast('Please enter message',0)
+                            return;
+                        }
+                        setLoad(true)
+                        makeRequest.post('setAnnouncements',{
+                            title:atitle.trim(),
+                            msg:amsg.trim(),
+                            time:Date.now().toString()
+                        },(task)=>{
+                            if(task.isSuccessful()){
+                                toast('Announcement added',1)
+                                setShowNewAnn(false)
+                                getAnns()
+                            }else{
+                                setLoad(false)
+                                handleError(task)
+                            }
+                        })
+                    }}  width={120}/>
                 </div>
             </div>
         </div>
@@ -193,17 +310,17 @@ export function AdminDashboard(){
                 alignItems:'center'
             }}>
                 <div style={{
-                    flex:1,
+                    flex:2,
                     boxSizing:'border-box',
-                    paddingRight:20
+                    paddingRight:dimen.dsk2?100:dimen.dsk?50:20
                 }}>
-                    <mye.Tv text={prop.ele.getMessage()} color={mye.mycol.imghint} maxLines={2} size={12} />
+                    <mye.Tv text={prop.ele.getMsg()} color={mye.mycol.imghint} maxLines={2} size={12} />
                 </div>
                 <div style={{
                     flex:1,
                 }}>
                     <LrText 
-                    left={<mye.Tv text={prop.ele.getDate()} size={12} color={mye.mycol.primarycol} />}
+                    left={<mye.Tv text={prop.ele.getTime()} size={12} color={mye.mycol.primarycol} />}
                     right={<mye.Tv text={'View'} size={12} color={mye.mycol.primarycol} onClick={()=>{
 
                     }} />}
@@ -223,13 +340,14 @@ export function AdminDashboard(){
             height:150,
             boxSizing:'border-box',
             position:'relative',
-            borderRadius:5,
-            backgroundColor:mye.mycol.btnstrip5,
+            borderRadius:10,
+            backgroundImage: `url(${tabcard})`,
+            backgroundSize: 'cover',
         }}>
             <div className="ctr" style={{
                 width:70,
                 height:70,
-                backgroundColor:prop.color,//TODO: With Opacity
+                backgroundColor:hexToRgba(prop.color,0.1),
                 borderRadius:'50%',
                 position:'absolute',
                 top:20,
@@ -245,7 +363,7 @@ export function AdminDashboard(){
                 left:20,
                 bottom:20
             }}>
-                <mye.Tv text={prop.title} color={prop.color} />
+                <mye.Tv text={prop.title} color={mye.mycol.primarycol} />
                 <Mgin top={10}/>
                 <mye.BTv text={prop.value} size={20}  />
             </div>
@@ -253,6 +371,17 @@ export function AdminDashboard(){
     }
 
     function Tab2() {
+
+        function getPerc(isMale:boolean){
+            if(!hele){
+                return 0
+            }
+            let sum = hele.getTotalMales()+hele.getTotalFemales()
+            if(sum==0){
+                sum = 1;
+            }
+            return (isMale?hele.getTotalMales():hele.getTotalFemales()/(sum))*100
+        }
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -261,15 +390,18 @@ export function AdminDashboard(){
             boxSizing:'border-box',
             position:'relative',
             borderRadius:5,
-            backgroundColor:mye.mycol.btnstrip5,
+            backgroundImage: `url(${tabcard})`,
+            backgroundSize: 'cover',
         }}>
-            <PieChart style={{
-                fontSize:100,
-                color:mye.mycol.primarycol,
+            <div style={{
+                width:100,
+                height:100,
                 position:'absolute',
                 top:20,
                 right:20
-            }} />
+            }}>
+                <MyPieChart key={hele?0.1213:0.34} values={[getPerc(true),getPerc(false)]} colors={[mye.mycol.primarycol, mye.mycol.secondarycol]}/>
+            </div>
             <div style={{
                 position:'absolute',
                 left:20,
@@ -280,7 +412,7 @@ export function AdminDashboard(){
                     <Mgin right={5} />
                     <mye.Tv text="Males" color={mye.mycol.primarycol} />
                     <Mgin right={10} />
-                    <mye.Tv text="70%" color={mye.mycol.primarycol} />
+                    <mye.Tv text={hele?getPerc(true).toString()+'%':'...'} color={mye.mycol.primarycol} />
                 </div>
                 <Mgin top={10}/>
                 <div className="hlc">
@@ -288,7 +420,7 @@ export function AdminDashboard(){
                     <Mgin right={5} />
                     <mye.Tv text="Females" color={mye.mycol.primarycol} />
                     <Mgin right={10} />
-                    <mye.Tv text="30%" color={mye.mycol.primarycol} />
+                    <mye.Tv text={hele?getPerc(false).toString()+'%':'...'} color={mye.mycol.primarycol} />
                 </div>
             </div>
         </div>

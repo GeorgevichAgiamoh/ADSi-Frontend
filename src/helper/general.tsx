@@ -39,7 +39,7 @@ class myCols{
         this.white = isNgt?"#000000":"#ffffff";
         this.primarycol = isNgt?"#FAE20E":"#024126";
         this.secondarycol = isNgt?"#FAE20E":"#CCC670";
-        this.hs_blue = isNgt?"#e6d118":"#e6d118";
+        this.hs_blue = isNgt?"#0000FF":"#0066CC";
         this.hint = isNgt?"rgba(255,255,255,0.9)":"#333333";
         this.imghint = isNgt?"rgba(255,255,255,0.5)":"#00000080";
         this.imghintr2 = isNgt?"rgba(255,255,255,0.5)":"rgba(0,0,0,0.05)";
@@ -72,6 +72,27 @@ export function MyCols(isNgt?:boolean){
 }
 //-----------
 
+export const banks_and_codes:{[key: string]: string} = {
+    "044": "Access Bank",
+    "057": "Zenith Bank",
+    "011": "First Bank of Nigeria",
+    "058": "Guaranty Trust Bank (GTBank)",
+    "033": "United Bank for Africa (UBA)",
+    "221": "Stanbic IBTC Bank",
+    "070": "Fidelity Bank",
+    "032": "Union Bank of Nigeria",
+    "214": "First City Monument Bank (FCMB)",
+    "050": "Ecobank Nigeria",
+    "232": "Sterling Bank",
+    "076": "Polaris Bank",
+    "082": "Keystone Bank",
+    "035": "Wema Bank",
+    "030": "Heritage Bank",
+    "215": "Unity Bank",
+    "301": "Jaiz Bank"
+  }
+  
+
 export function Line(prop:{len?:number,col?:string,vertical?:boolean,height?:number,broken?:boolean}){
     return <div style={{
         width:prop.vertical?0:'100%',
@@ -101,8 +122,9 @@ export function TextBox(prop:{isNgt:boolean,text:string, size?: number, color?: 
       ln = prop.maxLines;
     }
     return (
-        <p  style={{margin:"1px",fontSize: prop.size!==undefined?prop.size:14,color: prop.color||MyCols(prop.isNgt).black,
-        cursor:prop.onClick!==undefined?"pointer":"default", maxLines:ln,whiteSpace:prop.wrapit?"normal":"nowrap",textDecoration:prop.onClick!=undefined?'underline':undefined, textAlign:prop.center?"center":"start"}}
+        <p className={prop.maxLines?'limitedTV3':undefined} style={{margin:"1px",fontSize: prop.size!==undefined?prop.size:14,color: prop.color||MyCols(prop.isNgt).black,
+        cursor:prop.onClick!==undefined?"pointer":"default", maxLines:ln,whiteSpace:prop.wrapit?"normal":"nowrap",textDecoration:prop.onClick!=undefined?'underline':undefined,
+         textAlign:prop.center?"center":"start"}}
         onClick={prop.onClick}>{prop.text}</p>
     )
 }
@@ -548,7 +570,6 @@ export function fixedString(s:string, numDig:number){
     isNgt:boolean;
     mycol:myCols;
     constructor(isNgt:boolean){
-        console.log(isNgt);
         this.isNgt = isNgt;
         this.mycol = new myCols(isNgt)
     }
@@ -578,6 +599,42 @@ export function fixedString(s:string, numDig:number){
   };
 
   //-- adsi new
+
+  export const hexToRgba = (hex:string, alpha:number) => {
+    const hexWithoutHash = hex.replace('#', '');
+    const bigint = parseInt(hexWithoutHash, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  export function MyPieChart(prop:{values:number[],colors:string[]}){
+    const total = prop.values.reduce((acc, val) => acc + val, 0);
+    let cumulativePercent = 0;
+
+    return (
+        <svg width="100%" height="100%">
+        {prop.values.map((value, index) => {
+            const percentage = (value / total) * 100;
+            const sliceColor = prop.colors[index] || `hsl(${(index / prop.values.length) * 360}, 70%, 50%)`;
+
+            const pathData = `
+            M 50% 50%
+            L 50% 0
+            A 50% 50% 0 ${percentage > 50 ? 1 : 0} 1
+            ${Math.cos((cumulativePercent * Math.PI) / 180) * 50 + 50}%
+            ${Math.sin((cumulativePercent * Math.PI) / 180) * 50 + 50}%
+            Z
+            `;
+
+            cumulativePercent += percentage;
+
+            return <path key={index} d={pathData} fill={sliceColor} />;
+        })}
+        </svg>
+    );
+  }
 
   export function LoadLay(){
     return <div className="ctr" style={{
@@ -652,7 +709,6 @@ export function fixedString(s:string, numDig:number){
         }}/>}
         right={<Btn smallie  width={80} txt="2 yrs >" onClick={()=>{
             if(focusYear < new Date().getFullYear()-10){
-                console.log('!!---'+focusYear.toString())
                 setFocusYear(focusYear+2)
             }
         }}/>}

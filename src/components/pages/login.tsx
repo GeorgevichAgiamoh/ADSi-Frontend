@@ -442,37 +442,44 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                     email = eml
                 }
                 setLoad(true)
-                new makeRequest().post('login',{
+                makeRequest.post('login',{
                     memid: memId,
                     email: email,
-                    password: pwd
+                    password: pwd,
                 },(task)=>{
-                    setLoad(false)
                     if(task.isSuccessful()){
                         saveMemId(task.getData()['memid'])
                         saveWhoType(mainprop.isAdmin??false)
-                        navigate(`/${rdr}`)
+                        if(mainprop.isAdmin){
+                            makeRequest.post('authAsAdmin',{},(task)=>{
+                                setLoad(false)
+                                if(task.isSuccessful()){
+                                    navigate(`/admindash`)
+                                }else{
+                                    toast(task.getErrorMsg(),0)
+                                }
+                            },true)
+                        }else{
+                            setLoad(false)
+                            navigate(`/${rdr}`)
+                        }
                     }else{
+                        setLoad(false)
                         toast(task.getErrorMsg(),0)
                     }
                 },true)
             }} />
-            <div className="vlc" style={{
-                width:'100%',
-                display:mainprop.isAdmin?'none':undefined
-            }}>
-                <Mgin top={10} />
-                <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
-                right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
+            <Mgin top={10} />
+            <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
+            right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
 
-                }} />}/>
-                <Mgin top={10} />
-                <mye.Tv text="Haven't registered yet ?"  />
-                <Mgin top={10} />
-                <Btn txt="REGISTER" onClick={()=>{
-                    navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
-                }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
-            </div>
+            }} />}/>
+            <Mgin top={10} />
+            <mye.Tv text="Haven't registered yet ?"  />
+            <Mgin top={10} />
+            <Btn txt="REGISTER" onClick={()=>{
+                navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
+            }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
         </div>
 
     </div>

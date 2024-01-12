@@ -4,7 +4,7 @@ import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { MsgAlert } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay, banks_and_codes } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -52,6 +52,7 @@ export function CompleteProfile(){
 
     const[bnk,setBnk] = useState('')
     const[anum,setANum] = useState('')
+    const[aname,setAName] = useState('')
         
 
     useEffect(()=>{
@@ -66,7 +67,7 @@ export function CompleteProfile(){
             navigate('/login')
             return;
         }
-        new makeRequest().get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
+        makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData())
                 setFName(mbi.getFirstName())
@@ -74,7 +75,7 @@ export function CompleteProfile(){
                 setMName(mbi.getMiddleName())
                 setEml(mbi.getEmail())
                 setPhn(mbi.getPhone())
-                new makeRequest().get(`getMemberGeneralInfo/${getMemId()}`,{},(task)=>{
+                makeRequest.get(`getMemberGeneralInfo/${getMemId()}`,{},(task)=>{
                     if(task.isSuccessful()){
                         if(task.exists()){
                             const mgi = new memberGeneralinfo(task.getData())
@@ -96,12 +97,13 @@ export function CompleteProfile(){
                             setkinAddr(mgi.getkin_Addr())
                             setkinEml(mgi.getkin_Email())     
                         }
-                        new makeRequest().get(`getMemberFinancialInfo/${getMemId()}`,{},(task)=>{
+                        makeRequest.get(`getMemberFinancialInfo/${getMemId()}`,{},(task)=>{
                             if(task.isSuccessful()){
                                 if(task.exists()){
                                     const mfi = new memberFinancialinfo(task.getData())
                                     setBnk(mfi.getBankCode())
                                     setANum(mfi.getAccountNumber())
+                                    setAName(mfi.getAccountName())
                                 }
                                 setRdy(true)
                             }else{
@@ -266,13 +268,14 @@ export function CompleteProfile(){
                     return
                 }
                 setLoad(true)
-                new makeRequest().post('setMemberBasicInfo',{
+                makeRequest.post('setMemberBasicInfo',{
                     memid:getMemId(),
                     fname:fname,
                     lname:lname,
                     mname:mname,
                     eml:eml,
-                    phn:phn
+                    phn:phn,
+                    verif:'0'
                 },(task)=>{
                     setLoad(false)
                     if(task.isSuccessful()){
@@ -620,7 +623,7 @@ export function CompleteProfile(){
                     return
                 }
                 setLoad(true)
-                new makeRequest().post('setMemberGeneralInfo',{
+                makeRequest.post('setMemberGeneralInfo',{
                     memid:getMemId(),
                     sex:sex,
                     marital:marital,
@@ -638,7 +641,7 @@ export function CompleteProfile(){
                     kin_type:kin_type,
                     kin_phn:kin_phone,
                     kin_addr:kin_addr,
-                    kin_eml:kin_eml,
+                    kin_eml:kin_eml
                 },(task)=>{
                     setLoad(false)
                     if(task.isSuccessful()){
@@ -664,23 +667,11 @@ export function CompleteProfile(){
                     setBnk(e.target.value)
                 }}>
                     <option value="">Click to Choose</option>
-                    <option value={'044'}>Access Bank</option>
-                    <option value={'057'}>Zenith Bank</option>
-                    <option value={'011'}>First Bank of Nigeria</option>
-                    <option value={'058'}>Guaranty Trust Bank (GTBank)</option>
-                    <option value={'033'}>United Bank for Africa (UBA)</option>
-                    <option value={'221'}>Stanbic IBTC Bank </option>
-                    <option value={'070'}>Fidelity Bank</option>
-                    <option value={'032'}>Union Bank of Nigeria</option>
-                    <option value={'214'}>First City Monument Bank (FCMB)</option>
-                    <option value={'050'}>Ecobank Nigeria</option>
-                    <option value={'232'}>Sterling Bank</option>
-                    <option value={'076'}>Polaris Bank</option>
-                    <option value={'082'}>Keystone Bank</option>
-                    <option value={'035'}>Wema Bank</option>
-                    <option value={'030'}>Heritage Bank</option>
-                    <option value={'215'}>Unity Bank</option>
-                    <option value={'301'}>Jaiz Bank</option>
+                    {
+                        Object.keys(banks_and_codes).map((code,index)=>{
+                            return <option key={myKey+0.05+index} value={code}>{banks_and_codes[code]}</option>
+                        })
+                    }
                 </select>
             </div>
             <Mgin top={15} />
@@ -693,6 +684,16 @@ export function CompleteProfile(){
                     setANum(v.trim())
                 }} />
             </div>
+            <Mgin top={15} />
+            <div style={{
+                width:'100%'
+            }}>
+                <mye.Tv text="*Account Name" />
+                <Mgin top={5} />
+                <EditTextFilled hint="Account Name" value={aname} noSpace min={10} recv={(v)=>{
+                    setAName(v.trim())
+                }} />
+            </div>
             <Mgin top={35} />
             <Btn txt="SAVE FINANCIAL INFO" onClick={()=>{
                 if(bnk.length == 0){
@@ -700,14 +701,19 @@ export function CompleteProfile(){
                     return
                 }
                 if(anum.length < 10){
-                    toast('Invalid Account Number Input',0)
+                    toast('Invalid Account Number',0)
+                    return
+                }
+                if(aname.length < 3){
+                    toast('Invalid Account Name',0)
                     return
                 }
                 setLoad(true)
-                new makeRequest().post('setMemberFinancialInfo',{
+                makeRequest.post('setMemberFinancialInfo',{
                     memid:getMemId(),
                     bnk:bnk,
                     anum:anum,
+                    aname:aname,
                 },(task)=>{
                     setLoad(false)
                     if(task.isSuccessful()){

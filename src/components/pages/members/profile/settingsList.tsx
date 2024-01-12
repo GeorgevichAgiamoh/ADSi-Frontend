@@ -1,7 +1,7 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, UploadOutlined, AccountBalance, PeopleOutline } from "@mui/icons-material"
 import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, banks_and_codes } from "../../../../helper/general"
 import { adminUserEle, indivEle } from "../../../classes/classes"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
@@ -270,23 +270,12 @@ export function SettingsList(){
                     <select id="dropdown" name="dropdown" value={bank} onChange={(e)=>{
                         setBank(e.target.value)
                     }}>
-                        <option value={'044'}>Access Bank</option>
-                        <option value={'057'}>Zenith Bank</option>
-                        <option value={'011'}>First Bank of Nigeria</option>
-                        <option value={'058'}>Guaranty Trust Bank (GTBank)</option>
-                        <option value={'033'}>United Bank for Africa (UBA)</option>
-                        <option value={'221'}>Stanbic IBTC Bank </option>
-                        <option value={'070'}>Fidelity Bank</option>
-                        <option value={'032'}>Union Bank of Nigeria</option>
-                        <option value={'214'}>First City Monument Bank (FCMB)</option>
-                        <option value={'050'}>Ecobank Nigeria</option>
-                        <option value={'232'}>Sterling Bank</option>
-                        <option value={'076'}>Polaris Bank</option>
-                        <option value={'082'}>Keystone Bank</option>
-                        <option value={'035'}>Wema Bank</option>
-                        <option value={'030'}>Heritage Bank</option>
-                        <option value={'215'}>Unity Bank</option>
-                        <option value={'301'}>Jaiz Bank</option>
+                        <option value="">Click to Choose</option>
+                        {
+                            Object.keys(banks_and_codes).map((code,index)=>{
+                                return <option key={myKey+0.05+index} value={code}>{banks_and_codes[code]}</option>
+                            })
+                        }
                     </select>
                 </div>
             </div>
