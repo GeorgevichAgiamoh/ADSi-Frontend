@@ -159,7 +159,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                     <InfoLay sub="First Name" main={mainprop.user.basicData!.getFirstName()} />
                     <InfoLay sub="Middle Name" main={mainprop.user.basicData!.getMiddleName()} />
                     <InfoLay sub="Last Name" main={mainprop.user.basicData!.getlastName()} />
-                    <InfoLay sub="Member Id" main={mainprop.user.getMemberID()} />
+                    <InfoLay sub="ADSI Number" main={mainprop.user.getMemberID()} />
                     <InfoLay sub="Phone Number" main={mainprop.user.basicData!.getPhone()} />
                     <InfoLay sub="Gender" main={mainprop.user.getGender()} />
                     <InfoLay sub="DOB" main={mainprop.user.getFormattedDOB()} />

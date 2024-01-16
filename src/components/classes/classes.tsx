@@ -92,40 +92,20 @@ export class msgMeta{
 export class payTypeEle{
     name:string
     amt:number
-    minCount:number 
-    months:number 
-    category:number //0->Dues 1-> Investment 2-> Contribution
-    tiers:number //0-> Flat 1-> Tier
-    constructor(name:string, amt:number, months:number, category:number, tiers:number,minCount:number){
+    category:number //0->Reg Fee 1-> Investment 2-> Contribution
+    constructor(name:string, amt:number, category:number){
         this.name = name
         this.amt = amt
-        this.months = months
         this.category = category
-        this.tiers =tiers
-        this.minCount = minCount
     }
     getType(){
-        return this.category==0?'Dues':this.category==1?'Investment':'Contribution'
+        return this.category==0?'Reg Fee':this.category==1?'Annual Fee':'Investment'
     }
     getinterval(){
-        if(this.months==-1){
-            return 'None'
-        }
-        if(this.months == 0){
-            return 'One-time'
-        }
-        if(this.months < 1){
-            if(this.months == 0.1){
-                return 'Everyday';
-            }
-        }
-        if(this.months==12){
-            return 'Annually'
-        }
-        return `${this.months} Months`
+        return this.category==0?'One Time':this.category==1?'Annual':'None'
     }
     getTier(){
-        return this.tiers==0?'Flat Rate':'Tier Type'
+        return this.category==2?'Tier Type':'Flat Rate'
     }
      
 }

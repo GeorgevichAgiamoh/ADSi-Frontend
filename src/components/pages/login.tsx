@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
 import { MsgAlert, PincodeLay } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType, formatMemId } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -91,10 +91,10 @@ export function Login(){
             <mye.BTv text="Member Login" size={40} color={mye.mycol.primarycol} />
             <Mgin top={20} />
             <div style={{
-                display: pwd1.length>8?'none':undefined,
+                display: pwd1.length>6?'none':undefined,
                 width:'100%'
             }}>
-            <MsgAlert icon={Info} mye={mye} msg="Your Password must be at least 8 characters" />
+            <MsgAlert icon={Info} mye={mye} msg="Your Password must be at least 6 characters" />
             </div>
             <Mgin top={30} />
             <div style={{
@@ -102,7 +102,7 @@ export function Login(){
             }}>
                 <mye.Tv text="Member ID or Email" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter ID or Email" value={idormail} noSpace min={8} recv={(v)=>{
+                <EditTextFilled hint="Enter ID or Email" value={idormail} noSpace min={6} recv={(v)=>{
                     setIdormail(v)
                 }} />
             </div>
@@ -112,7 +112,7 @@ export function Login(){
             }}>
                 <mye.Tv text="Create Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd1} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="*******" value={pwd1} pwd min={6} recv={(v)=>{
                     setPwd1(v)
                 }} />
             </div>
@@ -122,7 +122,7 @@ export function Login(){
             }}>
                 <mye.Tv text="Re-enter Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd2} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="*******" value={pwd2} pwd min={6} recv={(v)=>{
                     setPwd2(v)
                 }} />
             </div>
@@ -274,10 +274,10 @@ export function ResetPin(){
             <mye.BTv text="Reset Pin" size={40} color={mye.mycol.primarycol} />
             <Mgin top={20} />
             <div style={{
-                display: pwd1.length>8?'none':undefined,
+                display: pwd1.length>6?'none':undefined,
                 width:'100%'
             }}>
-            <MsgAlert icon={Info} mye={mye} msg="Your Password must be at least 8 characters" />
+            <MsgAlert icon={Info} mye={mye} msg="Your Password must be at least 6 characters" />
             </div>
             <Mgin top={30} />
             <div style={{
@@ -285,7 +285,7 @@ export function ResetPin(){
             }}>
                 <mye.Tv text="Create Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd1} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="*******" value={pwd1} pwd min={6} recv={(v)=>{
                     setPwd1(v)
                 }} />
             </div>
@@ -295,7 +295,7 @@ export function ResetPin(){
             }}>
                 <mye.Tv text="Re-enter Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd2} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="*******" value={pwd2} pwd min={6} recv={(v)=>{
                     setPwd2(v)
                 }} />
             </div>
@@ -403,14 +403,14 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             boxSizing:'border-box'
         }}>
             <Mgin top={40} />
-            <mye.HTv text="Login" size={30} />
+            <mye.HTv text={`${mainprop.isAdmin?'Admin ':''}login`} size={30} />
             <Mgin top={20} />
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email or member ID" />
+                <mye.Tv text="Email or ADSI Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter Email or member ID" value={eml} noSpace min={8} recv={(v)=>{
+                <EditTextFilled hint="Enter Email or ADSI Number" value={eml} noSpace min={1} recv={(v)=>{
                     setEml(v.trim())
                 }} />
             </div>
@@ -437,7 +437,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                 }
                 let memId = '', email = ''
                 if(isMemID(eml)){
-                    memId = eml
+                    memId = formatMemId(eml)
                 }else{
                     email = eml
                 }
@@ -555,7 +555,7 @@ export function PasswordReset(){
             }}>
                 <mye.Tv text="New Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="********" value={pwd1} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="********" value={pwd1} pwd min={6} recv={(v)=>{
                     setPwd1(v)
                 }} />
             </div>
@@ -565,7 +565,7 @@ export function PasswordReset(){
             }}>
                 <mye.Tv text="Confirm Password" />
                 <Mgin top={5} />
-                <EditTextFilled hint="********" value={pwd2} pwd min={8} recv={(v)=>{
+                <EditTextFilled hint="********" value={pwd2} pwd min={6} recv={(v)=>{
                     setPwd2(v)
                 }} />
             </div>

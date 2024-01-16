@@ -4,7 +4,7 @@ import {BrowserRouter as Router, Routes, Route, useLocation, } from 'react-route
 import { createTheme, ThemeProvider } from "@mui/material";
 import { lazy, useEffect, useState } from 'react';
 import {  ForgotPin, MailLogin, MemberLogin, PasswordResetRequest, ResetPin, Verif, } from './components/pages/login';
-import { MakePayment, Register } from './components/pages/register';
+import { MakePayment, PayRegFee, Register } from './components/pages/register';
 import { CompleteProfile } from './components/pages/completeprofile';
 import { Members } from './components/pages/members/members';
 import { Admin } from './components/pages/admin/admin';
@@ -48,6 +48,7 @@ export default function App() {
           <Routes>
           <Route path='/'  element={<Members />}></Route>
             <Route path='/register'  element={<Register />}></Route>
+            <Route path='/payregfee'  element={<PayRegFee />}></Route>
             <Route path='/completeprofile'  element={<CompleteProfile />}></Route>
             <Route path='/login'  element={<MailLogin />}></Route>
             <Route path='/adminlogin'  element={<MailLogin isAdmin />}></Route>

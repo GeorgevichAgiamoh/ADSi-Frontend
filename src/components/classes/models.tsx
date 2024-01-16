@@ -29,6 +29,12 @@ export class memberBasicinfo{
     isVerified(){
         return this.data['verif']=='1'
     }
+    getPayStage(){
+        return this.data['pay']
+    }
+    isPaid(){ //One time reg fee
+        return this.data['pay']=='1'
+    }
 }
 
 export const defVal = 'NIL'

@@ -53,6 +53,8 @@ export function CompleteProfile(){
     const[bnk,setBnk] = useState('')
     const[anum,setANum] = useState('')
     const[aname,setAName] = useState('')
+
+    const[mbi,setMbi] = useState<memberBasicinfo>()
         
 
     useEffect(()=>{
@@ -75,6 +77,7 @@ export function CompleteProfile(){
                 setMName(mbi.getMiddleName())
                 setEml(mbi.getEmail())
                 setPhn(mbi.getPhone())
+                setMbi(mbi)
                 makeRequest.get(`getMemberGeneralInfo/${getMemId()}`,{},(task)=>{
                     if(task.isSuccessful()){
                         if(task.exists()){
@@ -275,7 +278,8 @@ export function CompleteProfile(){
                     mname:mname,
                     eml:eml,
                     phn:phn,
-                    verif:'0'
+                    verif:'0',
+                    pay: (mbi&&mbi.isPaid())?'1':'0'
                 },(task)=>{
                     setLoad(false)
                     if(task.isSuccessful()){

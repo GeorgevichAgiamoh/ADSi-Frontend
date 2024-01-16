@@ -125,7 +125,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user?:memberGe
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5
                 }}>
-                    <mye.Tv text="Member ID" />
+                    <mye.Tv text="ADSI Number" />
                     <Mgin top={5}/>
                     <EditTextFilled hint="00000000" min={6} value={memID} recv={(v)=>{
                         setMemID(v)

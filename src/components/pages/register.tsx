@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { MsgAlert } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk } from "../../helper/general";
-import { useNavigate } from "react-router-dom";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef } from "../../helper/general";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
-import { makeRequest, saveMemId } from "../../helper/requesthandler";
+import { getMemId, makeRequest, resHandler, saveMemId } from "../../helper/requesthandler";
+import ReCAPTCHA from "react-google-recaptcha";
+import { defVal, memberBasicinfo } from "../classes/models";
 
 
 
@@ -25,6 +27,7 @@ export function Register(){
     const[pwd1,setPwd1] = useState('')
     const[pwd2,setPwd2] = useState('')
     const[memid,setMemid] = useState(qry.get('mid') ?? '')
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     useEffect(()=>{
         setTitle(`Register - ${appName}`)
@@ -173,13 +176,19 @@ export function Register(){
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="*Member ID" />
+                <mye.Tv text="*ADSI Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="00000001" value={memid} min={8} max={8}digi recv={(v)=>{
+                <EditTextFilled hint="ADSI Number" value={memid} min={1} max={8}digi recv={(v)=>{
                     setMemid(v.trim())
                 }} />
             </div>
-            <Mgin top={35} />
+            <Mgin top={20} />
+            <ReCAPTCHA
+                ref={recaptchaRef}
+                size="invisible"
+                sitekey={adsi_recaptcha_key}
+            />
+            <Mgin top={15} />
             <Btn txt="CREATE ACCOUNT" onClick={()=>{
                 if(fname.length < 3){
                     toast('Invalid First Name Input',0)
@@ -205,28 +214,39 @@ export function Register(){
                     toast('password mismatch',0)
                     return
                 }
-                if(memid.length != 8){
-                    toast('Invalid member ID. Must be 8 characters',0)
+                if(memid.length == 0){
+                    toast('Enter ADSI Number',0)
                     return
                 }
+                recaptchaRef.current?.executeAsync().then((token)=>{
+                    if(token){
+                        console.log('RECAPTCHA SUCCESS')
+                    }else{
+                        console.log('RECAPTCHA FAILED')
+                    }
+                }).catch((e)=>{
+                    console.error(e)
+                });
                 setLoad(true)
+                const fMemId = formatMemId(memid)
                 makeRequest.post('register',{
-                    memid:memid,
+                    memid:fMemId,
                     phn:phn,
                     password:pwd1
                 },(task)=>{
                     if(task.isSuccessful()){
                         //Set Basic Data
                         makeRequest.post('setMemberBasicInfo',{
-                            memid:memid,
+                            memid:fMemId,
                             fname:fname,
                             lname:lname,
                             mname:mname,
                             eml:eml,
                             phn:phn,
-                            verif:'0'
+                            verif:'0',
+                            pay:'0'
                         },(task)=>{
-                            saveMemId(memid)
+                            saveMemId(fMemId)
                             makeRequest.get('logout',{},(task)=>{
                                 setLoad(false)
                                 navigate('/login')
@@ -334,5 +354,192 @@ export function MakePayment(){
     </div>
 
 }
+
+
+
+export function PayRegFee(){
+    const navigate = useNavigate()
+    const location = useLocation()
+    const mye = new myEles(false);
+    const dimen = useWindowDimensions();
+    const[payStage, setPayStage] = useState(0)
+    const[mbi, setMBI] = useState<memberBasicinfo>() 
+
+    useEffect(()=>{
+        const script = document.createElement('script');
+        script.src = 'https://js.paystack.co/v1/inline.js';
+        script.async = true;
+        document.body.appendChild(script);
+        setTitle(`Make Payment - ${appName}`)
+        begin()
+        return () => {
+            document.body.removeChild(script);
+          };
+    },[])
+
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
+    function begin(){
+        setError(false)
+        setLoad(true)
+        makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const mbi = new memberBasicinfo(task.getData());
+                setPayStage(mbi.getPayStage())
+                setMBI(mbi)
+            }else{
+                setError(true)
+            }
+        })
+    }
+
+    function payWithPaystack() {
+        if(mbi && (window as any).PaystackPop){
+            var handler = (window as any).PaystackPop.setup({
+      
+                key: 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4',
+            
+                email: mbi.getEmail()==defVal?mbi.getPhone()+'@adsicoop.com.ng':mbi.getEmail(),
+            
+                amount: 5000 * 100, //In kobo
+            
+                currency: 'NGN', 
+            
+                ref: getPayRef('0','5000'), 
+            
+                callback: function(response:any) {
+                  //var reference = response.reference;    
+                  setPayStage(2)
+                },
+            
+                onClose: function() {
+                  toast('Transaction cancelled',0);
+                },
+                metadata: {
+                    name: mbi.getFirstName()+' '+mbi.getlastName(),
+                    time: Date.now().toString(),
+                    year: '2023', //TODO replace in annual due section
+                    shares: '1000' //TODO replace in investment section
+                  },
+              });
+              handler.openIframe();
+        }else{
+            toast('An error occured. Please refresh the page',0)
+        }
+      }
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
+
+    return <div className="ctr" style={{
+        width:dimen.width,
+        height:dimen.height
+    }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            begin()
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
+        {payStage==1?<div className="vlc" style={{
+            width:dimen.dsk?300:'100%',
+            padding:dimen.dsk?0:20,
+            boxSizing:'border-box'
+        }}>
+            <img src={thumb} alt="Payments" height={100} />
+            <Mgin top={30} />
+            <mye.BTv text="Payment Successful" size={22} />
+            <Mgin top={10}/>
+            <mye.Tv text="Thank you. Your payment has been received." center />
+            <Mgin top={30} />
+            <Btn txt="PROCEED TO DASHBOARD" onClick={()=>{
+                navigate('/')
+            }} />
+            </div>:payStage==2?<div className="vlc" style={{
+            width:dimen.dsk?300:'100%',
+            padding:dimen.dsk?0:20,
+            boxSizing:'border-box'
+        }}>
+            <img src={thumb} alt="Payments" height={100} />
+            <Mgin top={30} />
+            <mye.BTv text="Processing Payment" size={22} />
+            <Mgin top={10}/>
+            <mye.Tv text="Thank you. Your payment is being processed. We will let you know if we need more info." center />
+            <Mgin top={30} />
+            <Btn txt="PROCEED TO DASHBOARD" onClick={()=>{
+                navigate('/')
+            }} />
+            </div>:
+        <div className="vlc" style={{
+            width:dimen.dsk?500:dimen.width,
+            padding:dimen.dsk?0:10,
+            boxSizing:'border-box'
+        }}>
+            <img src={coin} alt="Payments" height={100} />
+            <Mgin top={30}/>
+            <mye.HTv text="Pay Registration Fee"  />
+            <Mgin top={10}/>
+            <mye.Tv text="You are required to pay a one-time registration fee of 5000 naira before you can proceed to your dashboard" center />
+            <Mgin top={35} />
+            <Btn txt="PAY" onClick={()=>{
+                payWithPaystack()
+            }} />
+        </div>}
+    </div>
+
+}
+
 
 

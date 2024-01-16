@@ -46,7 +46,12 @@ export function Members(){
     function getMemInfo(){
         makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
-                setMBI(new memberBasicinfo(task.getData()))
+                const mbi = new memberBasicinfo(task.getData())
+                if(!mbi.isPaid()){
+                    navigate('/payregfee')
+                    return;
+                }
+                setMBI(mbi)
             }else{
                 setError(true)
             }

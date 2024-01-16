@@ -268,7 +268,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                         <MyCell text="Other Names"  isBold/>
                         <MyCell text="Gender"  isBold/>
                         <MyCell text="DOB"  isBold/>
-                        <MyCell text="Member ID"  isBold/>
+                        <MyCell text="ADSI Number"  isBold/>
                         <MyCell text="Phone No."  isBold/>
                         <MyCell text="Action"  isBold/>
                     </div>

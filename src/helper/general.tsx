@@ -7,6 +7,7 @@ import 'react-day-picker/dist/style.css';
 import { format } from "date-fns";
 import { AxiosResponse } from "axios";
 import { useLocation } from "react-router-dom";
+import { getMemId } from "./requesthandler";
 
 //----------colors
 class myCols{
@@ -744,3 +745,23 @@ export function fixedString(s:string, numDig:number){
   export function amAdmin(){
     return localStorage.getItem('iaa')=='1'
   }
+
+  export function formatMemId(id:string){
+    if(id.length <8){
+        const diff = 8 - id.length
+        for(let i = 0; i < diff; i++){
+            id = '0'+id;
+        }
+        return id;
+    }else{
+        return id.substring(id.length-8,id.length)
+    }
+  }
+
+  export function getPayRef(payId:string,amt:string){
+    return `adsi-${payId}-${amt}-${getMemId()}-${Date.now().toString()}`
+  }
+
+  export const adsi_recaptcha_key = 'SOME KEY HERE'
+
+  export const paystackBtnId = 'paystackbtn'

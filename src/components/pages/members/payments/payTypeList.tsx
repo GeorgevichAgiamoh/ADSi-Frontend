@@ -14,9 +14,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
     const[optToShow,setOptToShow] = useState(-1)
     const[newPayType,setNewPayType] = useState(false)
     const payTypes = [
-        new payTypeEle('Registration Fee',5000,0,0,0,0),
-        new payTypeEle('Thrift/Annual Dues',12000,12,0,0,0),
-        new payTypeEle('Share capital',5000,-1,1,1,1000),
+        new payTypeEle('Registration Fee',5000,0),
+        new payTypeEle('Thrift/Annual Dues',12000,1),
+        new payTypeEle('Share capital',10000,2),
     ]
 
     useEffect(()=>{

@@ -1,8 +1,10 @@
 # Stable Shield Solutions | ADSI
 
-## Info
+## Infos
 Project: ADSI portal (frontend)
+
 Developer: Daniel, remote fullstack engineer, Stable Shield Solutions
+
 Started: 28/12/23
 
 
@@ -53,8 +55,7 @@ Working on last figma page (3/3)
 
 ## Data Structure
 
-> (,,) means implied
-> All time are in milliseconds since Epoch
+> (,,) means implied. All time are in milliseconds since Epoch
 
 
 
@@ -64,13 +65,14 @@ Working on last figma page (3/3)
 
 ```json
 {
-  "memid": "(Member ID - 8 char)",
+  "memid": "(ADSI Number - 8 char)",
   "fname": "(First Name)",
   "lname": "(Last Name)",
   "mname": "(,,)",
   "eml": "(,,)",
   "phn": "(,,)",
   "verif": "(0/1)",
+  "pay": "(0/1/2)",
 }
 ```
 
@@ -156,3 +158,13 @@ Working on last figma page (3/3)
   "totalUnverified": "(,,)",
 }
 ```
+
+### Payment Ref format
+
+(adsi)-(payId)-(amt)-(memid)-(mills)
+
+pay Ids: (Table = pays(ID). Eg pays0, pays1)
+
+0 - One time reg fee 
+1 - Annual Due
+2 - Investment
