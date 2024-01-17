@@ -32,7 +32,7 @@ export function AdminDirectory(){
             setStage(action)
         }}/>
     }
-    if(stage == 1){
+    if(stage == 1 && user){
         return <AdminDirAdd user={user} backy={()=>{
             setStage(-1)
         }}/>

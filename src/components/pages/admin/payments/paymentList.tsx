@@ -354,71 +354,71 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         </div>
     </div>
 
-function PayReciept(prop:{ele:payRecordEle}) {
-    return <div className="vlc" style={{
-        width:'100%',
-        height:'100%',
-        backgroundColor:mye.mycol.bkg,
-        borderRadius:10,
-        padding:20
-    }}>
-        <div id="clk" style={{
-                alignSelf:'flex-end'
-            }} onClick={()=>{
-                setShowReceipt(false)
-            }}>
-                <Close className="icon" />
-            </div>
-            <div className="ctr" style={{
-                flex:1
-            }}>
-                <div className="vlc" id="lshdw" style={{
-                    width:265,
-                    padding:20,
-                    boxSizing:'border-box',
-                    borderRadius:10,
+    function PayReciept(prop:{ele:payRecordEle}) {
+        return <div className="vlc" style={{
+            width:'100%',
+            height:'100%',
+            backgroundColor:mye.mycol.bkg,
+            borderRadius:10,
+            padding:20
+        }}>
+            <div id="clk" style={{
+                    alignSelf:'flex-end'
+                }} onClick={()=>{
+                    setShowReceipt(false)
                 }}>
-                    <mye.Tv text="PAYMENT RECEIPT" size={12} color={mye.mycol.primarycol} />
-                    <Mgin top={15} />
-                    <Line broken/>
-                    <Mgin top={20} />
-                    <LrText
-                    left={<mye.Tv text="Date/Time:" size={12} />}
-                    right={<mye.Tv text={prop.ele.getDate()} size={12} />}
-                    />
-                    <Mgin top={7} />
-                    <LrText
-                    left={<mye.Tv text="Type:" size={12} />}
-                    right={<mye.Tv text={prop.ele.getType()} size={12} />}
-                    />
-                    <Mgin top={7} />
-                    <LrText
-                    left={<mye.Tv text="Receipt Id:" size={12} />}
-                    right={<mye.Tv text={prop.ele.getReceiptId()} size={12} />}
-                    />
-                    <Mgin top={7} />
-                    <Line broken/>
-                    <Mgin top={7} />
-                    <LrText
-                    left={<mye.Tv text="Amount" size={12} />}
-                    right={<mye.Tv text={`NGN ${prop.ele.getAmt()}`} size={12} />}
-                    />
-                    <Mgin top={7} />
-                    <Line broken/>
-                    <Mgin top={7} />
-                    <LrText
-                    left={<mye.Tv text="Visa Debit" size={12} />}
-                    right={<mye.Tv text={`**** **** **** ****`} size={12} />}
-                    />
-                    <Mgin top={20} />
-                    <mye.HTv text="Transaction Approved" size={12} />
-                    <Mgin top={20} />
-                    <Barcode value={prop.ele.getReceiptId()} height={30} displayValue={false} />
-                    <Mgin top={10} />
+                    <Close className="icon" />
+                </div>
+                <div className="ctr" style={{
+                    flex:1
+                }}>
+                    <div className="vlc" id="lshdw" style={{
+                        width:265,
+                        padding:20,
+                        boxSizing:'border-box',
+                        borderRadius:10,
+                    }}>
+                        <mye.Tv text="PAYMENT RECEIPT" size={12} color={mye.mycol.primarycol} />
+                        <Mgin top={15} />
+                        <Line broken/>
+                        <Mgin top={20} />
+                        <LrText
+                        left={<mye.Tv text="Date/Time:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getDate()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Type:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getType()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Receipt Id:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getReceiptId()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <Line broken/>
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Amount" size={12} />}
+                        right={<mye.Tv text={`NGN ${prop.ele.getAmt()}`} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <Line broken/>
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Visa Debit" size={12} />}
+                        right={<mye.Tv text={`**** **** **** ****`} size={12} />}
+                        />
+                        <Mgin top={20} />
+                        <mye.HTv text="Transaction Approved" size={12} />
+                        <Mgin top={20} />
+                        <Barcode value={prop.ele.getReceiptId()} height={30} displayValue={false} />
+                        <Mgin top={10} />
+                    </div>
                 </div>
             </div>
-    </div>
-}
+    }
 
     function SendReminder(prop:{}) {
         return <div className="vlc" style={{

@@ -4,7 +4,7 @@ import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { MsgAlert } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef, paystackPK } from "../../helper/general";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -406,7 +406,7 @@ export function PayRegFee(){
         if(mbi && (window as any).PaystackPop){
             var handler = (window as any).PaystackPop.setup({
       
-                key: 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4',
+                key: paystackPK,
             
                 email: mbi.getEmail()==defVal?mbi.getPhone()+'@adsicoop.com.ng':mbi.getEmail(),
             
@@ -427,8 +427,8 @@ export function PayRegFee(){
                 metadata: {
                     name: mbi.getFirstName()+' '+mbi.getlastName(),
                     time: Date.now().toString(),
-                    year: '2023', //TODO replace in annual due section
-                    shares: '1000' //TODO replace in investment section
+                    year: '', 
+                    shares: '' 
                   },
               });
               handler.openIframe();

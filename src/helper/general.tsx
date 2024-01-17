@@ -45,7 +45,7 @@ class myCols{
         this.imghint = isNgt?"rgba(255,255,255,0.5)":"#00000080";
         this.imghintr2 = isNgt?"rgba(255,255,255,0.5)":"rgba(0,0,0,0.05)";
         this.red = "#ff0000";
-        this.green = "#00ff00";
+        this.green = "#009900";
         this.transparent = "#00000000"
         this.bordercolor = "#cccccc"
         this.btnstrip = isNgt?"rgba(255,255,0,0.1)":"rgba(4,153,81,0.1)"
@@ -708,8 +708,12 @@ export function fixedString(s:string, numDig:number){
     </div>
   }
 
+  export function isDigit(txt:string){
+    return /^[0-9]+$/.test(txt)
+  }
+
   export function isMemID(txt:string){
-    return /^[0-9]+$/.test(txt) && !isEmlValid(txt)
+    return isDigit(txt) && !isEmlValid(txt)
   }
 
   export function saveWhoType(admin:boolean){
@@ -737,6 +741,6 @@ export function fixedString(s:string, numDig:number){
 
   export const adsi_recaptcha_key = 'SOME KEY HERE'
 
-  export const paystackBtnId = 'paystackbtn'
+  export const paystackPK = 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4'
 
   export const pricePerShare = 10

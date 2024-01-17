@@ -8,7 +8,7 @@ import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCo
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
-import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
+import { getMemId, makeRequest } from "../../helper/requesthandler";
 import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../classes/models";
 import { format } from "date-fns";
 import { mLoc } from "monagree-locs/dist/classes";

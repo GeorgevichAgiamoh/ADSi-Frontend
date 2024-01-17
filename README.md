@@ -17,11 +17,13 @@ Working on last figma page (3/3)
 
 > Roadmap adjusted to meet new timeline demands
 
+NEW: All done except messaging 
+
 ### UI
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Register      | Member Payment|
+| Register      | Messaging     |
 | Payment       |               |
 | Login1        |               |
 | Login2        |               |
@@ -40,17 +42,19 @@ Working on last figma page (3/3)
 | All settings  |               |
 | Admin UI Done |               |
 | Member Dash   |               |
+| Member Payment|               |
 | Member Profile|               |
+|               |               |
 
 ### Code (actions)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
 | Admin Dash    | Messaging     |
-| Admin Dir     | Member pays 2 |
+| Admin Dir     |               |
 | Admin pays    |               |
 | Admin setns   |               |
-| Member pays 1 |               |
+| Member pays   |               |
 |               |               |
 |               |               |
 |               |               |

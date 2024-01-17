@@ -1,102 +1,103 @@
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, MonetizationOnOutlined, PrintOutlined } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont } from "../../../../helper/general"
 import { indivEle, payInfo, payTypeEle } from "../../../classes/classes"
 import Barcode from "react-barcode"
+import { payRecordEle } from "../../../classes/models"
+import { resHandler } from "../../../../helper/requesthandler"
+import { CircularProgress } from "@mui/material"
+import Toast from "../../../toast/toast"
+import { useLocation, useNavigate } from "react-router-dom"
 
 
 
-export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
+export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],investments:payRecordEle[], backy:()=>void}){
+    const location = useLocation()
+    const navigate = useNavigate()
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
-    const[showPaid, setShowPaid] = useState(true)
-    const[cpay, setCPay] = useState<payInfo>()
+    const[showDues, setShowDues] = useState(true)
+    const[cpay, setCPay] = useState<payRecordEle>()
     const[showReminder, setShowReminder] = useState(false)
     const[showReceipt, setShowReceipt] = useState(false)
     const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
-    const pays = [
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,0,'21/05/2021'),
-        new payInfo('Marie Yuwa',120000,'00000001',12,1,'21/05/2021'),
-        
-    ]
 
     useEffect(()=>{
-        setTitle(`Payments - ${appName}`)
+        setTitle(`Payment List - ${appName}`)
+        setShowDues(mainprop.isDues)
     },[])
 
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/login?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
 
     return <div style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <div id="clk" className="hlc" onClick={()=>{
             mainprop.backy()
         }}>
@@ -162,20 +163,24 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Paid" round onClick={()=>{
-                    setShowPaid(true)
-                }} transparent={!showPaid} />
+                <Btn txt="Dues" round onClick={()=>{
+                    setShowDues(true)
+                }} transparent={!showDues} />
             </div>
             <Mgin right={10} />
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Outstanding" round onClick={()=>{
-                    setShowPaid(false)
-                }} transparent={showPaid}/>
+                <Btn txt="Investments" round onClick={()=>{
+                    setShowDues(false)
+                }} transparent={showDues}/>
             </div>
         </div>}
         right={<div className="flexi">
+            <IconBtn icon={PrintOutlined} mye={mye} text="Print" ocl={()=>{
+
+            }} width={100} />
+            <Mgin right={10} />
             <IconBtn icon={CloudDownloadOutlined} mye={mye} text="Download CSV" ocl={()=>{
 
             }} width={140} />
@@ -192,12 +197,12 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
             <div className="hlc" style={{
                 alignSelf:'flex-start'
             }}>
-                <SavingsOutlined style={{
+                <MonetizationOnOutlined style={{
                     color:mye.mycol.secondarycol,
                     fontSize:20
                 }} />
                 <Mgin right={10}/>
-                <mye.HTv text={showPaid?'Paid':'Outstanding'} size={16} color={mye.mycol.secondarycol} />
+                <mye.HTv text={`${showDues?'Dues':'Investments'} History`} size={16} color={mye.mycol.secondarycol} />
             </div>
             <Mgin top={20} />
             <div className="hlc" style={{
@@ -205,55 +210,47 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 overflowX:'scroll'
             }}>
                 {
-                    showPaid?<div style={{
-                        width:dimen.dsk2?'100%':undefined
+                    showDues?<div style={{
+                        width:dimen.dsk2?'100%':undefined,
+                        paddingBottom:optToShow!=-1?150:0,
                     }}>
                         <div className="hlc">
                             <MyCell text="S/N"  isBold/>
-                            <MyCell text="Name"  isBold/>
+                            <MyCell text="Year"  isBold/>
                             <MyCell text="Amount"  isBold/>
-                            <MyCell text="Identity No."  isBold/>
-                            <MyCell text="Interval"  isBold/>
-                            <MyCell text="Type"  isBold/>
                             <MyCell text="Date"  isBold/>
                             <MyCell text="Action"  isBold/>
                         </div>
                         {
-                            pays.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
+                            mainprop.dues.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
                                 return <div className="hlc" key={myKey+index+showingIndex*20}>
                                     <MyCell text={(index+1+showingIndex*20).toString()} />
-                                    <MyCell text={ele.name} />
-                                    <MyCell text={`N${ele.amt}`} />
-                                    <MyCell text={ele.memId} />
-                                    <MyCell text={ele.getinterval()} />
-                                    <MyCell text={ele.getType()} tCol={ele.getColor(mye)} />
-                                    <MyCell text={ele.date} />
+                                    <MyCell text={ele.getYear()} />
+                                    <MyCell text={`N${ele.getAmt()}`} />
+                                    <MyCell text={ele.getDate()} />
                                     <Opts index={index} pay={ele} />
                                 </div>
                             })
                         }
                     </div>:<div style={{
-                    width:dimen.dsk2?'100%':undefined
+                    width:dimen.dsk2?'100%':undefined,
+                    paddingBottom:optToShow!=-1?150:0,
                 }}>
                     <div className="hlc">
                         <MyCell text="S/N"  isBold/>
-                        <MyCell text="Name"  isBold/>
+                        <MyCell text="Shares"  isBold/>
                         <MyCell text="Amount"  isBold/>
-                        <MyCell text="Identity No."  isBold/>
-                        <MyCell text="Due Date"  isBold/>
+                        <MyCell text="Date"  isBold/>
                         <MyCell text="Action"  isBold/>
                     </div>
                     {
-                        pays.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
+                        mainprop.investments.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
                             return <div className="hlc" key={myKey+index+showingIndex*20}>
                                 <MyCell text={(index+1+showingIndex*20).toString()} />
-                                <MyCell text={ele.name} />
-                                <MyCell text={`-N${ele.amt}`} tCol={mye.mycol.red}/>
-                                <MyCell text={ele.memId} />
-                                <MyCell text={ele.date} />
-                                <MyCell text={'Send Reminder'} tCol={mye.mycol.primarycol} ocl={()=>{
-                                    setShowReminder(true)
-                                }}/>
+                                <MyCell text={ele.getShares()} />
+                                <MyCell text={`N${ele.getAmt()}`} />
+                                <MyCell text={ele.getDate()} />
+                                <Opts index={index} pay={ele} />
                             </div>
                         })
                     }
@@ -269,7 +266,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor(pays.length/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((showDues?mainprop.dues:mainprop.investments).length/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
@@ -284,7 +281,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor(pays.length/20)
+                    const len = Math.floor((showDues?mainprop.dues:mainprop.investments).length/20)
                     console.log(len)
                     console.log(showingIndex)
                     if(showingIndex < len){
@@ -323,69 +320,71 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         </div>
     </div>
 
-function PayReciept(prop:{ele:payInfo}) {
-    return <div className="vlc" style={{
-        width:'100%',
-        height:'100%',
-        backgroundColor:mye.mycol.bkg,
-        borderRadius:10,
-        padding:20
-    }}>
-        <div id="clk" style={{
-                alignSelf:'flex-end'
-            }} onClick={()=>{
-                setShowReceipt(false)
-            }}>
-                <Close className="icon" />
-            </div>
-            <div className="ctr" style={{
-                flex:1
-            }}>
-                <div className="vlc" id="lshdw" style={{
-                    width:200,
-                    padding:10,
-                    borderRadius:10,
+    function PayReciept(prop:{ele:payRecordEle}) {
+        return <div className="vlc" style={{
+            width:'100%',
+            height:'100%',
+            backgroundColor:mye.mycol.bkg,
+            borderRadius:10,
+            padding:20
+        }}>
+            <div id="clk" style={{
+                    alignSelf:'flex-end'
+                }} onClick={()=>{
+                    setShowReceipt(false)
                 }}>
-                    <mye.Tv text="PAYMENT RECEIPT" size={12} color={mye.mycol.primarycol} />
-                    <Mgin top={10} />
-                    <Line broken/>
-                    <Mgin top={15} />
-                    <LrText
-                    left={<mye.Tv text="Date/Time:" size={12} />}
-                    right={<mye.Tv text={prop.ele.date} size={12} />}
-                    />
-                    <Mgin top={5} />
-                    <LrText
-                    left={<mye.Tv text="Type:" size={12} />}
-                    right={<mye.Tv text={prop.ele.getType()} size={12} />}
-                    />
-                    <Mgin top={5} />
-                    <LrText
-                    left={<mye.Tv text="Receipt Id:" size={12} />}
-                    right={<mye.Tv text={'Some ID..'} size={12} />}
-                    />
-                    <Mgin top={5} />
-                    <Line broken/>
-                    <Mgin top={5} />
-                    <LrText
-                    left={<mye.Tv text="Amount" size={12} />}
-                    right={<mye.Tv text={`NGN ${prop.ele.amt}`} size={12} />}
-                    />
-                    <Mgin top={5} />
-                    <Line broken/>
-                    <Mgin top={5} />
-                    <LrText
-                    left={<mye.Tv text="Visa Debit" size={12} />}
-                    right={<mye.Tv text={`426152****52424`} size={12} />}
-                    />
-                    <Mgin top={10} />
-                    <mye.HTv text="Transaction Approved" size={12} />
-                    <Mgin top={20} />
-                    <Barcode value="123456789" height={30} displayValue={false} />
+                    <Close className="icon" />
+                </div>
+                <div className="ctr" style={{
+                    flex:1
+                }}>
+                    <div className="vlc" id="lshdw" style={{
+                        width:265,
+                        padding:20,
+                        boxSizing:'border-box',
+                        borderRadius:10,
+                    }}>
+                        <mye.Tv text="PAYMENT RECEIPT" size={12} color={mye.mycol.primarycol} />
+                        <Mgin top={15} />
+                        <Line broken/>
+                        <Mgin top={20} />
+                        <LrText
+                        left={<mye.Tv text="Date/Time:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getDate()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Type:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getType()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Receipt Id:" size={12} />}
+                        right={<mye.Tv text={prop.ele.getReceiptId()} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <Line broken/>
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Amount" size={12} />}
+                        right={<mye.Tv text={`NGN ${prop.ele.getAmt()}`} size={12} />}
+                        />
+                        <Mgin top={7} />
+                        <Line broken/>
+                        <Mgin top={7} />
+                        <LrText
+                        left={<mye.Tv text="Visa Debit" size={12} />}
+                        right={<mye.Tv text={`**** **** **** ****`} size={12} />}
+                        />
+                        <Mgin top={20} />
+                        <mye.HTv text="Transaction Approved" size={12} />
+                        <Mgin top={20} />
+                        <Barcode value={prop.ele.getReceiptId()} height={30} displayValue={false} />
+                        <Mgin top={10} />
+                    </div>
                 </div>
             </div>
-    </div>
-}
+    }
 
     function SendReminder(prop:{}) {
         return <div className="vlc" style={{
@@ -431,9 +430,10 @@ function PayReciept(prop:{ele:payInfo}) {
         }
     }
 
-    function Opts(prop:{index:number,pay:payInfo}) {
+    function Opts(prop:{index:number,pay:payRecordEle}) {
         return <div className="ctr" style={{
-            width:100,
+            flex:(dimen.dsk2)?1:undefined,
+            width:(dimen.dsk2)?undefined:100,
             height:40,
             position:'relative'
         }}>

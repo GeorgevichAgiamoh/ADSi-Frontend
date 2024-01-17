@@ -1,42 +1,116 @@
 import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail, PieChart } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import useWindowDimensions from "../../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn, Btn } from "../../../helper/general";
-import { annEle } from "../../classes/classes";
-import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
-import { useNavigate } from "react-router-dom";
+import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn, Btn, ErrorCont } from "../../../helper/general";
+import { annEle, memberBasicinfo, memberGeneralinfo } from "../../classes/models";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
+import Toast from "../../toast/toast";
+import { makeRequest, resHandler } from "../../../helper/requesthandler";
 
 
 
 
 
 export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo}){
+    const location = useLocation()
     const navigate = useNavigate()
     const mye = new myEles(false);
     const myKey = Date.now()
     const dimen = useWindowDimensions();
-    const[showNewAnn, setShowNewAnn] = useState(false)
-    const anns = [
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-        new annEle("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit temporibus tempore vero quo nemo? Provident aperiam tenetur ut illo laborum. Suscipit sint beatae ad modi eveniet cumque cum. Nostrum, asperiores?",
-        "28/02/21"),
-    ]
+    const[anns,setAnns] = useState<annEle[]>([])
+
 
     useEffect(()=>{
-        setTitle(`Admin Dashboard - ${appName}`)
-
+        setTitle(`Member Dashboard - ${appName}`)
+        getAnns()
     },[])
+
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/login?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
+    function getAnns(){
+        setError(false)
+        setLoad(true)
+        makeRequest.get('getAnnouncements',{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const tem:annEle[] = []
+                for(const key in task.getData()){
+                    tem.push(new annEle(task.getData()[key]))
+                }
+                setAnns(tem)
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
+
 
     return <div style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            getAnns()
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <Mgin top={20} />
         <LrText 
         left={<div>
@@ -137,38 +211,38 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
         </div>
     </div>
 
-    function AnnLay(prop:{ele:annEle}) {
-        return <div style={{
+function AnnLay(prop:{ele:annEle}) {
+    return <div style={{
+        width:'100%',
+        boxSizing:'border-box',
+        padding:10
+    }}>
+        <div style={{
             width:'100%',
-            boxSizing:'border-box',
-            padding:10
+            display:'flex',
+            alignItems:'center'
         }}>
             <div style={{
-                width:'100%',
-                display:'flex',
-                alignItems:'center'
+                flex:2,
+                boxSizing:'border-box',
+                paddingRight:dimen.dsk2?100:dimen.dsk?50:20
             }}>
-                <div style={{
-                    flex:1,
-                    boxSizing:'border-box',
-                    paddingRight:20
-                }}>
-                    <mye.Tv text={prop.ele.getMessage()} color={mye.mycol.imghint} maxLines={2} size={12} />
-                </div>
-                <div style={{
-                    flex:1,
-                }}>
-                    <LrText 
-                    left={<mye.Tv text={prop.ele.getDate()} size={12} color={mye.mycol.primarycol} />}
-                    right={<mye.Tv text={'View'} size={12} color={mye.mycol.primarycol} onClick={()=>{
-
-                    }} />}
-                    />
-                </div>
+                <mye.Tv text={prop.ele.getMsg()} color={mye.mycol.imghint} maxLines={2} size={12} />
             </div>
-            <Mgin top={10} />
-            <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+            <div style={{
+                flex:1,
+            }}>
+                <LrText 
+                left={<mye.Tv text={prop.ele.getTime()} size={12} color={mye.mycol.primarycol} />}
+                right={<mye.Tv text={'View'} size={12} color={mye.mycol.primarycol} onClick={()=>{
+
+                }} />}
+                />
+            </div>
         </div>
-    }
+        <Mgin top={10} />
+        <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+    </div>
+}
 
 }

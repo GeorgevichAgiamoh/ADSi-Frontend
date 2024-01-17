@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios"
+import { formatMemId } from "./general";
 
 
 
@@ -79,5 +80,6 @@ export class resHandler{
   }
 
   export function getMemId(){
-    return localStorage.getItem('mid') ?? ''
+    let memid =  localStorage.getItem('mid') ?? ''
+    return memid!=''?formatMemId(memid):memid
   }

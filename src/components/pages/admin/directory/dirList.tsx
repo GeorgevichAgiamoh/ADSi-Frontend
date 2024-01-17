@@ -331,7 +331,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
             }else{
                 makeRequest.get(`getMemberFinancialInfo/${prop.user.getMemberID()}`,{},(task)=>{
                     if(task.isSuccessful()){
-                        prop.user.setFinData(new memberFinancialinfo(task.getData()))
+                        prop.user.setFinData(new memberFinancialinfo(task.getData()))//Will suffice, even if it doesnt exist
                         mainprop.actiony(action,prop.user)
                     }else{
                         handleError(task)

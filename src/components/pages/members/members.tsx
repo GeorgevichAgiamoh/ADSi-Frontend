@@ -7,12 +7,13 @@ import dp from "../../../assets/dp.png"
 import { annEle } from "../../classes/classes";
 import { MemberDashboard } from "./dashbrd";
 import { AdminMessaging } from "./messages/messages";
-import { AdminPayments } from "./payments/payments";
+import { MemberPayments } from "./payments/payments";
 import { getMemId, makeRequest } from "../../../helper/requesthandler";
 import { useNavigate } from "react-router-dom";
 import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
+import { MyProfile } from "./myprofile";
 
 
 export function Members(){
@@ -47,10 +48,10 @@ export function Members(){
         makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData())
-                if(!mbi.isPaid()){
+                /*if(!mbi.isPaid()){
                     navigate('/payregfee')
                     return;
-                }
+                }*/
                 setMBI(mbi)
             }else{
                 setError(true)
@@ -190,7 +191,7 @@ export function Members(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {mbi?tabPos===0?<MemberDashboard mbi={mbi!} mgi={mgi}/>:LoadLay():LoadLay()}
+                    {mbi?tabPos===0?<MemberDashboard mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==3?<MyProfile mbi={mbi} mgi={mgi} />:LoadLay():LoadLay()}
                 </div>
             </div>
         </div>
