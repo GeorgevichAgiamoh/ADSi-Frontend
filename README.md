@@ -46,8 +46,13 @@ Working on last figma page (3/3)
 
 | Done          | Upcoming      |
 | ------------- | ------------- |
-| Admin Dash    | Admin Payments|
-| Admin Dir     |               |
+| Admin Dash    | Messaging     |
+| Admin Dir     | Member pays 2 |
+| Admin pays    |               |
+| Admin setns   |               |
+| Member pays 1 |               |
+|               |               |
+|               |               |
 |               |               |
 |               |               |
 
@@ -55,7 +60,7 @@ Working on last figma page (3/3)
 
 ## Data Structure
 
-> (,,) means implied. All time are in milliseconds since Epoch
+> (,,) means implied. All time are in milliseconds since Epoch. (?) means optional
 
 
 
@@ -168,3 +173,67 @@ pay Ids: (Table = pays(ID). Eg pays0, pays1)
 0 - One time reg fee 
 1 - Annual Due
 2 - Investment
+
+
+
+
+### Payment Record (PayRecordEle)
+
+```json
+{
+  "memid": "(,,)",
+  "ref": "(See format above)",
+  "name": "(,,)",
+  "time": "(,,)",
+  "year": "(? ,,)",
+  "shares": "(? ,,)",
+}
+```
+
+
+
+
+
+### ADSI Info (adsiInfoEle)
+
+```json
+{
+  "memid":"(,,)",
+  "cname":"(,,)",
+  "regno": "(,,)",
+  "addr": "(,,)",
+  "nationality":"(,,)",
+  "state": "(,,)",
+  "lga": "(,,)",
+  "aname":"(,,)",
+  "anum": "(,,)",
+  "bnk": "(,,)",
+  "pname":"(,,)",
+  "peml": "(,,)",
+  "pphn": "(,,)",
+  "paddr":"(,,)",
+}
+```
+
+
+
+
+
+
+### Admin User (adminUserEle)
+
+```json
+{
+  "memid":"(,,)",
+  "lname":"(,,)",
+  "oname": "(,,)",
+  "eml": "(,,)",
+  "role":"(,,)",
+  "pd1": "(,,)",
+  "pd2": "(,,)",
+  "pp1":"(,,)",
+  "pp2": "(,,)",
+  "pm1": "(,,)",
+  "pm2":"(,,)",
+}
+```

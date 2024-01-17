@@ -2,16 +2,21 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
 import { format } from "date-fns"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
+import { makeRequest, resHandler } from "../../../../helper/requesthandler"
+import { useLocation, useNavigate } from "react-router-dom"
+import { memberBasicinfo } from "../../../classes/models"
 
 
 
 export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEle)=>void}){
     const dimen = useWindowDimensions()
+    const navigate = useNavigate()
+    const location = useLocation()
     const mye = new myEles(false)
     const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
@@ -26,62 +31,12 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         setTitle(`Payment Types - ${appName}`)
     },[])
 
-    const[load, setLoad]=useState(false)
-    const[loadMsg, setLoadMsg]=useState('Just a sec')
-    const[error, setError]=useState(false)
-    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
-    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
-    function toast(msg:string, action:number,delay?:number){
-      var _delay = delay || 5000
-      setToastMeta({
-          action: action,
-          msg: msg,
-          visible:true,
-          invoked: Date.now()
-      })
-      clearTimeout(timy.timer)
-      setTimy({
-          timer:setTimeout(()=>{
-              if(Date.now()-toastMeta.invoked > 4000){
-                  setToastMeta({
-                      action:2,
-                      msg:"",
-                      visible:false,
-                      invoked: 0
-                  })
-              }
-          },_delay)
-      });
-    }
 
     return <div className="vlc" style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
-        <ErrorCont isNgt={false} visible={error} retry={()=>{
-            setError(false)
-            
-        }}/>
-        <div className="prgcont" style={{display:load?"flex":"none"}}>
-            <div className="hlc" style={{
-                backgroundColor:mye.mycol.bkg,
-                borderRadius:10,
-                padding:20,
-            }}>
-                <CircularProgress style={{color:mye.mycol.primarycol}}/>
-                <Mgin right={20} />
-                <mye.Tv text={loadMsg} />
-            </div>
-        </div>
-        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
-                setToastMeta({
-                    action:2,
-                    msg:"",
-                    visible:false,
-                    invoked:0,
-                })
-            }} />
         <div style={{
             alignSelf:'flex-end'
         }}>
@@ -168,6 +123,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
     </div>
 
     function AddPay(prop:{closy:()=>void}) {
+        const dimen = useWindowDimensions()
         const myKey = Date.now()
         const[ptype,setPType] = useState('0')
         const[memid,setMemid] = useState('')
@@ -182,12 +138,50 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         useEffect(()=>{
             const cy = new Date().getFullYear()
             const tem:string[] = []
-            for(let i = cy; i < cy-20; i++){
+            for(let i = cy; i > cy-20; i--){
                 tem.push(i.toString())
             }
             setYears(tem)
         },[])
+
+        function handleError(task:resHandler){
+            setLoad(false)
+            setError(true)
+            if(task.isLoggedOut()){
+                navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+            }else{
+                toast(task.getErrorMsg(),0)
+            }
+        }
         
+
+        const[load, setLoad]=useState(false)
+        const[loadMsg, setLoadMsg]=useState('Just a sec')
+        const[error, setError]=useState(false)
+        const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+        const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+        function toast(msg:string, action:number,delay?:number){
+        var _delay = delay || 5000
+        setToastMeta({
+            action: action,
+            msg: msg,
+            visible:true,
+            invoked: Date.now()
+        })
+        clearTimeout(timy.timer)
+        setTimy({
+            timer:setTimeout(()=>{
+                if(Date.now()-toastMeta.invoked > 4000){
+                    setToastMeta({
+                        action:2,
+                        msg:"",
+                        visible:false,
+                        invoked: 0
+                    })
+                }
+            },_delay)
+        });
+        }
 
         return <div style={{
             backgroundColor:mye.mycol.bkg,
@@ -198,6 +192,29 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             height:'75%',
             width:dimen.dsk2?'35%':'50%'
         }}>
+            <ErrorCont isNgt={false} visible={error} retry={()=>{
+                setError(false)
+                
+            }}/>
+            <div className="prgcont" style={{display:load?"flex":"none"}}>
+                <div className="hlc" style={{
+                    backgroundColor:mye.mycol.bkg,
+                    borderRadius:10,
+                    padding:20,
+                }}>
+                    <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                    <Mgin right={20} />
+                    <mye.Tv text={loadMsg} />
+                </div>
+            </div>
+            <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                    setToastMeta({
+                        action:2,
+                        msg:"",
+                        visible:false,
+                        invoked:0,
+                    })
+                }} />
             <div className="vlc" style={{
                 width:'100%',
             }}>
@@ -225,9 +242,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             }}>
                 <mye.Tv text="*Member ID" />
                 <Mgin top={3}/>
-                <EditTextFilled hint="00000001" min={1} value={memid} finise={(v)=>[
+                <EditTextFilled hint="00000001" min={1} value={memid} digi recv={(v)=>{
                     setMemid(v.trim())
-                ]} />
+                }} />
             </div>
             <Mgin top={20} />
             <mye.Tv text="*Date Paid" />
@@ -260,7 +277,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                     zIndex:2,
                     pointerEvents:'auto'
                 }}>
-                    <DatePicky rdy={(d)=>{
+                    <DatePicky fromYear={new Date().getFullYear()-20} toYear={new Date().getFullYear()} focusYear={new Date().getFullYear()-1} rdy={(d)=>{
                         setAskDpd(false)
                         setDpd(d)
                     }} closy={()=>{
@@ -278,9 +295,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                 }}>
                     <mye.Tv text="Shares" />
                     <Mgin top={3}/>
-                    <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} finise={(v)=>[
+                    <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} recv={(v)=>{
                         setShares(v.trim())
-                    ]} />
+                    }} />
                 </div>
             </div>
             <div style={{
@@ -299,7 +316,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                         <option value="">Choose Year</option>
                         {
                             years.map((yr,index)=>{
-                                return <option key={myKey+index} value={yr}>{yr}</option>
+                                return <option key={myKey+index+1} value={yr}>{yr}</option>
                             })
                         }
                     </select>
@@ -320,7 +337,55 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             />
             <Mgin top={20} />
             <Btn txt="ADD PAYMENT" onClick={()=>{
-
+                if(memid.length==0){
+                    toast('Please add member ID',0)
+                    return;
+                }
+                if(!dpd){
+                    toast('Please add date paid',0)
+                    return;
+                }
+                if(ptype=='1' && year.length==0){
+                    toast('Please set year being paid for',0)
+                    return;
+                }
+                if(ptype=='2' && shares.length<4){
+                    toast('Please set no. of shares',0)
+                    return;
+                }
+                if(ptype=='2' &&parseFloat(shares)<1000){
+                    toast('Min shares is 1000',0)
+                    return;
+                }
+                setLoad(true)
+                let amt = ptype=='0'?'5000':ptype=='1'?'12000':(parseInt(shares)*pricePerShare).toString()
+                makeRequest.get(`getMemberBasicInfo/${memid}`,{},(task)=>{
+                    if(task.isSuccessful()){
+                        const mbi = new memberBasicinfo(task.getData())
+                        const pld:{[key:string]:string} = {
+                            ref: getPayRef(ptype,amt,mbi.getMemberID()),
+                            name: mbi.getFullName(),
+                            time: dpd.getTime().toString()
+                        }
+                        if(ptype=='1'){
+                            pld['year'] = year
+                        }
+                        if(ptype=='2'){
+                            pld['shares'] = shares
+                        }
+                        makeRequest.post('uploadPayment',pld,(task)=>{
+                            if(task.isSuccessful()){
+                                setLoad(false)
+                                toast('Payment Uploaded',1)
+                                setNewPay(false)
+                            }else{
+                                handleError(task)
+                            }
+                        })
+                    }else{
+                        handleError(task)
+                    }
+                })
             }} />
         </div>
     }
@@ -332,7 +397,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             height:40,
         }}>
             <Btn txt="View" bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} smallie width={100} onClick={()=>{
-
+                mainprop.actiony(1,prop.payType)
             }} />
         </div>
     }

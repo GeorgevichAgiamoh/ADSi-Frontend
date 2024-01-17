@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useWindowDimensions from "../../../helper/dimension";
 import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../helper/general";
 import { AdminNav } from "../nav";
-import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
+import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import dp from "../../../assets/dp.png"
 import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
@@ -10,19 +10,21 @@ import { AdminDirectory } from "./directory/directory";
 import { AdminMessaging } from "./messages/messages";
 import { AdminPayments } from "./payments/payments";
 import { AdminSettings } from "./settings/settings";
-import { makeRequest } from "../../../helper/requesthandler";
-import { useNavigate } from "react-router-dom";
+import { getMemId, makeRequest, resHandler } from "../../../helper/requesthandler";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
-import { highlightEle } from "../../classes/models";
+import { adminUserEle, highlightEle } from "../../classes/models";
 
 
 export function Admin(){
     const navigate = useNavigate()
+    const location = useLocation()
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
     const[showNav, setShowNav] = useState(false)
     const[tabPos, setTabPos] = useState(0)
+    const[me, setMe] = useState<adminUserEle>()
     const tabs = [
         'Overview',
         'Directory',
@@ -43,10 +45,33 @@ export function Admin(){
         })
     },[])
 
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
     
     function getStuffs(){
-        
-        
+        setLoad(true)
+        setError(false)
+        makeRequest.get(`getAdmin/${getMemId()}`,{},(task)=>{
+            if(task.isSuccessful()){
+                setLoad(false)
+                if(task.exists()){
+                    setMe(new adminUserEle(task.getData()))
+                }else{
+                    setError(true)
+                    toast('Acct not found',0)
+                }
+            }else{
+                handleError(task)
+            }
+        })
     }
 
 
@@ -76,6 +101,14 @@ export function Admin(){
               }
           },_delay)
       });
+    }
+
+    function isPermGranted(index:number){
+        if(me){
+            const prefix = index==1?'pd':index==2?'pp':'pm'
+            return me.getPerm(prefix+'1')=='1' || me.getPerm(prefix+'2')=='1'
+        }
+        return true
     }
 
     return <div style={{
@@ -116,7 +149,7 @@ export function Admin(){
                 display: dimen.dsk?undefined:'none'
             }}>
                 <AdminNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
-                    if(pos==4){
+                    if(pos==(tabs.length-1)){
                         makeRequest.get('logout',{},(task)=>{
                             navigate('/adminlogin')
                         })
@@ -172,7 +205,10 @@ export function Admin(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {tabPos===0?<AdminDashboard />:tabPos===1?<AdminDirectory />:tabPos===2?<AdminPayments />:tabPos===3?<AdminMessaging />:tabPos===4?<AdminSettings />:<LoadLay />}
+                    {tabPos===0?((me && me.getRole()=='0')?<AdminDashboard />:<NotAllowed />):tabPos===1?(isPermGranted(1)?<AdminDirectory />:<NotAllowed/>)
+                    :tabPos===2?(isPermGranted(2)?<AdminPayments />:<NotAllowed />)
+                    :tabPos===3?(isPermGranted(3)?<AdminMessaging />:<NotAllowed />)
+                    :tabPos===4?((me && me.getRole()=='0')?<AdminSettings />:<NotAllowed />):<LoadLay />}
                 </div>
             </div>
         </div>
@@ -185,7 +221,7 @@ export function Admin(){
             display: (!dimen.dsk && showNav) ? undefined:'none'
         }}>
             <AdminNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
-                if(pos==4){
+                if(pos==(tabs.length-1)){
                     makeRequest.get('logout',{},(task)=>{
                         navigate('/adminlogin')
                     })
@@ -197,5 +233,23 @@ export function Admin(){
             }}  />
         </div>
     </div>
+
+    function NotAllowed() {
+        return <div className="ctr" style={{
+            width:'100%',
+            height:'100%'
+        }}>
+            <div className="vlc">
+                <LockOutlined style={{
+                    fontSize:30,
+                    color:mye.mycol.primarycol
+                }} />
+                <Mgin top={20} />
+                <mye.HTv text="Access Denied" />
+                <Mgin top={10} />
+                <mye.Tv text="The admin did not grant you access to this page" />
+            </div>
+        </div>
+    }
 
 }

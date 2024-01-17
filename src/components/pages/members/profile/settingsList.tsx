@@ -1,10 +1,11 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, UploadOutlined, AccountBalance, PeopleOutline } from "@mui/icons-material"
 import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, banks_and_codes } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB } from "../../../../helper/general"
 import { adminUserEle, indivEle } from "../../../classes/classes"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
+import { mBanks } from "monagree-banks"
 
 
 
@@ -155,9 +156,9 @@ export function SettingsList(){
                                     ref={fileInputRef}
                                     style={{ display: 'none' }}
                                 />
-                                <IconBtn icon={UploadOutlined} mye={mye} text="Upload" ocl={()=>[
+                                <IconBtn icon={UploadOutlined} mye={mye} text="Upload" ocl={()=>{
                                     fileInputRef.current?.click()
-                                ]} />
+                                }} />
                             </div>}
                         />
                     </div>
@@ -272,8 +273,8 @@ export function SettingsList(){
                     }}>
                         <option value="">Click to Choose</option>
                         {
-                            Object.keys(banks_and_codes).map((code,index)=>{
-                                return <option key={myKey+0.05+index} value={code}>{banks_and_codes[code]}</option>
+                            mBanks.getAllBanks().map((ele,index)=>{
+                                return <option key={myKey+0.05+index} value={ele.code}>{ele.name}</option>
                             })
                         }
                     </select>

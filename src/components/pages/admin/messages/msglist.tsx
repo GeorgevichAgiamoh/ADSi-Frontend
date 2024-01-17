@@ -271,7 +271,8 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
 
     function Opts(prop:{index:number,msg:msgMeta}) {
         return <div className="ctr" style={{
-            width:100,
+            flex:(dimen.dsk2 )?1:undefined,
+            width:(dimen.dsk2)?undefined:100,
             height:40,
             position:'relative'
         }}>

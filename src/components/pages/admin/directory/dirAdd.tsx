@@ -6,6 +6,7 @@ import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
 import { defVal, memberGeneralinfo } from "../../../classes/models"
+import { mBanks } from "monagree-banks"
 
 
 export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user?:memberGeneralinfo}){
@@ -44,7 +45,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user?:memberGe
             setAddr(mainprop.user.getAddr())
             setAcctname(mainprop.user.finData!.getAccountName())
             setAcctNum(mainprop.user.finData!.getAccountNumber())
-            setBank(mainprop.user.finData!.getFormattedbank())
+            setBank(mainprop.user.finData!.getBankCode())
 
             setGender(mainprop.user.getGender())
             setCountry(mCountry.getCountryByCode(mainprop.user.getCountry()))
@@ -315,9 +316,16 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user?:memberGe
                 }}>
                     <mye.Tv text="Bank" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="00" min={6} value={bank} recv={(v)=>{
-                        setAcctname(v)
-                    }} />
+                    <select id="dropdown" name="dropdown" value={bank} onChange={(e)=>{
+                        setBank(e.target.value)
+                    }}>
+                        <option value="">Click to Choose</option>
+                        {
+                            mBanks.getAllBanks(true).map((ele,index)=>{
+                                return <option key={myKey+0.015+index} value={ele.code}>{ele.name}</option>
+                            })
+                        }
+                    </select>
                 </div>
             </div>
             <Mgin top={50}/>

@@ -411,6 +411,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                 <mye.Tv text="Email or ADSI Number" />
                 <Mgin top={5} />
                 <EditTextFilled hint="Enter Email or ADSI Number" value={eml} noSpace min={1} recv={(v)=>{
+                    console.log('..LOGIN.')
                     setEml(v.trim())
                 }} />
             </div>
@@ -422,52 +423,13 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                 <Mgin top={5} />
                 <EditTextFilled hint="********" value={pwd} pwd min={6} recv={(v)=>{
                     setPwd(v.trim())
-                }} />
+                }} finise={()=>{
+                    do_login()
+                }}/>
             </div>
             <Mgin top={20} />
             <Btn txt="LOGIN" onClick={()=>{
-                console.log(eml.length)
-                if(eml.length<8 || pwd.length < 6){
-                    toast('Invalid Email/ID or password',0)
-                    return;
-                }
-                if(!isMemID(eml) && !isEmlValid(eml)){
-                    toast('Invalid Email/ID',0)
-                    return;
-                }
-                let memId = '', email = ''
-                if(isMemID(eml)){
-                    memId = formatMemId(eml)
-                }else{
-                    email = eml
-                }
-                setLoad(true)
-                makeRequest.post('login',{
-                    memid: memId,
-                    email: email,
-                    password: pwd,
-                },(task)=>{
-                    if(task.isSuccessful()){
-                        saveMemId(task.getData()['memid'])
-                        saveWhoType(mainprop.isAdmin??false)
-                        if(mainprop.isAdmin){
-                            makeRequest.post('authAsAdmin',{},(task)=>{
-                                setLoad(false)
-                                if(task.isSuccessful()){
-                                    navigate(`/admindash`)
-                                }else{
-                                    toast(task.getErrorMsg(),0)
-                                }
-                            },true)
-                        }else{
-                            setLoad(false)
-                            navigate(`/${rdr}`)
-                        }
-                    }else{
-                        setLoad(false)
-                        toast(task.getErrorMsg(),0)
-                    }
-                },true)
+                do_login()
             }} />
             <Mgin top={10} />
             <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
@@ -483,6 +445,51 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
         </div>
 
     </div>
+
+    function do_login() {
+        console.log(eml.length)
+        if(pwd.length < 6){
+            toast('Invalid password',0)
+            return;
+        }
+        if(!isMemID(eml) && !isEmlValid(eml)){
+            toast('Invalid Email/ID',0)
+            return;
+        }
+        let memId = '', email = ''
+        if(isMemID(eml)){
+            memId = formatMemId(eml)
+        }else{
+            email = eml
+        }
+        setLoad(true)
+        makeRequest.post('login',{
+            memid: memId,
+            email: email,
+            password: pwd,
+        },(task)=>{
+            if(task.isSuccessful()){
+                saveMemId(task.getData()['memid'])
+                saveWhoType(mainprop.isAdmin??false)
+                if(mainprop.isAdmin){
+                    makeRequest.post('authAsAdmin',{},(task)=>{
+                        setLoad(false)
+                        if(task.isSuccessful()){
+                            navigate(`/admindash`)
+                        }else{
+                            toast(task.getErrorMsg(),0)
+                        }
+                    },true)
+                }else{
+                    setLoad(false)
+                    navigate(`/${rdr}`)
+                }
+            }else{
+                setLoad(false)
+                toast(task.getErrorMsg(),0)
+            }
+        },true)
+    }
 
 }
 

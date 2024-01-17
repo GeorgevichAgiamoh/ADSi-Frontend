@@ -414,7 +414,7 @@ export function PayRegFee(){
             
                 currency: 'NGN', 
             
-                ref: getPayRef('0','5000'), 
+                ref: getPayRef('0','5000',getMemId()), 
             
                 callback: function(response:any) {
                   //var reference = response.reference;    

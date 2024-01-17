@@ -72,26 +72,6 @@ export function MyCols(isNgt?:boolean){
     return new myCols(isNgt?true:false);
 }
 //-----------
-
-export const banks_and_codes:{[key: string]: string} = {
-    "044": "Access Bank",
-    "057": "Zenith Bank",
-    "011": "First Bank of Nigeria",
-    "058": "Guaranty Trust Bank (GTBank)",
-    "033": "United Bank for Africa (UBA)",
-    "221": "Stanbic IBTC Bank",
-    "070": "Fidelity Bank",
-    "032": "Union Bank of Nigeria",
-    "214": "First City Monument Bank (FCMB)",
-    "050": "Ecobank Nigeria",
-    "232": "Sterling Bank",
-    "076": "Polaris Bank",
-    "082": "Keystone Bank",
-    "035": "Wema Bank",
-    "030": "Heritage Bank",
-    "215": "Unity Bank",
-    "301": "Jaiz Bank"
-  }
   
 
 export function Line(prop:{len?:number,col?:string,vertical?:boolean,height?:number,broken?:boolean}){
@@ -689,9 +669,8 @@ export function fixedString(s:string, numDig:number){
     </div>
   }
 
-  export function DatePicky(prop:{rdy:(day:Date)=>void,closy:()=>void}){
-    const[dob, setDob] = useState<Date>()
-    const[focusYear, setFocusYear] = useState(1990)
+  export function DatePicky(prop:{rdy:(day:Date)=>void,closy:()=>void,fromYear?:number,toYear?:number,focusYear?:number}){
+    const[focusYear, setFocusYear] = useState(prop.focusYear || 1990)
     return <div id="lshdw" className="vlc" style={{
         width:300,
         backgroundColor:new myCols(false).white,
@@ -709,7 +688,7 @@ export function fixedString(s:string, numDig:number){
             setFocusYear(focusYear-2)
         }}/>}
         right={<Btn smallie  width={80} txt="2 yrs >" onClick={()=>{
-            if(focusYear < new Date().getFullYear()-10){
+            if(focusYear < (prop.toYear || (new Date().getFullYear()-10))){
                 setFocusYear(focusYear+2)
             }
         }}/>}
@@ -717,21 +696,15 @@ export function fixedString(s:string, numDig:number){
         <Mgin top={10} />
         <DayPicker key={focusYear}
             mode="single"
-            selected={dob}
-            toYear={new Date().getFullYear()-10}
-            fromYear={1940}
+            toYear={prop.toYear || (new Date().getFullYear()-10)}
+            fromYear={prop.fromYear || 1940}
             onSelect={(d)=>{
-                setDob(d)
+                if(d){
+                    prop.rdy(d)
+                }
             }}
             defaultMonth={new Date(focusYear,1,1)}
-            footer={dob?<p>You picked {format(dob, 'PP')}.</p>:<p>Please pick a day</p>}
             />
-        <Mgin top={10} />
-        <Btn txt="SUBMIT" onClick={()=>{
-            if(dob){
-                prop.rdy(dob)
-            }
-        }} />
     </div>
   }
 
@@ -758,10 +731,12 @@ export function fixedString(s:string, numDig:number){
     }
   }
 
-  export function getPayRef(payId:string,amt:string){
-    return `adsi-${payId}-${amt}-${getMemId()}-${Date.now().toString()}`
+  export function getPayRef(payId:string,amt:string,memid:string){
+    return `adsi-${payId}-${amt}-${memid}-${Date.now().toString()}`
   }
 
   export const adsi_recaptcha_key = 'SOME KEY HERE'
 
   export const paystackBtnId = 'paystackbtn'
+
+  export const pricePerShare = 10

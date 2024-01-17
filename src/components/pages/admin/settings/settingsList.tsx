@@ -1,19 +1,26 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, UploadOutlined, AccountBalance, PeopleOutline } from "@mui/icons-material"
 import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, banks_and_codes } from "../../../../helper/general"
-import { adminUserEle, indivEle } from "../../../classes/classes"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, ErrorCont, isEmlValid, isMemID, formatMemId } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
+import { useLocation, useNavigate } from "react-router-dom"
+import { CircularProgress } from "@mui/material"
+import Toast from "../../../toast/toast"
+import { makeRequest, resHandler } from "../../../../helper/requesthandler"
+import { adminUserEle, adsiInfoEle, permHelp } from "../../../classes/models"
+import { mBanks } from "monagree-banks"
 
 
 
 export function SettingsList(){
+    const location = useLocation()
+    const navigate = useNavigate()
+    const [myKey,setMyKey] = useState(Date.now())
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[cuser, setCUser] = useState<adminUserEle>()
     const[showStage, setShowStage] = useState(0)
-    const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
     //Cooperative Info
     const[name,setName] = useState('')
@@ -31,28 +38,21 @@ export function SettingsList(){
     const[phn,setPhn] = useState('')
     const[paddr,setPAddr] = useState('')
     //Edit Staff
-    const[fname,setFname] = useState('')
+    const[oname,setOname] = useState('')
     const[lname,setLname] = useState('')
     const[eml,setEml] = useState('')
     const[sid,setSid] = useState('')
     const[role,setRole] = useState('')
-    const[perms,setPerms] = useState<string[]>([])
+    const[users, setUsers] = useState<adminUserEle[]>([])
 
-    const permies = [
-        'View Directory',
-        'Edit Directory',
-        'View Payments',
-        'Verify Payments',
-        'View Messages',
-        'Edit Messages',
-    ]
-    
-
-    const users = [
-        new adminUserEle('Chinedu Anthony','chinedu@gmail.com',0),
-        new adminUserEle('Melisa Grimmes','grimmes@gmail.com',1),
-        
-    ]
+    const[permies,setPermies] = useState([
+        new permHelp('View Directory','pd1'),
+        new permHelp('Edit Directory','pd2'),
+        new permHelp('View Payments','pp1'),
+        new permHelp('Verify Payments','pp2'),
+        new permHelp('View Messages','pm1'),
+        new permHelp('Edit Messages','pm2'),
+    ])
     
 
     const[country, setCountry] = useState<mLoc>()
@@ -61,14 +61,128 @@ export function SettingsList(){
 
     useEffect(()=>{
         setTitle(`Settings - ${appName}`)
+        begin()
     },[])
 
+    function begin(){
+        setShowStage(0)
+        setLoad(true)
+        setError(false)
+        makeRequest.get('getAsdiInfo',{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const adsi = new adsiInfoEle(task.getData())
+                setName(adsi.getName())
+                setRegNo(adsi.getRegNo())
+                setAddr(adsi.getAddr())
+                setCountry(mCountry.getCountryByCode(adsi.getNationality()))
+                setState(mState.getStateByCode(adsi.getNationality(),adsi.getState()))
+                setCity(mLga.getLgaByCode(adsi.getNationality(),adsi.getState(),adsi.getLga()))
+                setAName(adsi.getAccountName())
+                setANum(adsi.getAccountNumber())
+                setBank(adsi.getBankCode())
 
-    return <div className="vlc" style={{
+                setFullName(adsi.getPersonalName())
+                setEmail(adsi.getPersonalEmail())
+                setPhn(adsi.getPersonalPhone())
+                setPAddr(adsi.getPersonalAddr())
+                setMyKey(Date.now())
+            }else{
+                if(task.isLoggedOut()){
+                    navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+                }else{
+                    toast(task.getErrorMsg(),0)
+                }
+            }
+        });
+    }
+
+    function getUsers(){
+        setShowStage(1)
+        setLoad(true)
+        setError(false)
+        makeRequest.get('getAdmins',{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                let tem:adminUserEle[] = []
+                for(const key in task.getData()){
+                    tem.push(new adminUserEle(task.getData()[key]))
+                }
+                setUsers(tem)
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
+
+    return <div key={myKey} className="vlc" style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            begin()
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <div style={{
             width:350,
             display:'flex'
@@ -85,7 +199,7 @@ export function SettingsList(){
                 flex:1
             }}>
                 <Btn txt="Identity Management" round onClick={()=>{
-                    setShowStage(1)
+                    getUsers()
                 }} transparent={showStage==0}/>
             </div>
         </div>
@@ -155,9 +269,9 @@ export function SettingsList(){
                                     ref={fileInputRef}
                                     style={{ display: 'none' }}
                                 />
-                                <IconBtn icon={UploadOutlined} mye={mye} text="Upload" ocl={()=>[
+                                <IconBtn icon={UploadOutlined} mye={mye} text="Upload" ocl={()=>{
                                     fileInputRef.current?.click()
-                                ]} />
+                                }} />
                             </div>}
                         />
                     </div>
@@ -182,6 +296,7 @@ export function SettingsList(){
                         const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
                     }}>
+                        <option value="">Choose One</option>
                         {
                             mCountry.getAllCountries().map((ele, index)=>{
                                 return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
@@ -202,8 +317,9 @@ export function SettingsList(){
                         }
                         
                     }}>
+                        <option value="">Choose One</option>
                         {
-                            country?mState.getStatesByCountry(country!.getId()).map((ele, index)=>{
+                            country?mState.getStatesByCountry(country!.getId(),true).map((ele, index)=>{
                                 return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country First</option>
                         }
@@ -221,6 +337,7 @@ export function SettingsList(){
                             setCity(ele)
                         }
                     }}>
+                        <option value="">Choose One</option>
                         {
                             (country&& state)?mLga.getLgasByState(country!.getId(),state!.getId()).map((ele, index)=>{
                                 return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
@@ -272,8 +389,8 @@ export function SettingsList(){
                     }}>
                         <option value="">Click to Choose</option>
                         {
-                            Object.keys(banks_and_codes).map((code,index)=>{
-                                return <option key={myKey+0.05+index} value={code}>{banks_and_codes[code]}</option>
+                            mBanks.getAllBanks(true).map((ele,index)=>{
+                                return <option key={myKey+0.05+index} value={ele.code}>{ele.name}</option>
                             })
                         }
                     </select>
@@ -334,7 +451,87 @@ export function SettingsList(){
             </div>
             <Mgin top={20} />
             <Btn txt="SAVE" width={120} onClick={()=>{
-                
+                if(name.length<3){
+                    toast('Please add cooperative name',0)
+                    return;
+                }
+                if(regNo.length<3){
+                    toast('Please add reg no',0)
+                    return;
+                }
+                if(addr.length<3){
+                    toast('Please add cooperative address',0)
+                    return;
+                }
+                if(!country){
+                    toast('Please set country',0)
+                    return;
+                }
+                if(!state){
+                    toast('Please set state',0)
+                    return;
+                }
+                if(!city){
+                    toast('Please set city',0)
+                    return;
+                }
+                if(aname.length<3){
+                    toast('Please add account name',0)
+                    return;
+                }
+                if(anum.length<3){
+                    toast('Please add account number',0)
+                    return;
+                }
+                if(bank.length==0){
+                    toast('Please choose bank',0)
+                    return;
+                }
+                if(fullName.length<3){
+                    toast('Please add personal name',0)
+                    return;
+                }
+                if(email.length<3){
+                    toast('Please add personal email',0)
+                    return;
+                }
+                if(phn.length<3){
+                    toast('Please add personal phone number',0)
+                    return;
+                }
+                if(paddr.length<3){
+                    toast('Please add personal address',0)
+                    return;
+                }
+                setLoad(true)
+                makeRequest.post('setAdsiInfo',{
+                    memid:'11111111',
+                    cname:name,
+                    regno:regNo,
+                    addr: addr,
+                    nationality: country!.getId(),
+                    state: state!.getId(),
+                    lga: city!.getId(),
+                    aname: aname,
+                    anum: anum,
+                    bnk: bank,
+                    pname: fullName,
+                    peml: email,
+                    pphn: phn,
+                    paddr: paddr
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        toast('Info updated',1)
+                        begin()
+                    }else{
+                        if(task.isLoggedOut()){
+                            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+                        }else{
+                            toast(task.getErrorMsg(),0)
+                        }
+                    }
+                })
             }} />
         </div>:showStage==1?<div className="vlc" id='lshdw' style={{
             width:'100%',
@@ -359,7 +556,8 @@ export function SettingsList(){
                 overflowX:'scroll'
             }}>
                 <div style={{
-                    width:dimen.dsk2?'100%':undefined
+                    width:dimen.dsk2?'100%':undefined,
+                    paddingBottom:optToShow!=-1?150:0,
                 }}>
                     <div className="hlc">
                         <MyCell text="S/N"  isBold/>
@@ -370,11 +568,11 @@ export function SettingsList(){
                     </div>
                     {
                         users.map((ele,index)=>{
-                            return <div className="hlc" key={myKey+index}>
+                            return <div className="hlc" key={myKey+index+0.01}>
                                 <MyCell text={(index+1).toString()} />
-                                <MyCell text={ele.name} />
-                                <MyCell text={ele.email} />
-                                <MyCell text={ele.getRole()} />
+                                <MyCell text={ele.getNames()} />
+                                <MyCell text={ele.getEmail()} />
+                                <MyCell text={ele.getFormattedRole()} />
                                 <Opts index={index} user={ele} />
                             </div>
                         })
@@ -386,7 +584,9 @@ export function SettingsList(){
                 alignSelf:'flex-end'
             }}>
                 <IconBtn icon={Add} mye={mye} text="Add Staff" ocl={()=>{
-
+                    prepPerms()
+                    setCUser(undefined)
+                    setShowStage(2)
                 }} />
             </div>
         </div>:<div id='lshdw' style={{
@@ -414,7 +614,47 @@ export function SettingsList(){
                         <mye.HTv text="Identity Management" size={16} color={mye.mycol.secondarycol} />
                     </div>}
                     right={<Btn txt="Assign" outlined width={120} onClick={()=>{
-
+                        if(lname.length<3){
+                            toast('Please enter last name',0)
+                            return;
+                        }
+                        if(oname.length<6){
+                            toast('Please enter other names',0)
+                            return;
+                        }
+                        if(!isEmlValid(eml)){
+                            toast('Please enter valid email',0)
+                            return;
+                        }
+                        if(!isMemID(sid)){
+                            toast('Please enter valid id',0)
+                            return;
+                        }
+                        if(role==''){
+                            toast('Please choose role',0)
+                            return;
+                        }
+                        setLoad(true)
+                        makeRequest.post('setAdmin',{
+                            memid:formatMemId(sid),
+                            lname:lname,
+                            oname:oname,
+                            eml:email,
+                            role:role,
+                            pd1:permies[0].val,
+                            pd2:permies[1].val,
+                            pp1:permies[2].val,
+                            pp2:permies[3].val,
+                            pm1:permies[4].val,
+                            pm2:permies[5].val,
+                        },(task)=>{
+                            setLoad(false)
+                            if(task.isSuccessful()){
+                                getUsers()
+                            }else{
+                                handleError(task)
+                            }
+                        })
                     }} />}
                 />
                 <Mgin top={20} />
@@ -432,15 +672,16 @@ export function SettingsList(){
                             <div style={{
                                 flex:1
                             }}>
-                                <EditTextFilled hint="Last Name" min={6} value={lname} recv={(v)=>{
+                                <EditTextFilled hint="Last Name" min={3} value={lname} recv={(v)=>{
                                     setLname(v)
                                 }} />
                             </div>
+                            <Mgin right={10} />
                             <div style={{
                                 flex:1
                             }}>
-                                <EditTextFilled hint="Other Names" min={6} value={fname} recv={(v)=>{
-                                    setFname(v)
+                                <EditTextFilled hint="Other Names" min={6} value={oname} recv={(v)=>{
+                                    setOname(v)
                                 }} />
                             </div>
                             
@@ -452,7 +693,7 @@ export function SettingsList(){
                     }}>
                         <mye.Tv text="Email Address" />
                         <Mgin top={5}/>
-                        <EditTextFilled hint="example@gmail.com" min={6} value={eml} recv={(v)=>{
+                        <EditTextFilled hint="example@gmail.com" min={6} eml value={eml} recv={(v)=>{
                             setEml(v)
                         }} />
                     </div>
@@ -462,7 +703,7 @@ export function SettingsList(){
                     }}>
                         <mye.Tv text="Assign ID" />
                         <Mgin top={5}/>
-                        <EditTextFilled hint="00000000" min={6} value={sid} recv={(v)=>{
+                        <EditTextFilled hint="00000000" min={1} digi value={sid} recv={(v)=>{
                             setSid(v)
                         }} />
                     </div>
@@ -475,6 +716,7 @@ export function SettingsList(){
                         <select id="dropdown" name="dropdown" value={role} onChange={(e)=>{
                             setRole(e.target.value)
                         }}>
+                            <option value={''}>Choose One</option>
                             <option value={'0'}>Admin</option>
                             <option value={'1'}>Accountant</option>
                         </select>
@@ -490,7 +732,7 @@ export function SettingsList(){
                 </div>
                 <Mgin top={20} />
                 <div className="flexi">
-                    <mye.Tv text="Directory" />
+                    <mye.BTv size={16} text="Directory" />
                     <Mgin right={10} />
                     <Permy index={0} />
                     <Mgin right={10} />
@@ -498,7 +740,7 @@ export function SettingsList(){
                 </div>
                 <Mgin top={20} />
                 <div className="flexi">
-                    <mye.Tv text="Payments" />
+                    <mye.BTv size={16} text="Payments" />
                     <Mgin right={10} />
                     <Permy index={2} />
                     <Mgin right={10} />
@@ -506,7 +748,7 @@ export function SettingsList(){
                 </div>
                 <Mgin top={20} />
                 <div className="flexi">
-                    <mye.Tv text="Mesages" />
+                    <mye.BTv size={16} text="Mesages" />
                     <Mgin right={10} />
                     <Permy index={4} />
                     <Mgin right={10} />
@@ -516,35 +758,54 @@ export function SettingsList(){
         </div>}
     </div>
 
-    function updatePerms(id:string, rmv?:boolean){
-        let nsel = [...perms]
-        if(rmv){
-            setPerms(nsel.filter(item=>item!==id))
-        }else{
-            nsel = nsel.filter(item=>item!==id)
-            nsel.push(id)
-            setPerms(nsel)
-        }
+    function grantPerm(index:number) {
+        const np = [...permies]
+        np.forEach((p,i)=>{
+            if(p.id==permies[index].id){
+                p.val = p.val=='1'?'0':'1'
+            }
+        })
+        setPermies(np)
     }
 
     function Permy(prop:{index:number}) {
-        return <label style={{
+        return <label  style={{
             display:'flex',
             fontSize:12,
-
         }}>
-            <MyCB checked={perms.includes(prop.index.toString())}  mye={mye} ocl={()=>{
-                const id = prop.index.toString()
-                updatePerms(id, perms.includes(id))
+            <MyCB checked={permies[prop.index].val=='1'}  mye={mye} ocl={()=>{
+                grantPerm(prop.index)
             }} noPadding />
             <Mgin right={10}/>
-            {permies[prop.index]}
+            {permies[prop.index].name}
         </label>
+    }
+
+    function prepPerms(usr?:adminUserEle){
+        const np = [...permies]
+        np.forEach((p,i)=>{
+            p.val = usr?.getPerm(p.id) || '0'
+        })
+        setPermies(np)
+        if(usr){
+            setLname(usr.getLastName())
+            setOname(usr.getOtherNames())
+            setEml(usr.getEmail())
+            setSid(usr.getMemId())
+            setRole(usr.getRole())
+        }else{
+            setLname('')
+            setOname('')
+            setEml('')
+            setSid('')
+            setRole('')
+        }
     }
 
     function Opts(prop:{index:number,user:adminUserEle}) {
         return <div className="ctr" style={{
-            width:100,
+            flex:(dimen.dsk2)?1:undefined,
+            width:(dimen.dsk2)?undefined:100,
             height:40,
             position:'relative'
         }}>
@@ -575,16 +836,28 @@ export function SettingsList(){
                     setOptToShow(-1)
                 }} />
                 <MyCell text="View" ocl={()=>{
+                    prepPerms(prop.user)
                     setCUser(prop.user)
                     setShowStage(2)
                 }} alignStart special />
                 <Line />
                 <MyCell text="Edit" ocl={()=>{
-                    
+                    prepPerms(prop.user)
+                    setCUser(prop.user)
+                    setShowStage(2)
                 }} alignStart special/>
                 <Line />
-                <MyCell text="Deactivate" ocl={()=>{
-                    
+                <MyCell text="Delete" ocl={()=>{
+                    setLoad(true)
+                    makeRequest.get(`removeAdmin/${formatMemId(prop.user.getMemId())}`,{},(task)=>{
+                        setLoad(false)
+                        if(task.isSuccessful()){
+                            toast('Access deleted',1)
+                            getUsers()
+                        }else{
+                            toast(task.getErrorMsg(),0)
+                        }
+                    })
                 }} alignStart special />
             </div>
         </div>

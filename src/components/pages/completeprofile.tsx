@@ -4,7 +4,7 @@ import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { MsgAlert } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay, banks_and_codes } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -13,6 +13,7 @@ import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../clas
 import { format } from "date-fns";
 import { mLoc } from "monagree-locs/dist/classes";
 import { mCountry, mLga, mState } from "monagree-locs";
+import { mBanks } from "monagree-banks";
 
 
 
@@ -672,8 +673,8 @@ export function CompleteProfile(){
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        Object.keys(banks_and_codes).map((code,index)=>{
-                            return <option key={myKey+0.05+index} value={code}>{banks_and_codes[code]}</option>
+                        mBanks.getAllBanks().map((ele,index)=>{
+                            return <option key={myKey+0.05+index} value={ele.code}>{ele.name}</option>
                         })
                     }
                 </select>

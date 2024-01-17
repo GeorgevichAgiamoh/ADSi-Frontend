@@ -205,9 +205,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             }}>
                 <mye.Tv text="Name" />
                 <Mgin top={3}/>
-                <EditTextFilled hint="Payment Name" min={3} value={name} finise={(v)=>[
+                <EditTextFilled hint="Payment Name" min={3} value={name} recv={(v)=>{
                     setName(v.trim())
-                ]} />
+                }} />
             </div>
             <Mgin top={20} />
             <div style={{
@@ -215,9 +215,9 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             }}>
                 <mye.Tv text="Amount" />
                 <Mgin top={3}/>
-                <EditTextFilled digi noSpace hint="Payment Amount" min={1} value={amt} finise={(v)=>[
+                <EditTextFilled digi noSpace hint="Payment Amount" min={1} value={amt} recv={(v)=>{
                     setAmt(v.trim())
-                ]} />
+                }} />
             </div>
             <Mgin top={20} />
             <LrText 

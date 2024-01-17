@@ -47,7 +47,6 @@ export class resHandler{
         this.response = response
         if(isAuth && this.isSuccessful()){
             localStorage.setItem('adsi_act',response!.data.token)
-            console.log('AUTH SAVED!!! '+response!.data.token)
         }
     }
     getData(customPld?:string){

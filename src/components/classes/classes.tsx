@@ -92,20 +92,20 @@ export class msgMeta{
 export class payTypeEle{
     name:string
     amt:number
-    category:number //0->Reg Fee 1-> Investment 2-> Contribution
+    payId:number //0->Reg Fee 1-> Investment 2-> Contribution
     constructor(name:string, amt:number, category:number){
         this.name = name
         this.amt = amt
-        this.category = category
+        this.payId = category
     }
     getType(){
-        return this.category==0?'Reg Fee':this.category==1?'Annual Fee':'Investment'
+        return this.payId==0?'Reg Fee':this.payId==1?'Annual Fee':'Investment'
     }
     getinterval(){
-        return this.category==0?'One Time':this.category==1?'Annual':'None'
+        return this.payId==0?'One Time':this.payId==1?'Annual':'None'
     }
     getTier(){
-        return this.category==2?'Tier Type':'Flat Rate'
+        return this.payId==2?'Tier Type':'Flat Rate'
     }
      
 }

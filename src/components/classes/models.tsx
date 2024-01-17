@@ -1,6 +1,7 @@
 import { format } from "date-fns"
 import { mCountry } from "monagree-locs"
-import { banks_and_codes } from "../../helper/general"
+import { myEles } from "../../helper/general"
+import { mBanks } from "monagree-banks"
 
 
 export class memberBasicinfo{
@@ -34,6 +35,11 @@ export class memberBasicinfo{
     }
     isPaid(){ //One time reg fee
         return this.data['pay']=='1'
+    }
+
+    //---CUSTOM
+    getFullName(){
+        return this.getFirstName()+' '+this.getlastName()
     }
 }
 
@@ -150,7 +156,7 @@ export class memberFinancialinfo{
     //--- Custom
 
     getFormattedbank(){
-        return !this.data?defVal:banks_and_codes[this.getBankCode()]
+        return !this.data?defVal:mBanks.getBankByCode(this.getBankCode())!.name
     }
 }
 
@@ -208,3 +214,153 @@ export function getCreatedTime(data:any,includeTime?:boolean){
     const formattedTime = format(createdAtDate, 'HH:mm:ss');
     return includeTime?formattedDate+' '+formattedTime:formattedDate
 }
+
+
+export class payRecordEle{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getMemId(){
+        return this.data['memid']
+    }
+    getRef(){
+        return this.data['ref']
+    }
+    getName(){
+        return this.data['name']
+    }
+    getTime(){
+        return this.data['time']
+    }
+    //---NULLABLE
+    getYear(){
+        return this.data['year']
+    }
+    getShares(){
+        return this.data['shares']
+    }
+    //--CUSTOM
+    getAmt(){
+        return (this.getRef() as string).split('-')[2]
+    }
+    getReceiptId(){
+        return (this.getRef() as string).split('-')[4]
+    }
+    getPayTypeId(){
+        return (this.getRef() as string).split('-')[1]
+    }
+    getInterval(){
+        return this.getPayTypeId()=='0'?'One Time':this.getPayTypeId()=='1'?'Annual':'None'
+    }
+    getType(){
+        return this.getPayTypeId()=='0'?'Reg Fee':this.getPayTypeId()=='1'?'Annual Fee':'Investment'
+    }
+    getDate(){
+        return format(new Date(parseFloat(this.getTime())),'dd/MM/yy')
+    }
+    getColor(mye:myEles){
+        return this.getPayTypeId()=='2'?mye.mycol.secondarycol:mye.mycol.primarycol
+    }
+}
+
+
+export class adsiInfoEle{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getName(){
+        return this.data['cname']
+    }
+    getRegNo(){
+        return this.data['regno']
+    }
+    getAddr(){
+        return this.data['addr']
+    }
+    getNationality(){
+        return this.data['nationality']
+    }
+    getState(){
+        return this.data['state']
+    }
+    getLga(){
+        return this.data['lga']
+    }
+    getAccountName(){
+        return this.data['aname']
+    }
+    getAccountNumber(){
+        return this.data['anum']
+    }
+    getBankCode(){
+        return this.data['bnk']
+    }
+    getPersonalName(){
+        return this.data['pname']
+    }
+    getPersonalEmail(){
+        return this.data['peml']
+    }
+    getPersonalPhone(){
+        return this.data['pphn']
+    }
+    getPersonalAddr(){
+        return this.data['paddr']
+    }
+    //-- CUSTOM
+    getFormattedbank(){
+        return mBanks.getBankByCode(this.getBankCode())!.name
+    }
+}
+
+
+
+export class adminUserEle{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getMemId(){
+        return this.data['memid'].toString()
+    }
+    getLastName(){
+        return this.data['lname']
+    }
+    getOtherNames(){
+        return this.data['oname']
+    }
+    getEmail(){
+        return this.data['eml']
+    }
+    getRole(){
+        return this.data['role']
+    }
+    getPerm(permId:string){
+        return this.data[permId]
+    }
+    //-- CUSTOM
+    getNames(){
+        return this.getOtherNames()+' '+this.getLastName()
+    }
+    getFormattedRole(){
+        if(this.getRole()=='1'){
+            return 'Accountant'
+        }
+        return 'Admin'
+    }
+}
+
+export class permHelp{
+    name:string;
+    id:string;
+    val:string;
+    constructor(name:string,id:string){
+        this.name = name
+        this.id = id
+        this.val = '0'
+    }
+}
+
+
