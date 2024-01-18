@@ -241,3 +241,10 @@ pay Ids: (Table = pays(ID). Eg pays0, pays1)
   "pm2":"(,,)",
 }
 ```
+
+
+## File
+
+All files are saved to public/uploads/(folder)/(filename)
+
+> public being public_html in cpanel

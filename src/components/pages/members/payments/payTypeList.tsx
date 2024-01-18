@@ -14,7 +14,7 @@ import Barcode from "react-barcode"
 
 
 
-export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:number,dues:payRecordEle[],investments:payRecordEle[],payRecord?:payRecordEle)=>void}){
+export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],actiony:(action:number,dues:payRecordEle[],investments:payRecordEle[],payRecord?:payRecordEle)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -148,7 +148,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
         }}>
             <Tab1 icon={MonetizationOnOutlined} title="Total Share Capital" value={totShares} color={mye.mycol.green} />
             <Tab1 icon={MonetizationOnOutlined} title="Total Dues Paid" value={totDues} color={mye.mycol.hs_blue} />
-            <Tab1 icon={PersonOutline} title="Outstanding Payment" value="..." color={mye.mycol.red} />
+            <Tab1 icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${mainprop.yearsOwed.length*12000}`} color={mye.mycol.red} />
         </div>
         <Mgin top={30} />
         <div id='lshdw' style={{

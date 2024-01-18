@@ -12,7 +12,7 @@ import { makeRequest, resHandler } from "../../../helper/requesthandler";
 
 
 
-export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo}){
+export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo,yearsOwed:string[],goto:(action:number)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const mye = new myEles(false);
@@ -152,32 +152,36 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
             </div>}
             />
         </div>
-        <Mgin top={20} />
-        <div id="lshdw" style={{
-            backgroundColor:mye.mycol.white,
-            borderRadius:10,
-            padding:dimen.dsk?40:20,
-            boxSizing:'border-box',
-            width:'100%'
+        {mainprop.yearsOwed.length==0?<div></div>:<div style={{
+            width:'100%',
         }}>
-            <div className="hlc">
-                <SavingsOutlined style={{
-                    fontSize:25,
-                    color: mye.mycol.secondarycol
-                }} />
-                <Mgin right={10} />
-                <mye.BTv text="Annual Dues Payment" size={20} color={mye.mycol.secondarycol} />
+            <Mgin top={20} />
+            <div id="lshdw" style={{
+                backgroundColor:mye.mycol.white,
+                borderRadius:10,
+                padding:dimen.dsk?40:20,
+                boxSizing:'border-box',
+                width:'100%'
+            }}>
+                <div className="hlc">
+                    <SavingsOutlined style={{
+                        fontSize:25,
+                        color: mye.mycol.secondarycol
+                    }} />
+                    <Mgin right={10} />
+                    <mye.BTv text="Annual Dues Payment" size={20} color={mye.mycol.secondarycol} />
+                </div>
+                <Mgin top={30} />
+                <LrText 
+                left={<mye.Tv text={`Next Dues payment of N12,000 is due for 1st Jan ${mainprop.yearsOwed[0]}`} />}
+                right={<div className="hlc">
+                    <mye.Tv text="Pay" color={mye.mycol.primarycol} onClick={()=>{
+                        mainprop.goto(1)
+                    }} />
+                </div>}
+                />
             </div>
-            <Mgin top={30} />
-            <LrText 
-            left={<mye.Tv text="Next Dues payment of N12,000 is due for 1st Jan 2025" />}
-            right={<div className="hlc">
-                <mye.Tv text="Pay" color={mye.mycol.primarycol} onClick={()=>{
-
-                }} />
-            </div>}
-            />
-        </div>
+        </div>}
         <Mgin top={20} />
         <div id="lshdw" style={{
             width:'100%',

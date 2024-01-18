@@ -3,7 +3,7 @@ import { formatMemId } from "./general";
 
 
 
-export const endpoint = 'http://127.0.0.1:8000/api'//https://api.adsicoop.com.ng/api
+export const endpoint = 'https://api.adsicoop.com.ng/api'//http://127.0.0.1:8000/api
 
 export function getACT(){
     return localStorage.getItem('adsi_act') ?? ''
@@ -38,6 +38,29 @@ export class makeRequest{
             console.log('Response:', error.response);
             finise(new resHandler(error.response))
         });
+    }
+
+    static uploadFile(folder:string, filename:string,file:File,finise:(task:resHandler)=>void){
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('filename', filename);
+        formData.append('folder', folder);
+
+        axios.post(`${endpoint}/uploadFile`, formData, {
+            headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization:`Bearer ${getACT()}`
+            },
+        }).then((response)=>{
+            finise(new resHandler(response,false))
+        }).catch((e)=>{
+            console.error('Error uploading file:', e);
+            finise(new resHandler(e.response))
+        })
+    }
+
+    static getFile(folder:string, filename:string,finise:(task:resHandler)=>void){ //TODO later
+
     }
 
 }

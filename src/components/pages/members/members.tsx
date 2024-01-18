@@ -24,6 +24,7 @@ export function Members(){
     const[tabPos, setTabPos] = useState(0)
     const[mbi, setMBI] = useState<memberBasicinfo>()
     const[mgi, setMGI] = useState<memberGeneralinfo>()
+    const[yearsOwing, setYearsOwing] = useState<string[]>([])
     const tabs = [
         'Dashboard',
         'Payments',
@@ -67,6 +68,26 @@ export function Members(){
             }
         })
         
+        confirmYearOwing(new Date().getFullYear().toString())
+        //TODO auto do for other years
+    }
+
+    function updateYearsOwed(ny:string){
+        const oyo:string[] =  [...yearsOwing]
+        oyo.push(ny)
+        setYearsOwing(oyo)
+    }
+
+    function confirmYearOwing(year:string){
+        makeRequest.get(`getMemDuesByYear/${getMemId()}/${year}`,{},(task)=>{
+            if(task.isSuccessful()){
+                if(!task.exists()){
+                    updateYearsOwed(year)
+                }
+            }else{
+                setError(true)
+            }
+        })
     }
 
     const[load, setLoad]=useState(false)
@@ -191,7 +212,9 @@ export function Members(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {mbi?tabPos===0?<MemberDashboard mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==3?<MyProfile mbi={mbi} mgi={mgi} />:LoadLay():LoadLay()}
+                    {mbi?tabPos===0?<MemberDashboard goto={(a)=>{
+                        setTabPos(a)
+                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments yearsOwed={yearsOwing} mbi={mbi} />:tabPos==3?<MyProfile mbi={mbi} mgi={mgi} />:LoadLay():LoadLay()}
                 </div>
             </div>
         </div>

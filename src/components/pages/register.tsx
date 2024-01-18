@@ -244,7 +244,7 @@ export function Register(){
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay:'0'
+                            pay:'1' //TODO change for new members
                         },(task)=>{
                             saveMemId(fMemId)
                             makeRequest.get('logout',{},(task)=>{

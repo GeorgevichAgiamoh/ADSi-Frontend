@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Add, CalendarMonth, InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
@@ -56,6 +56,10 @@ export function CompleteProfile(){
     const[aname,setAName] = useState('')
 
     const[mbi,setMbi] = useState<memberBasicinfo>()
+
+    const[id,setId] = useState<File>()
+    const[fileExists, setFileExists] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null);
         
 
     useEffect(()=>{
@@ -132,6 +136,11 @@ export function CompleteProfile(){
                     return
                 }
                 setError(true)
+            }
+        })
+        makeRequest.get(`fileExists/id/${getMemId()}`,{},(task)=>{
+            if(task.isSuccessful()){
+                setFileExists(true)
             }
         })
     }
@@ -475,10 +484,35 @@ export function CompleteProfile(){
                 <mye.Tv text="*VALID MEANS OF IDENTIFICATION"  />
                 <Mgin top={5} />
                 <mye.Tv text="Official Government Issued Certificate" size={12} />
+                <div style={{
+                    display:fileExists?undefined:'none'
+                }}>
+                    <Mgin top={5} />
+                    <mye.Tv text="Uploaded, can change" size={12} color={mye.mycol.green} />
+                </div>
+                <div style={{
+                    display:id?undefined:'none'
+                }}>
+                    <Mgin top={5} />
+                    <mye.Tv text={`${id?id.name:''} added`} size={12} color={mye.mycol.primarycol} />
+                </div>
             </div>}
-            right={<IconBtn icon={Add} mye={mye} ocl={()=>{
-                toast('Coming soon',2)
-            }} text="ATTACH DOC" />}
+            right={<div>
+                <input
+                    type="file"
+                    onChange={(e)=>{
+                        const file = e.target.files?.[0];
+                        if(file){
+                            setId(file)
+                        }
+                    }}
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                />
+               <IconBtn icon={Add} mye={mye} ocl={()=>{
+                    fileInputRef.current?.click()
+                }} text="ATTACH DOC" />
+            </div>}
             />
             <Mgin top={15} />
             <mye.Tv color={mye.mycol.primarycol} text="Info about Next of Kin" />
@@ -627,6 +661,10 @@ export function CompleteProfile(){
                     toast('Invalid Next of Kin Email.',0)
                     return
                 }
+                if(!id && !fileExists){
+                    toast('Please upload valid ID',0)
+                    return
+                }
                 setLoad(true)
                 makeRequest.post('setMemberGeneralInfo',{
                     memid:getMemId(),
@@ -648,10 +686,29 @@ export function CompleteProfile(){
                     kin_addr:kin_addr,
                     kin_eml:kin_eml
                 },(task)=>{
-                    setLoad(false)
                     if(task.isSuccessful()){
-                        toast('General Info update successful',1)
+                        if(!id && fileExists){
+                            setLoad(false)
+                                toast('General Info update successful',1)
+                            return
+                        }
+                        console.log('--------Upld id');
+                        toast('Uploading ID',2)
+                        makeRequest.uploadFile('id',getMemId(),id!, (task)=>{
+                            if(task.isSuccessful()){
+                                setLoad(false)
+                                toast('General Info update successful',1)
+                            }else{
+                                setLoad(false)
+                                if(task.isLoggedOut()){
+                                    navigate('/login')
+                                    return
+                                }
+                                toast(task.getErrorMsg(),0)
+                            }
+                        })
                     }else{
+                        setLoad(false)
                         if(task.isLoggedOut()){
                             navigate('/login')
                             return
