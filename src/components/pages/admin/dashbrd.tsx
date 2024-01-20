@@ -22,6 +22,8 @@ export function AdminDashboard(){
     const[showNewAnn, setShowNewAnn] = useState(false)
     const[hele,setHele] = useState<highlightEle>()
     const[anns,setAnns] = useState<annEle[]>([])
+    const[atitle, setATitle] = useState('')
+    const[amsg, setAMsg] = useState('')
 
     useEffect(()=>{
         setTitle(`Admin Dashboard - ${appName}`)
@@ -193,110 +195,102 @@ export function AdminDashboard(){
             backgroundColor:'rgba(0,0,0,0.1)',
             padding: dimen.dsk?'10% 25%':0
         }}>
-            <NewAnn />
-        </div>
-    </div>
-
-    function NewAnn(){
-        const[atitle, setATitle] = useState('')
-        const[amsg, setAMsg] = useState('')
-
-        return <div style={{
-            backgroundColor: mye.mycol.bkg,
-            width:'100%',
-            height:'100%',
-            display:'flex',
-            flexDirection:'column',
-            borderRadius:10
-        }}>
             <div style={{
-                backgroundColor:mye.mycol.primarycol,
-                padding:'10px 20px',
-                borderRadius:'10px 10px 0 0'
-            }}>
-                <LrText 
-                left={<mye.HTv text="New Announcement" color={mye.mycol.white} size={16} />}
-                right={<BtnIcn icon={Close} color={mye.mycol.white} ocl={()=>{
-                    setShowNewAnn(false)
-                }}  />}
-                />
-            </div>
-            <div style={{
+                backgroundColor: mye.mycol.bkg,
                 width:'100%',
-                flex:1,
-                boxSizing:'border-box',
-                padding:'15px 30px',
+                height:'100%',
                 display:'flex',
-                flexDirection:'column'
+                flexDirection:'column',
+                borderRadius:10
             }}>
-                <Mgin top={20} />
-                <input className="tinp"
-                    type="text"
-                    value={atitle}
-                    placeholder="Title"
-                    onChange={(e)=>{
-                        setATitle(e.target.value)
-                    }}
-                    style={{
-                        width:'100%',
-                    }}
-                />
-                <Mgin top={5} />
-                <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
-                <textarea
-                    value={amsg}
-                    placeholder="Type message here"
-                    onChange={(e)=>{
-                        setAMsg(e.target.value)
-                    }}
-                    style={{
-                        flex:1,
-                        marginTop:10,
-                        width:'100%',
-                        border:'none',
-                        outline:'none',
-                        resize:'none'
-                    }}
-                />
-                <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
-                <Mgin top={20} />
-                <div className="hlc" style={{
-                    alignSelf:'flex-end'
+                <div style={{
+                    backgroundColor:mye.mycol.primarycol,
+                    padding:'10px 20px',
+                    borderRadius:'10px 10px 0 0'
                 }}>
-                    <AttachFile id='clk' className="icon" style={{
-                        fontSize:18
-                    }} />
-                    <Mgin right={10} />
-                    <IconBtn icon={Mail} mye={mye} text={"SUBMIT"} ocl={()=>{
-                        if(atitle.trim().length ==0){
-                            toast('Please enter title',0)
-                            return;
-                        }
-                        if(amsg.trim().length <3){
-                            toast('Please enter message',0)
-                            return;
-                        }
-                        setLoad(true)
-                        makeRequest.post('setAnnouncements',{
-                            title:atitle.trim(),
-                            msg:amsg.trim(),
-                            time:Date.now().toString()
-                        },(task)=>{
-                            if(task.isSuccessful()){
-                                toast('Announcement added',1)
-                                setShowNewAnn(false)
-                                getAnns()
-                            }else{
-                                setLoad(false)
-                                handleError(task)
+                    <LrText 
+                    left={<mye.HTv text="New Announcement" color={mye.mycol.white} size={16} />}
+                    right={<BtnIcn icon={Close} color={mye.mycol.white} ocl={()=>{
+                        setShowNewAnn(false)
+                    }}  />}
+                    />
+                </div>
+                <div style={{
+                    width:'100%',
+                    flex:1,
+                    boxSizing:'border-box',
+                    padding:'15px 30px',
+                    display:'flex',
+                    flexDirection:'column'
+                }}>
+                    <Mgin top={20} />
+                    <input className="tinp"
+                        type="text"
+                        value={atitle}
+                        placeholder="Title"
+                        onChange={(e)=>{
+                            setATitle(e.target.value)
+                        }}
+                        style={{
+                            width:'100%',
+                        }}
+                    />
+                    <Mgin top={5} />
+                    <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+                    <textarea
+                        value={amsg}
+                        placeholder="Type message here"
+                        onChange={(e)=>{
+                            setAMsg(e.target.value)
+                        }}
+                        style={{
+                            flex:1,
+                            marginTop:10,
+                            width:'100%',
+                            border:'none',
+                            outline:'none',
+                            resize:'none'
+                        }}
+                    />
+                    <div style={{width:'100%',height:1,backgroundColor:'rgba(0,0,0,0.1)'}}></div>
+                    <Mgin top={20} />
+                    <div className="hlc" style={{
+                        alignSelf:'flex-end'
+                    }}>
+                        <AttachFile id='clk' className="icon" style={{
+                            fontSize:18
+                        }} />
+                        <Mgin right={10} />
+                        <IconBtn icon={Mail} mye={mye} text={"SUBMIT"} ocl={()=>{
+                            if(atitle.trim().length ==0){
+                                toast('Please enter title',0)
+                                return;
                             }
-                        })
-                    }}  width={120}/>
+                            if(amsg.trim().length <3){
+                                toast('Please enter message',0)
+                                return;
+                            }
+                            setLoad(true)
+                            makeRequest.post('setAnnouncements',{
+                                title:atitle.trim(),
+                                msg:amsg.trim(),
+                                time:Date.now().toString()
+                            },(task)=>{
+                                if(task.isSuccessful()){
+                                    toast('Announcement added',1)
+                                    setShowNewAnn(false)
+                                    getAnns()
+                                }else{
+                                    setLoad(false)
+                                    handleError(task)
+                                }
+                            })
+                        }}  width={120}/>
+                    </div>
                 </div>
             </div>
         </div>
-
-    }
+    </div>
 
     function AnnLay(prop:{ele:annEle}) {
         return <div style={{

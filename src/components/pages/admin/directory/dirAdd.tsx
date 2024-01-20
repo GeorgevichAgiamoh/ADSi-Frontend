@@ -58,7 +58,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
         setCity(mCountry.getCountryByCode(mainprop.user.getLga()))
         
         if(mainprop.user.getDob()!=defVal){
-            setDOB(new Date(mainprop.user.getDob()))
+            setDOB(new Date(parseFloat(mainprop.user.getDob())))
         }
         setMyKey(Date.now())
         

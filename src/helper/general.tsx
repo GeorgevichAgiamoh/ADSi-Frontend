@@ -723,7 +723,8 @@ export function fixedString(s:string, numDig:number){
     return localStorage.getItem('iaa')=='1'
   }
 
-  export function formatMemId(id:string){
+  export function formatMemId(rid:any){
+    let id:string = rid.toString()
     if(id.length <8){
         const diff = 8 - id.length
         for(let i = 0; i < diff; i++){
@@ -739,7 +740,7 @@ export function fixedString(s:string, numDig:number){
     return `adsi-${payId}-${amt}-${memid}-${Date.now().toString()}`
   }
 
-  export const adsi_recaptcha_key = 'SOME KEY HERE'
+  export const adsi_recaptcha_key = '6LcSDFUpAAAAACvhXLKW9yeuh9FWvSNHzc4LAovZ'
 
   export const paystackPK = 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4'
 

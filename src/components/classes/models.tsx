@@ -1,6 +1,6 @@
 import { format } from "date-fns"
-import { mCountry } from "monagree-locs"
-import { myEles } from "../../helper/general"
+import { mCountry, mLga, mState } from "monagree-locs"
+import { formatMemId, myEles } from "../../helper/general"
 import { mBanks } from "monagree-banks"
 
 
@@ -10,7 +10,7 @@ export class memberBasicinfo{
         this.data = data
     }
     getMemberID(){
-        return this.data['memid']
+        return formatMemId(this.data['memid'])
     }
     getFirstName(){
         return this.data['fname']
@@ -29,9 +29,6 @@ export class memberBasicinfo{
     }
     isVerified(){
         return this.data['verif']=='1'
-    }
-    getPayStage(){
-        return this.data['pay']
     }
     isPaid(){ //One time reg fee
         return this.data['pay']=='1'
@@ -53,7 +50,7 @@ export class memberGeneralinfo{
         this.data = data
     }
     getMemberID(){
-        return !this.data?defVal:this.data['memid']
+        return !this.data?defVal:formatMemId(this.data['memid'])
     }
     getGender(){
         return !this.data?defVal:this.data['sex']
@@ -126,10 +123,10 @@ export class memberGeneralinfo{
         return !this.data?defVal:mCountry.getCountryByCode(this.getCountry())!.getName()
     }
     getFormattedState(){
-        return !this.data?defVal:mCountry.getCountryByCode(this.getState())!.getName()
+        return !this.data?defVal:mState.getStateByCode(this.getCountry(),this.getState())!.getName()
     }
     getFormattedLGA(){
-        return !this.data?defVal:mCountry.getCountryByCode(this.getLga())!.getName()
+        return !this.data?defVal:mLga.getLgaByCode(this.getCountry(),this.getState(),this.getLga())!.getName()
     }
     
 }
@@ -141,7 +138,7 @@ export class memberFinancialinfo{
         this.data = data
     }
     getMemberID(){
-        return !this.data?defVal:this.data['memid']
+        return !this.data?defVal:formatMemId(this.data['memid'])
     }
     getBankCode(){
         return !this.data?defVal:this.data['bnk']

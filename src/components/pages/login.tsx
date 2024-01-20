@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
 import { MsgAlert, PincodeLay } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType, formatMemId } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType, formatMemId, isPhoneNigOk } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -333,7 +333,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
     const rdr  = qry.get('rdr')||""
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
-    const[eml,setEml] = useState(qry.get('eml') ?? '')
+    const[phn,setPhn] = useState(qry.get('phn') ?? '')
     const[pwd,setPwd] = useState('')
     const navigate = useNavigate();
 
@@ -408,11 +408,11 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email or ADSI Number" />
+                <mye.Tv text="Phone or ADSI Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter Email or ADSI Number" value={eml} noSpace min={1} recv={(v)=>{
+                <EditTextFilled hint="Enter Phone or ADSI Number" value={phn} noSpace min={1} recv={(v)=>{
                     console.log('..LOGIN.')
-                    setEml(v.trim())
+                    setPhn(v.trim())
                 }} />
             </div>
             <Mgin top={20} />
@@ -440,32 +440,32 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             <mye.Tv text="Haven't registered yet ?"  />
             <Mgin top={10} />
             <Btn txt="REGISTER" onClick={()=>{
-                navigate(`/register?${isMemID(eml)?'mid':'eml'}=${eml}`)
+                navigate(`/register?${isMemID(phn)?'mid':'phn'}=${phn}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
         </div>
 
     </div>
 
     function do_login() {
-        console.log(eml.length)
+        console.log(phn.length)
         if(pwd.length < 6){
             toast('Invalid password',0)
             return;
         }
-        if(!isMemID(eml) && !isEmlValid(eml)){
-            toast('Invalid Email/ID',0)
+        if(!isMemID(phn) && !isPhoneNigOk(phn)){
+            toast('Invalid Phone/ID',0)
             return;
         }
-        let memId = '', email = ''
-        if(isMemID(eml)){
-            memId = formatMemId(eml)
+        let memId = '', phone = ''
+        if(isMemID(phn)){
+            memId = formatMemId(phn)
         }else{
-            email = eml
+            phone = phn
         }
         setLoad(true)
         makeRequest.post('login',{
             memid: memId,
-            email: email,
+            phn: phone,
             password: pwd,
         },(task)=>{
             if(task.isSuccessful()){

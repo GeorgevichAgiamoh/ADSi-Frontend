@@ -58,7 +58,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
             setState(mCountry.getCountryByCode(mainprop.mgi.getState()))
             setCity(mCountry.getCountryByCode(mainprop.mgi.getLga()))
             if(mainprop.mgi.getDob()!=defVal){
-                setDOB(new Date(mainprop.mgi.getDob()))
+                setDOB(new Date(parseFloat(mainprop.mgi.getDob())))
             }
         }
         setMyKey(Date.now())
@@ -555,7 +555,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
             padding:dimen.dsk?40:20,
             boxSizing:'border-box',
             overflow:'scroll',
-            width:dimen.dsk2?'40%':dimen.dsk?'50%':'70%',
+            width:dimen.dsk2?'40%':dimen.dsk?'50%':'80%',
             height:'50%'
         }}>
             <div className="vlc" style={{

@@ -14,9 +14,11 @@ import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { MyProfile } from "./myprofile";
+import { CompleteProfile } from "../completeprofile";
 
 
 export function Members(){
+    const[myKey, setMyKey] = useState(Date.now())
     const mye = new myEles(false);
     const navigate = useNavigate()
     const dimen = useWindowDimensions();
@@ -155,7 +157,7 @@ export function Members(){
                 height:'100%',
                 display: dimen.dsk?undefined:'none'
             }}>
-                <MemberNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
+                <MemberNav  key={myKey} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                     setTabPos(pos)
                     if(pos==4){
                         makeRequest.get('logout',{},(task)=>{
@@ -214,7 +216,8 @@ export function Members(){
                 }}>
                     {mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
-                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments yearsOwed={yearsOwing} mbi={mbi} />:tabPos==3?<MyProfile mbi={mbi} mgi={mgi} />:LoadLay():LoadLay()}
+                        setMyKey(Date.now())
+                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments yearsOwed={yearsOwing} mbi={mbi} />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}
                 </div>
             </div>
         </div>
@@ -226,7 +229,7 @@ export function Members(){
             height:'100%',
             display: (!dimen.dsk && showNav) ? undefined:'none'
         }}>
-            <MemberNav currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
+            <MemberNav key={myKey} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                 setShowNav(false)
                 setTabPos(pos)
                 if(pos==4){

@@ -81,7 +81,7 @@ NEW: All done except messaging
   "eml": "(,,)",
   "phn": "(,,)",
   "verif": "(0/1)",
-  "pay": "(0/1/2)",
+  "pay": "(0/1)",
 }
 ```
 

@@ -119,7 +119,7 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
             <mye.Tv text="Welcome to your dashboard" />
         </div>}
         right={<Btn txt={`${mainprop.mgi?'EDIT':'VERIFY'} PROFILE`} width={150}  onClick={()=>{
-            navigate('/completeprofile')
+            mainprop.goto(3)
         }} bkg={mainprop.mgi?mye.mycol.btnstrip:mye.mycol.primarycol} tcol={mainprop.mgi?mye.mycol.primarycol:mye.mycol.white} /> }
         />
         <Mgin top={30} />
@@ -143,11 +143,11 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
             left={<mye.Tv text="Invest with a minimum of N10,000 and start reaping the benefits" />}
             right={<div className="hlc">
                 <mye.Tv text="Pay" color={mye.mycol.primarycol} onClick={()=>{
-
+                    mainprop.goto(1)
                 }} />
                 <Mgin right={20} />
                 <mye.Tv text="View" onClick={()=>{
-
+                    mainprop.goto(1)
                 }} />
             </div>}
             />

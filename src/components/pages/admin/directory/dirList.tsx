@@ -280,7 +280,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                                 <MyCell text={ele.basicData!.getFirstName()+' '+ele.basicData!.getMiddleName()} />
                                 <MyCell text={ele.getGender()} />
                                 <MyCell text={ele.getFormattedDOB()} />
-                                <MyCell text={ele.getMemberID()} />
+                                <MyCell text={ele.basicData!.getMemberID()} />
                                 <MyCell text={ele.basicData!.getPhone()} />
                                 <Opts index={index} user={ele} />
                             </div>

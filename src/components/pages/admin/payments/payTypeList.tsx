@@ -2,7 +2,7 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare, formatMemId } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
 import { format } from "date-fns"
 import { CircularProgress } from "@mui/material"
@@ -31,12 +31,61 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         setTitle(`Payment Types - ${appName}`)
     },[])
 
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
 
     return <div className="vlc" style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
         <div style={{
             alignSelf:'flex-end'
         }}>
@@ -116,279 +165,16 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             height:'100%',
             backgroundColor:'rgba(0,0,0,0.1)'
         }}>
-            <AddPay closy={()=>{
+            <AddPay closy={(ok)=>{
                 setNewPay(false)
+                if(ok){
+                    toast('Payment Uploaded',1)
+                }
             }} />
         </div>
     </div>
 
-    function AddPay(prop:{closy:()=>void}) {
-        const dimen = useWindowDimensions()
-        const myKey = Date.now()
-        const[ptype,setPType] = useState('0')
-        const[memid,setMemid] = useState('')
-        const[dpd,setDpd] = useState<Date>()
-        const[askDpd, setAskDpd] = useState(false)
-
-        const[shares,setShares] = useState('')
-        const[year,setYear] = useState('')
-
-        const[years,setYears] = useState<string[]>([])
-
-        useEffect(()=>{
-            const cy = new Date().getFullYear()
-            const tem:string[] = []
-            for(let i = cy; i > cy-20; i--){
-                tem.push(i.toString())
-            }
-            setYears(tem)
-        },[])
-
-        function handleError(task:resHandler){
-            setLoad(false)
-            setError(true)
-            if(task.isLoggedOut()){
-                navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
-            }else{
-                toast(task.getErrorMsg(),0)
-            }
-        }
-        
-
-        const[load, setLoad]=useState(false)
-        const[loadMsg, setLoadMsg]=useState('Just a sec')
-        const[error, setError]=useState(false)
-        const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
-        const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
-        function toast(msg:string, action:number,delay?:number){
-        var _delay = delay || 5000
-        setToastMeta({
-            action: action,
-            msg: msg,
-            visible:true,
-            invoked: Date.now()
-        })
-        clearTimeout(timy.timer)
-        setTimy({
-            timer:setTimeout(()=>{
-                if(Date.now()-toastMeta.invoked > 4000){
-                    setToastMeta({
-                        action:2,
-                        msg:"",
-                        visible:false,
-                        invoked: 0
-                    })
-                }
-            },_delay)
-        });
-        }
-
-        return <div style={{
-            backgroundColor:mye.mycol.bkg,
-            borderRadius:10,
-            padding:dimen.dsk2?70:dimen.dsk?40:20,
-            boxSizing:'border-box',
-            overflow:'scroll',
-            height:'75%',
-            width:dimen.dsk2?'35%':'50%'
-        }}>
-            <ErrorCont isNgt={false} visible={error} retry={()=>{
-                setError(false)
-                
-            }}/>
-            <div className="prgcont" style={{display:load?"flex":"none"}}>
-                <div className="hlc" style={{
-                    backgroundColor:mye.mycol.bkg,
-                    borderRadius:10,
-                    padding:20,
-                }}>
-                    <CircularProgress style={{color:mye.mycol.primarycol}}/>
-                    <Mgin right={20} />
-                    <mye.Tv text={loadMsg} />
-                </div>
-            </div>
-            <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
-                    setToastMeta({
-                        action:2,
-                        msg:"",
-                        visible:false,
-                        invoked:0,
-                    })
-                }} />
-            <div className="vlc" style={{
-                width:'100%',
-            }}>
-                <Close className="icon" style={{
-                    alignSelf:'flex-end'
-                }} onClick={prop.closy}/>
-            </div>
-            <Mgin top={10} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="Payment Type" />
-                <Mgin top={3}/>
-                <select id="dropdown" name="dropdown" value={ptype} onChange={(e)=>{
-                    setPType(e.target.value)
-                }}>
-                    <option value="0">Reg Fee</option>
-                    <option value="1">Annual Due</option>
-                    <option value="2">Investment</option>
-                </select>
-            </div>
-            <Mgin top={20} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="*Member ID" />
-                <Mgin top={3}/>
-                <EditTextFilled hint="00000001" min={1} value={memid} digi recv={(v)=>{
-                    setMemid(v.trim())
-                }} />
-            </div>
-            <Mgin top={20} />
-            <mye.Tv text="*Date Paid" />
-            <Mgin top={5}/>
-            <div style={{
-                width:'100%',
-                height:45,
-                borderRadius:8,
-                backgroundColor:mye.mycol.btnstrip,
-                padding:10,
-                boxSizing:'border-box',
-                position:'relative'
-            }} >
-                <LrText 
-                left={<div id="clk" onClick={()=>{
-                    setAskDpd(true)
-                }}><mye.Tv text={dpd?format(dpd,'dd-MM-yy'):'DD/MM/YY'} /></div>}
-                right={<CalendarMonthOutlined id="clk" style={{
-                    fontSize:20,
-                    color:mye.mycol.secondarycol
-                }} onClick={()=>{
-                    setAskDpd(true)
-                }}/>}
-                />
-                <div style={{
-                    display:askDpd?undefined:'none',
-                    position:'absolute',
-                    top:0,
-                    right:0,
-                    zIndex:2,
-                    pointerEvents:'auto'
-                }}>
-                    <DatePicky fromYear={new Date().getFullYear()-20} toYear={new Date().getFullYear()} focusYear={new Date().getFullYear()-1} rdy={(d)=>{
-                        setAskDpd(false)
-                        setDpd(d)
-                    }} closy={()=>{
-                        setAskDpd(false)
-                    }}/>
-                </div>
-            </div>
-            <div style={{
-                width:'100%',
-                display: ptype=='2'?undefined:'none'
-            }}>
-                <Mgin top={20} />
-                <div style={{
-                    width:'100%'
-                }}>
-                    <mye.Tv text="Shares" />
-                    <Mgin top={3}/>
-                    <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} recv={(v)=>{
-                        setShares(v.trim())
-                    }} />
-                </div>
-            </div>
-            <div style={{
-                width:'100%',
-                display: ptype=='1'?undefined:'none'
-            }}>
-                <Mgin top={20} />
-                <div style={{
-                    width:'100%'
-                }}>
-                    <mye.Tv text="*Year Being Paid For" />
-                    <Mgin top={3}/>
-                    <select id="dropdown" name="dropdown" value={year} onChange={(e)=>{
-                        setYear(e.target.value)
-                    }}>
-                        <option value="">Choose Year</option>
-                        {
-                            years.map((yr,index)=>{
-                                return <option key={myKey+index+1} value={yr}>{yr}</option>
-                            })
-                        }
-                    </select>
-                </div>
-            </div>
-            <Mgin top={20} />
-            <LrText wrap={!dimen.dsk}
-            left={<div>
-                <mye.Tv text="*Receipt" size={12} color={mye.mycol.primarycol}  />
-                <Mgin top={2} />
-                <mye.Tv text="Upload official stamp when" size={12} />
-                <Mgin top={2} />
-                <mye.Tv text="Physical receipt is not available" size={12} />
-            </div>}
-            right={<IconBtn icon={Add} mye={mye} ocl={()=>{
-                toast('Coming soon',2)
-            }} text="ATTACH DOC" />}
-            />
-            <Mgin top={20} />
-            <Btn txt="ADD PAYMENT" onClick={()=>{
-                if(memid.length==0){
-                    toast('Please add member ID',0)
-                    return;
-                }
-                if(!dpd){
-                    toast('Please add date paid',0)
-                    return;
-                }
-                if(ptype=='1' && year.length==0){
-                    toast('Please set year being paid for',0)
-                    return;
-                }
-                if(ptype=='2' && shares.length<4){
-                    toast('Please set no. of shares',0)
-                    return;
-                }
-                if(ptype=='2' &&parseFloat(shares)<1000){
-                    toast('Min shares is 1000',0)
-                    return;
-                }
-                setLoad(true)
-                let amt = ptype=='0'?'5000':ptype=='1'?'12000':(parseInt(shares)*pricePerShare).toString()
-                makeRequest.get(`getMemberBasicInfo/${memid}`,{},(task)=>{
-                    if(task.isSuccessful()){
-                        const mbi = new memberBasicinfo(task.getData())
-                        const pld:{[key:string]:string} = {
-                            ref: getPayRef(ptype,amt,mbi.getMemberID()),
-                            name: mbi.getFullName(),
-                            time: dpd.getTime().toString()
-                        }
-                        if(ptype=='1'){
-                            pld['year'] = year
-                        }
-                        if(ptype=='2'){
-                            pld['shares'] = shares
-                        }
-                        makeRequest.post('uploadPayment',pld,(task)=>{
-                            if(task.isSuccessful()){
-                                setLoad(false)
-                                toast('Payment Uploaded',1)
-                                setNewPay(false)
-                            }else{
-                                handleError(task)
-                            }
-                        })
-                    }else{
-                        handleError(task)
-                    }
-                })
-            }} />
-        </div>
-    }
+    
 
     function Opts(prop:{index:number,payType:payTypeEle}) {
         return <div className="ctr" style={{
@@ -508,3 +294,279 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
 
 }
 
+function AddPay(prop:{closy:(ok?:boolean)=>void}) {
+    const location = useLocation()
+    const navigate = useNavigate()
+    const mye = new myEles(false);
+    const dimen = useWindowDimensions()
+    const myKey = Date.now()
+    const[ptype,setPType] = useState('0')
+    const[memid,setMemid] = useState('')
+    const[dpd,setDpd] = useState<Date>()
+    const[askDpd, setAskDpd] = useState(false)
+
+    const[shares,setShares] = useState('')
+    const[year,setYear] = useState('')
+
+    const[years,setYears] = useState<string[]>([])
+
+    useEffect(()=>{
+        toast('REBUILDING',2)
+        const cy = new Date().getFullYear()
+        const tem:string[] = []
+        for(let i = cy; i > cy-20; i--){
+            tem.push(i.toString())
+        }
+        setYears(tem)
+    },[])
+
+    function handleError(task:resHandler){
+        setLoad(false)
+        setError(true)
+        if(task.isLoggedOut()){
+            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+        }else{
+            toast(task.getErrorMsg(),0)
+        }
+    }
+    
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+    var _delay = delay || 5000
+    setToastMeta({
+        action: action,
+        msg: msg,
+        visible:true,
+        invoked: Date.now()
+    })
+    clearTimeout(timy.timer)
+    setTimy({
+        timer:setTimeout(()=>{
+            if(Date.now()-toastMeta.invoked > 4000){
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked: 0
+                })
+            }
+        },_delay)
+    });
+    }
+
+    return <div style={{
+        backgroundColor:mye.mycol.bkg,
+        borderRadius:10,
+        padding:dimen.dsk2?70:dimen.dsk?40:20,
+        boxSizing:'border-box',
+        overflow:'scroll',
+        height:'75%',
+        width:dimen.dsk2?'35%':dimen.dsk?'50%':'80%'
+    }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+            
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
+        <div className="vlc" style={{
+            width:'100%',
+        }}>
+            <Close className="icon" style={{
+                alignSelf:'flex-end'
+            }} onClick={()=>{
+                prop.closy()
+            }}/>
+        </div>
+        <Mgin top={10} />
+        <div style={{
+            width:'100%'
+        }}>
+            <mye.Tv text="Payment Type" />
+            <Mgin top={3}/>
+            <select id="dropdown" name="dropdown" value={ptype} onChange={(e)=>{
+                setPType(e.target.value)
+            }}>
+                <option value="0">Reg Fee</option>
+                <option value="1">Annual Due</option>
+                <option value="2">Investment</option>
+            </select>
+        </div>
+        <Mgin top={20} />
+        <div style={{
+            width:'100%'
+        }}>
+            <mye.Tv text="*Member ID" />
+            <Mgin top={3}/>
+            <EditTextFilled hint="00000001" min={1} value={memid} digi recv={(v)=>{
+                setMemid(v.trim())
+            }} />
+        </div>
+        <Mgin top={20} />
+        <mye.Tv text="*Date Paid" />
+        <Mgin top={5}/>
+        <div style={{
+            width:'100%',
+            height:45,
+            borderRadius:8,
+            backgroundColor:mye.mycol.btnstrip,
+            padding:10,
+            boxSizing:'border-box',
+            position:'relative'
+        }} >
+            <LrText 
+            left={<div id="clk" onClick={()=>{
+                setAskDpd(true)
+            }}><mye.Tv text={dpd?format(dpd,'dd-MM-yy'):'DD/MM/YY'} /></div>}
+            right={<CalendarMonthOutlined id="clk" style={{
+                fontSize:20,
+                color:mye.mycol.secondarycol
+            }} onClick={()=>{
+                setAskDpd(true)
+            }}/>}
+            />
+            <div style={{
+                display:askDpd?undefined:'none',
+                position:'absolute',
+                top:0,
+                left:0,
+                zIndex:2,
+                pointerEvents:'auto'
+            }}>
+                <DatePicky fromYear={new Date().getFullYear()-20} toYear={new Date().getFullYear()} focusYear={new Date().getFullYear()-1} rdy={(d)=>{
+                    setAskDpd(false)
+                    setDpd(d)
+                }} closy={()=>{
+                    setAskDpd(false)
+                }}/>
+            </div>
+        </div>
+        <div style={{
+            width:'100%',
+            display: ptype=='2'?undefined:'none'
+        }}>
+            <Mgin top={20} />
+            <div style={{
+                width:'100%'
+            }}>
+                <mye.Tv text="Shares" />
+                <Mgin top={3}/>
+                <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} recv={(v)=>{
+                    setShares(v.trim())
+                }} />
+            </div>
+        </div>
+        <div style={{
+            width:'100%',
+            display: ptype=='1'?undefined:'none'
+        }}>
+            <Mgin top={20} />
+            <div style={{
+                width:'100%'
+            }}>
+                <mye.Tv text="*Year Being Paid For" />
+                <Mgin top={3}/>
+                <select id="dropdown" name="dropdown" value={year} onChange={(e)=>{
+                    setYear(e.target.value)
+                }}>
+                    <option value="">Choose Year</option>
+                    {
+                        years.map((yr,index)=>{
+                            return <option key={myKey+index+1} value={yr}>{yr}</option>
+                        })
+                    }
+                </select>
+            </div>
+        </div>
+        <Mgin top={20} />
+        <LrText wrap={!dimen.dsk}
+        left={<div>
+            <mye.Tv text="*Receipt" size={12} color={mye.mycol.primarycol}  />
+            <Mgin top={2} />
+            <mye.Tv text="Upload official stamp when" size={12} />
+            <Mgin top={2} />
+            <mye.Tv text="Physical receipt is not available" size={12} />
+        </div>}
+        right={<IconBtn icon={Add} mye={mye} ocl={()=>{
+            toast('Coming soon',2)
+        }} text="ATTACH DOC" />}
+        />
+        <Mgin top={20} />
+        <Btn txt="ADD PAYMENT" onClick={()=>{
+            if(memid.length==0){
+                toast('Please add member ID',0)
+                return;
+            }
+            if(!dpd){
+                toast('Please add date paid',0)
+                return;
+            }
+            if(ptype=='1' && year.length==0){
+                toast('Please set year being paid for',0)
+                return;
+            }
+            if(ptype=='2' && shares.length<4){
+                toast('Please set no. of shares',0)
+                return;
+            }
+            if(ptype=='2' &&parseFloat(shares)<1000){
+                toast('Min shares is 1000',0)
+                return;
+            }
+            setLoad(true)
+            let amt = ptype=='0'?'5000':ptype=='1'?'12000':(parseInt(shares)*pricePerShare).toString()
+            makeRequest.get(`getMemberBasicInfo/${formatMemId(memid)}`,{},(task)=>{
+                if(task.isSuccessful()){
+                    if(task.exists()){
+
+                    }else{
+                        const mbi = new memberBasicinfo(task.getData())
+                        const pld:{[key:string]:string} = {
+                            ref: getPayRef(ptype,amt,mbi.getMemberID()),
+                            name: mbi.getFullName(),
+                            time: dpd.getTime().toString()
+                        }
+                        if(ptype=='1'){
+                            pld['year'] = year
+                        }
+                        if(ptype=='2'){
+                            pld['shares'] = shares
+                        }
+                        makeRequest.post('uploadPayment',pld,(task)=>{
+                            if(task.isSuccessful()){
+                                setLoad(false)
+                                prop.closy(true)
+                            }else{
+                                handleError(task)
+                            }
+                        })
+                    }
+                }else{
+                    handleError(task)
+                }
+            })
+        }} />
+    </div>
+}

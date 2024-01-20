@@ -22,7 +22,7 @@ export function Register(){
     const[fname,setFName] = useState('')
     const[mname,setMName] = useState('')
     const[lname,setLName] = useState('')
-    const[eml,setEml] = useState(qry.get('eml') ?? '')
+    const[eml,setEml] = useState(qry.get('phn') ?? '')
     const[phn,setPhn] = useState('')
     const[pwd1,setPwd1] = useState('')
     const[pwd2,setPwd2] = useState('')
@@ -141,7 +141,7 @@ export function Register(){
                 }} />
             </div>
             <Mgin top={5} />
-            <mye.Tv text="For Verification purposes, please use official coorperative email address" color={mye.mycol.hint} size={12} />
+            <mye.Tv text="For Verification purposes, please use official cooperative email address" color={mye.mycol.hint} size={12} />
             <Mgin top={15} />
             <div style={{
                 width:'100%'
@@ -185,7 +185,6 @@ export function Register(){
             <Mgin top={20} />
             <ReCAPTCHA
                 ref={recaptchaRef}
-                size="invisible"
                 sitekey={adsi_recaptcha_key}
             />
             <Mgin top={15} />
@@ -218,15 +217,10 @@ export function Register(){
                     toast('Enter ADSI Number',0)
                     return
                 }
-                recaptchaRef.current?.executeAsync().then((token)=>{
-                    if(token){
-                        console.log('RECAPTCHA SUCCESS')
-                    }else{
-                        console.log('RECAPTCHA FAILED')
-                    }
-                }).catch((e)=>{
-                    console.error(e)
-                });
+                if(!recaptchaRef.current?.getValue()){
+                    toast('Please confirm you are not a robot',0)
+                    return
+                }
                 setLoad(true)
                 const fMemId = formatMemId(memid)
                 makeRequest.post('register',{
@@ -244,7 +238,7 @@ export function Register(){
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay:'1' //TODO change for new members
+                            pay:'0'
                         },(task)=>{
                             saveMemId(fMemId)
                             makeRequest.get('logout',{},(task)=>{
@@ -263,7 +257,7 @@ export function Register(){
                 <mye.Tv text="Already have an account?" color={mye.mycol.primarycol} />
                 <Mgin right={10} />
                 <mye.Tv text="Sign In" color={mye.mycol.primarycol} onClick={()=>{
-                    navigate(`/login?eml=${memid.length>7?memid:eml}`)
+                    navigate(`/login?phn=${memid.length>7?memid:phn}`)
                 }} />
             </div>
         </div>
@@ -394,7 +388,7 @@ export function PayRegFee(){
             setLoad(false)
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData());
-                setPayStage(mbi.getPayStage())
+                setPayStage(mbi.isPaid()?1:0)
                 setMBI(mbi)
             }else{
                 setError(true)

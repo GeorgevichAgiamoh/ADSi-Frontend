@@ -174,11 +174,12 @@ export function CompleteProfile(){
       });
     }
     return <div className="vlc" style={{
-        width:dimen.width,
-        height:dimen.height
+        width:'100%',
+        boxSizing:'border-box',
+        padding:dimen.dsk?40:20
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
-
+            getMemInfo()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -200,9 +201,7 @@ export function CompleteProfile(){
                 })
             }} />
         {rdy?<div className="vlc" style={{
-            width:dimen.dsk?500:'100%',
-            padding:dimen.dsk?0:20,
-            boxSizing:'border-box'
+            width:dimen.dsk?500:'100%'
         }}>
             <Mgin top={40} />
             <mye.HTv text="Edit Your Profile" size={35} />
@@ -255,7 +254,7 @@ export function CompleteProfile(){
                 }} />
             </div>
             <Mgin top={5} />
-            <mye.Tv text="For Verification purposes, please use official coorperative email address" color={mye.mycol.hint} size={12} />
+            <mye.Tv text="For Verification purposes, please use official cooperative email address" color={mye.mycol.hint} size={12} />
             <Mgin top={15} />
             <div style={{
                 width:'100%'
@@ -391,7 +390,7 @@ export function CompleteProfile(){
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        mCountry.getAllCountries().map((ele, index)=>{
+                        mCountry.getAllCountries(true).map((ele, index)=>{
                             return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                         })
                     }
@@ -412,7 +411,7 @@ export function CompleteProfile(){
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        nationality?mState.getStatesByCountry(nationality!.getId()).map((ele, index)=>{
+                        nationality?mState.getStatesByCountry(nationality!.getId(),true).map((ele, index)=>{
                             return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                         }):<option value="option1">Choose Country First</option>
                     }
@@ -432,7 +431,7 @@ export function CompleteProfile(){
                 }}>
                     <option value="">Click to Choose</option>
                     {
-                        (nationality&& state)?mLga.getLgasByState(nationality!.getId(),state!.getId()).map((ele, index)=>{
+                        (nationality&& state)?mLga.getLgasByState(nationality!.getId(),state!.getId(),true).map((ele, index)=>{
                             return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                         }):<option value="option1">Choose Country & State First</option>
                     }
