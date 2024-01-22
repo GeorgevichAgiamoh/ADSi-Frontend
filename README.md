@@ -48,6 +48,8 @@ NEW: All done except messaging
 
 ### Code (actions)
 
+Mails can now be sent at the sendMail endpoint (POST)
+
 | Done          | Upcoming      |
 | ------------- | ------------- |
 | Admin Dash    | Messaging     |
@@ -55,7 +57,7 @@ NEW: All done except messaging
 | Admin pays    |               |
 | Admin setns   |               |
 | Member pays   |               |
-|               |               |
+| Email conf    |               |
 |               |               |
 |               |               |
 |               |               |

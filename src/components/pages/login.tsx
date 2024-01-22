@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import axios from "axios";
-import { makeRequest, saveMemId } from "../../helper/requesthandler";
+import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
 
 
 
@@ -333,7 +333,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
     const rdr  = qry.get('rdr')||""
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
-    const[phn,setPhn] = useState(qry.get('phn') ?? '')
+    const[phn,setPhn] = useState(qry.get('phn') ?? getMemId())
     const[pwd,setPwd] = useState('')
     const navigate = useNavigate();
 
@@ -442,7 +442,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             <Btn txt="REGISTER" onClick={()=>{
                 navigate(`/register?${isMemID(phn)?'mid':'phn'}=${phn}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
-            <PoweredBySSS floaatIt/>
+            <PoweredBySSS floaatIt noPadding/>
         </div>
 
     </div>

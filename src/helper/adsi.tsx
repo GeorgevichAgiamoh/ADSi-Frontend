@@ -38,7 +38,7 @@ export function MsgAlert(prop:{mye:myEles,icon:icony,msg:string,isError?:boolean
 
 }
 
-export function PoweredBySSS(prop:{floaatIt?:boolean}){
+export function PoweredBySSS(prop:{floaatIt?:boolean, noPadding?:boolean}){
     const mye = new myEles(false)
     const dimen = useWindowDimensions()
     return <div className="ctr" style={!prop.floaatIt?{
@@ -47,7 +47,7 @@ export function PoweredBySSS(prop:{floaatIt?:boolean}){
         position:'fixed',
         width:'100%',
         bottom:10,
-        left:dimen.dsk?150:0
+        left:(dimen.dsk && !prop.noPadding)?150:0
     }}>
         <div className="hlc">
             <mye.Tv text="POWERED BY "  size={12}/>

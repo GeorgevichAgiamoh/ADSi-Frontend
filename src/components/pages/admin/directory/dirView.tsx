@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Btn, ErrorCont, Line, Mgin, appName, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
-import { getCreatedTime, memberGeneralinfo } from "../../../classes/models"
+import { defVal, getCreatedTime, memberGeneralinfo } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
@@ -60,16 +60,38 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
       });
     }
 
-    function updateData(key:string, value:string){
+    function updateData(key:string, value:string, mailUser?:boolean){
         setLoad(true)
         const ndata = {...mainprop.user.basicData!.data}
         ndata[key] = value
         makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
-            setLoad(false)
             if(task.isSuccessful()){
                 mainprop.user.basicData!.data[key] = value
-                toast('Update successful',1)
-                setMyKey(Date.now()) // Rebuild entire page
+                if(mailUser){
+                    if(mainprop.user.basicData!.getEmail()!=defVal){
+                        toast('Mailing user..',2)
+                        makeRequest.post('sendMail',{
+                            name: mainprop.user.basicData!.getFirstName(),
+                            email: mainprop.user.basicData!.getEmail(),
+                            subject: "ADSI Account Verified",
+                            body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
+                        },(task)=>{
+                            setLoad(false)
+                            if(task.isSuccessful()){
+                                toast('Approval successful and user has been mailed',1)
+                            }else{
+                                toast('APPROVAL SUCCESSFUL. But '+task.getErrorMsg(),2);
+                            }
+                        })
+                    }else{
+                        setLoad(false)
+                        toast('Successful. But we could not mail user as no email was provided',2,10000)
+                    }
+                }else{
+                    setLoad(false)
+                    toast('Update successful',1)
+                    setMyKey(Date.now()) // Rebuild entire page
+                }
             }else{
                 handleError(task)
             }
@@ -131,7 +153,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="APPROVE" onClick={()=>{
-                    updateData('verif','1')
+                    updateData('verif','1',true)
                 }} width={120} />
                 <Mgin right={20}/>
                 <Btn txt="EDIT" onClick={()=>{

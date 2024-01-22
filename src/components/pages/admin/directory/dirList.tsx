@@ -7,7 +7,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
+import { defVal, memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
 import { format } from "date-fns"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
@@ -394,12 +394,40 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                     const value = prop.user.basicData?.isVerified()?'0':'1'
                     ndata['verif'] = value
                     makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
-                        setLoad(false)
                         if(task.isSuccessful()){
-                            prop.user.basicData!.data['verif'] = value
-                            toast('Update successful',1)
-                            setOptToShow(-1)
-                            prop.rmvMe()
+                            if(!prop.user.basicData?.isVerified()){
+                                if(prop.user.basicData!.getEmail()!=defVal){
+                                    toast('Mailing user..',2)
+                                    makeRequest.post('sendMail',{
+                                        name: prop.user.basicData!.getFirstName(),
+                                        email: prop.user.basicData!.getEmail(),
+                                        subject: "ADSI Account Verified",
+                                        body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
+                                    },(task)=>{
+                                        setLoad(false)
+                                        if(task.isSuccessful()){
+                                            toast('Approval successful and user has been mailed',1)
+                                        }else{
+                                            toast('APPROVAL SUCCESSFUL. But '+task.getErrorMsg(),2);
+                                        }
+                                        prop.user.basicData!.data['verif'] = value
+                                        setOptToShow(-1)
+                                        prop.rmvMe()
+                                    })
+                                }else{
+                                    setLoad(false)
+                                    toast('Successful. But we could not mail user as no email was provided',2,10000)
+                                    prop.user.basicData!.data['verif'] = value
+                                    setOptToShow(-1)
+                                    prop.rmvMe()
+                                }
+                            }else{
+                                setLoad(false)
+                                toast('Update successful',1)
+                                prop.user.basicData!.data['verif'] = value
+                                setOptToShow(-1)
+                                prop.rmvMe()
+                            }
                         }else{
                             handleError(task,true)
                         }
