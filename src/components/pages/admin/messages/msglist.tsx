@@ -6,6 +6,7 @@ import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, MyCB } from "../../../../helper/general"
 import { msgMeta } from "../../../classes/classes"
 import { NewMsg } from "./messages"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -251,6 +252,7 @@ export function AdminMsgList(mainprop:{actiony:(action:number,user:msgMeta)=>voi
                 }} />
             </div>
         </div>
+        <PoweredBySSS />
         {/* Absolutely positioned (dialog) */}
         <div className="ctr" style={{
             display:showNewMsg?undefined:'none',

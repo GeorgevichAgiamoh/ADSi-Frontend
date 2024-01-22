@@ -9,6 +9,7 @@ import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
 import { format } from "date-fns"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -23,14 +24,13 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
     const[vStats,setVStats] = useState<verifStat>()
-    const[vu,setVu] = useState<memberGeneralinfo[]>([])
-    const[uvu,setUvu] = useState<memberGeneralinfo[]>([])
+    const[infos,setInfos] = useState<memberGeneralinfo[]>([])
     
     
 
-    function handleError(task:resHandler){
+    function handleError(task:resHandler,noHarm?:boolean){
         setLoad(false)
-        setError(true)
+        setError(!noHarm)
         if(task.isLoggedOut()){
             navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
         }else{
@@ -49,18 +49,22 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         makeRequest.get('getVerificationStats',{},(task)=>{
             if(task.isSuccessful()){
                 setVStats(new verifStat(task.getData()))
-                getUsers(true)
+                getUsers(true,0)
             }else{
                 handleError(task)
             }
         })
     }
 
-    function getUsers(verified:boolean){
+    function getUsers(verified:boolean, index:number){
+        setOptToShow(-1)
         setShowVerified(verified)
         setError(false)
         setLoad(true)
-        makeRequest.get(`getMembersByV/${verified?'1':'0'}`,{},(task)=>{
+        makeRequest.get(`getMembersByV/${verified?'1':'0'}`,{
+            start:(index*20),
+            count:20
+        },(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
                 const tem:memberGeneralinfo[] = []
@@ -72,11 +76,9 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                     mgi.setBasicData(mbi)
                     tem.push(mgi)
                 }
-                if(verified){
-                    setVu(tem)
-                }else{
-                    setUvu(tem)
-                }
+                setInfos(tem)
+                setShowingIndex(index)
+                console.log(tem.length)
             }else{
                 handleError(task)
             }
@@ -207,7 +209,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 flex:1
             }}>
                 <Btn txt="Verified" round onClick={()=>{
-                    getUsers(true)
+                    getUsers(true,0)
                 }} transparent={!showVerified} />
             </div>
             <Mgin right={10} />
@@ -215,7 +217,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 flex:1
             }}>
                 <Btn txt="Unverified" round onClick={()=>{
-                    getUsers(false)
+                    getUsers(false,0)
                 }} transparent={showVerified}/>
             </div>
         </div>}
@@ -273,7 +275,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                         <MyCell text="Action"  isBold/>
                     </div>
                     {
-                        (showVerified?vu:uvu).slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
+                        infos.map((ele,index)=>{
                             return <div className="hlc" key={myKey+index+showingIndex*20}>
                                 <MyCell text={(index+1+showingIndex*20).toString()} />
                                 <MyCell text={ele.basicData!.getlastName()} />
@@ -282,29 +284,34 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                                 <MyCell text={ele.getFormattedDOB()} />
                                 <MyCell text={ele.basicData!.getMemberID()} />
                                 <MyCell text={ele.basicData!.getPhone()} />
-                                <Opts index={index} user={ele} />
+                                <Opts index={index} user={ele} rmvMe={()=>{
+                                    const i = index+showingIndex*20
+                                    const al = [...infos.slice(0, i), ...infos.slice(i + 1)]
+                                    setInfos(al)
+                                }} />
                             </div>
                         })
                     }
                 </div>
             </div>
             <Mgin top={20} />
-            <div className="hlc">
+            {vStats?<div className="hlc">
                 <ArrowBack id="clk" className="icon" onClick={()=>{
                     if(showingIndex >0){
-                        setShowingIndex(showingIndex-1)
+                        const index = showingIndex-1
+                        getUsers(showVerified,index)
                     }
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor((showVerified?vu:uvu).length/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((showVerified?vStats.getTotalVerified():vStats.getTotalUnverified())/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
                             backgroundColor:showingIndex==index?mye.mycol.black:'transparent',
                             borderRadius:'50%'
                         }} onClick={()=>{
-                            setShowingIndex(index)
+                            getUsers(showVerified,index)
                         }}>
                             <mye.BTv text={(index+1).toString()} color={showingIndex==index?mye.mycol.white:mye.mycol.black} size={16}/>
                         </div>
@@ -312,23 +319,24 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor((showVerified?vu:uvu).length/20)
-                    console.log(len)
-                    console.log(showingIndex)
+                    const len = Math.floor((showVerified?vStats.getTotalVerified():vStats.getTotalUnverified())/20)
                     if(showingIndex < len){
-                        setShowingIndex(showingIndex+1)
+                        const index = showingIndex+1
+                        getUsers(showVerified,index)
                     }
                 }} />
-            </div>
+            </div>:<div></div>}
         </div>
+        <PoweredBySSS />
     </div>
 
-    function Opts(prop:{index:number,user:memberGeneralinfo}) {
+    function Opts(prop:{index:number,user:memberGeneralinfo, rmvMe:()=>void}) {
 
         function doIt(action:number){
             if(prop.user.isPrepared()){
                 mainprop.actiony(action,prop.user)
             }else{
+                setLoad(true) //~
                 makeRequest.get(`getMemberFinancialInfo/${prop.user.getMemberID()}`,{},(task)=>{
                     if(task.isSuccessful()){
                         prop.user.setFinData(new memberFinancialinfo(task.getData()))//Will suffice, even if it doesnt exist
@@ -380,8 +388,22 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                     doIt(1)
                 }} alignStart special/>
                 <Line />
-                <MyCell text="Deactivate" ocl={()=>{
-                    doIt(2)
+                <MyCell text={prop.user.basicData?.isVerified()?"Deactivate":"Approve"} ocl={()=>{
+                    setLoad(true)
+                    const ndata = {...prop.user.basicData!.data}
+                    const value = prop.user.basicData?.isVerified()?'0':'1'
+                    ndata['verif'] = value
+                    makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
+                        setLoad(false)
+                        if(task.isSuccessful()){
+                            prop.user.basicData!.data['verif'] = value
+                            toast('Update successful',1)
+                            setOptToShow(-1)
+                            prop.rmvMe()
+                        }else{
+                            handleError(task,true)
+                        }
+                    })
                 }} alignStart special />
             </div>
         </div>

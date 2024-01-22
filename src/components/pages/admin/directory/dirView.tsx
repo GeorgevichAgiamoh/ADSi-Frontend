@@ -7,6 +7,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:number)=>void}){
@@ -208,6 +209,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
             </div>
 
         </div>
+        <PoweredBySSS floaatIt />
     </div>
 
     function InfoLay(prop:{sub:string, main:string}) {

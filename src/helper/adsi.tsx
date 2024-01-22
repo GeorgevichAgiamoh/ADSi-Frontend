@@ -3,6 +3,7 @@
 import { ChangeEvent, useRef, useState } from "react";
 import { Mgin, icony, myEles } from "./general";
 import { Close } from "@mui/icons-material";
+import useWindowDimensions from "./dimension";
 
 export function MsgAlert(prop:{mye:myEles,icon:icony,msg:string,isError?:boolean}){
     const[show,setShow] = useState(true)
@@ -35,6 +36,27 @@ export function MsgAlert(prop:{mye:myEles,icon:icony,msg:string,isError?:boolean
         }} />
     </div>
 
+}
+
+export function PoweredBySSS(prop:{floaatIt?:boolean}){
+    const mye = new myEles(false)
+    const dimen = useWindowDimensions()
+    return <div className="ctr" style={!prop.floaatIt?{
+        marginTop:50
+    }:{
+        position:'fixed',
+        width:'100%',
+        bottom:10,
+        left:dimen.dsk?150:0
+    }}>
+        <div className="hlc">
+            <mye.Tv text="POWERED BY "  size={12}/>
+            <mye.BTv text="STABLE SHIELD SOLUTIONS" color={mye.mycol.primarycol} size={12} onClick={()=>{
+                const newTab = window.open('https://stableshield.com', '_blank');
+                newTab?.focus(); 
+            }}/>
+        </div>
+    </div>
 }
 
 

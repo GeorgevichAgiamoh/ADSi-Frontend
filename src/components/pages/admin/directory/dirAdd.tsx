@@ -11,6 +11,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGeneralinfo}){
@@ -508,6 +509,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                 })
             }} width={200} />
         </div>
+        <PoweredBySSS floaatIt/>
     </div>
 
 }

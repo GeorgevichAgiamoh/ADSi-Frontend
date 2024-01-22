@@ -8,6 +8,7 @@ import Toast from "../../toast/toast";
 import { makeRequest, resHandler } from "../../../helper/requesthandler";
 import { useLocation, useNavigate } from "react-router-dom";
 import tabcard from "../../../assets/tabcard.png"
+import { PoweredBySSS } from "../../../helper/adsi";
 
 
 
@@ -182,6 +183,7 @@ export function AdminDashboard(){
              </div>}
              />
         </div>
+        <PoweredBySSS />
 
         {/* Absolutely positioned (dialog) */}
         <div className="ctr" style={{
@@ -374,7 +376,7 @@ export function AdminDashboard(){
             if(sum==0){
                 sum = 1;
             }
-            return (isMale?hele.getTotalMales():hele.getTotalFemales()/(sum))*100
+            return Math.round(((isMale?hele.getTotalMales():hele.getTotalFemales())/(sum))*100)
         }
         
         return <div id="lshdw" style={{
@@ -388,13 +390,13 @@ export function AdminDashboard(){
             backgroundSize: 'cover',
         }}>
             <div style={{
-                width:100,
-                height:100,
+                width:70,
+                height:70,
                 position:'absolute',
                 top:20,
-                right:20
+                right:20,
             }}>
-                <MyPieChart key={hele?0.1213:0.34} values={[getPerc(true),getPerc(false)]} colors={[mye.mycol.primarycol, mye.mycol.secondarycol]}/>
+                <MyPieChart size={70} key={hele?0.1213:0.34} values={[getPerc(true),getPerc(false)]} colors={[mye.mycol.primarycol, mye.mycol.secondarycol]}/>
             </div>
             <div style={{
                 position:'absolute',
@@ -402,7 +404,7 @@ export function AdminDashboard(){
                 bottom:20
             }}>
                 <div className="hlc">
-                    <div style={{width:10,height:10,borderRadius:2,backgroundColor:mye.mycol.secondarycol}}></div>
+                    <div style={{width:10,height:10,borderRadius:2,backgroundColor:mye.mycol.primarycol}}></div>
                     <Mgin right={5} />
                     <mye.Tv text="Males" color={mye.mycol.primarycol} />
                     <Mgin right={10} />
@@ -410,7 +412,7 @@ export function AdminDashboard(){
                 </div>
                 <Mgin top={10}/>
                 <div className="hlc">
-                    <div style={{width:10,height:10,borderRadius:2,backgroundColor:mye.mycol.primarycol}}></div>
+                    <div style={{width:10,height:10,borderRadius:2,backgroundColor:mye.mycol.secondarycol}}></div>
                     <Mgin right={5} />
                     <mye.Tv text="Females" color={mye.mycol.primarycol} />
                     <Mgin right={10} />

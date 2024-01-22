@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
-import { MsgAlert } from "../../helper/adsi";
+import { MsgAlert, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef, paystackPK } from "../../helper/general";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -260,8 +260,8 @@ export function Register(){
                     navigate(`/login?phn=${memid.length>7?memid:phn}`)
                 }} />
             </div>
+            <PoweredBySSS/>
         </div>
-
     </div>
 
 }

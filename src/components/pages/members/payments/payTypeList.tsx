@@ -11,10 +11,11 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
 import Barcode from "react-barcode"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
-export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],actiony:(action:number,dues:payRecordEle[],investments:payRecordEle[],payRecord?:payRecordEle)=>void}){
+export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:number,dues:payRecordEle[],investments:payRecordEle[],payRecord?:payRecordEle)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -29,6 +30,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
     const[totDues,setTotDues] = useState('...')
     const[cpay, setCPay] = useState<payRecordEle>()
     const[showReceipt, setShowReceipt] = useState(false)
+    const[duesOtsd,setDuesOtsd] = useState('...')
     
 
     useEffect(()=>{
@@ -62,6 +64,18 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
                 }
                 setTotDues(td.toString())
                 setDues(tem)
+                const cy = new Date().getFullYear()
+                const tem2:string[] = []
+                for(let i = cy; i > 2023; i--){ //Starts at 2024
+                    tem2.push(i.toString())
+                }
+                let paids = 0;
+                for(let d of tem){
+                    if(tem2.includes(d.getYear())){
+                        paids=paids+1;
+                    }
+                }
+                setDuesOtsd(((tem2.length-paids)*12000).toString())
             }
             const shares = task.getData()['s']
             if(shares){
@@ -148,7 +162,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
         }}>
             <Tab1 icon={MonetizationOnOutlined} title="Total Share Capital" value={totShares} color={mye.mycol.green} />
             <Tab1 icon={MonetizationOnOutlined} title="Total Dues Paid" value={totDues} color={mye.mycol.hs_blue} />
-            <Tab1 icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${mainprop.yearsOwed.length*12000}`} color={mye.mycol.red} />
+            <Tab1 icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${duesOtsd}`} color={mye.mycol.red} />
         </div>
         <Mgin top={30} />
         <div id='lshdw' style={{
@@ -190,7 +204,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
                     <Line />
                     {
                         investments.map((ele,index)=>{
-                            return <div style={{
+                            return <div key={myKey+index+0.011} style={{
                                 width:'100%'
                             }}>
                                 <div className="hlc" key={myKey+index+0.1}>
@@ -253,7 +267,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
                     <Line />
                     {
                         dues.map((ele,index)=>{
-                            return <div style={{
+                            return <div key={myKey+index+0.021} style={{
                                 width:'100%'
                             }}>
                                 <div className="hlc" key={myKey+index+0.1}>
@@ -276,9 +290,9 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
             <ArrowRightOutlined className="icon" />
             </div>
         </div>
+        <PoweredBySSS />
         {/* Absolutely positioned (dialog) */}
-        <div className="ctr" style={{
-            display:makePaymet!=0?undefined:'none',
+        {makePaymet!=0?<div className="ctr" style={{
             position:'absolute',
             top:0,
             left:0,
@@ -292,7 +306,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,yearsOwed:string[],
                     setShowPP(true)
                 }
             }} />
-        </div>
+        </div>:<div></div>}
         {/* Absolutely positioned (dialog) */}
         <div className="ctr" style={{
             display:showPP?undefined:'none',

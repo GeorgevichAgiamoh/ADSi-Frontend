@@ -10,6 +10,7 @@ import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { memberBasicinfo } from "../../../classes/models"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -94,7 +95,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             }} width={160} bkg={mye.mycol.primarycol}/>
         </div>
         <Mgin top={10} />
-        {/* <div style={{
+        <div style={{
             display:'flex',
             width:'100%',
             flexWrap:'wrap',
@@ -102,7 +103,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         }}>
             <Tab1 icon={SavingsOutlined} title="Total Payment" value="N300,000" color={mye.mycol.hs_blue} />
             <Tab1 icon={PersonOutline} title="Outstanding" value="N50,000" color={mye.mycol.red} />
-        </div> */}
+        </div>
         <Mgin top={50} />
         <div className="vlc" id='lshdw' style={{
             width:'100%',
@@ -155,6 +156,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
                 </div>
             </div>
         </div>
+        <PoweredBySSS />
         {/* Absolutely positioned (dialog) */}
         <div className="ctr" style={{
             display:newPay?undefined:'none',
@@ -540,8 +542,6 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
             makeRequest.get(`getMemberBasicInfo/${formatMemId(memid)}`,{},(task)=>{
                 if(task.isSuccessful()){
                     if(task.exists()){
-
-                    }else{
                         const mbi = new memberBasicinfo(task.getData())
                         const pld:{[key:string]:string} = {
                             ref: getPayRef(ptype,amt,mbi.getMemberID()),
@@ -562,6 +562,9 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
                                 handleError(task)
                             }
                         })
+                    }else{
+                        setLoad(false)
+                        toast('No member with that ID',0)
                     }
                 }else{
                     handleError(task)

@@ -216,6 +216,7 @@ export function getCreatedTime(data:any,includeTime?:boolean){
 export class payRecordEle{
     data:any
     constructor(data:any){
+        console.log(data)
         this.data = data
     }
     getMemId(){

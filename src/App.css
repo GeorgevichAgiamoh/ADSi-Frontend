@@ -210,6 +210,11 @@ button{
   justify-content: center;
 }
 
+.ctrv{
+  display: flex;
+  align-items: center;
+}
+
 .dload{
   position: absolute;
   top: '50%';

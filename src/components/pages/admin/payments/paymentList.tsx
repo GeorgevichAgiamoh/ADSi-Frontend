@@ -9,6 +9,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -324,6 +325,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 }} />
             </div>
         </div>
+        <PoweredBySSS />
          {/* Absolutely positioned (dialog) */}
          <div className="ctr" style={{
             display:showReminder?undefined:'none',

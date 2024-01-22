@@ -9,6 +9,7 @@ import { resHandler } from "../../../../helper/requesthandler"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { useLocation, useNavigate } from "react-router-dom"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -290,6 +291,7 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                 }} />
             </div>
         </div>
+        <PoweredBySSS />
          {/* Absolutely positioned (dialog) */}
          <div className="ctr" style={{
             display:showReminder?undefined:'none',

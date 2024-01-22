@@ -8,7 +8,7 @@ import { memberBasicinfo, payRecordEle } from "../../../classes/models"
 
 
 
-export function MemberPayments(mainprop:{mbi:memberBasicinfo,yearsOwed:string[]}){
+export function MemberPayments(mainprop:{mbi:memberBasicinfo}){
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[payRecord, setPayRecord] = useState<payRecordEle>()
@@ -22,7 +22,7 @@ export function MemberPayments(mainprop:{mbi:memberBasicinfo,yearsOwed:string[]}
 
 
     if(stage == -1){
-        return <MemberPayTypes yearsOwed={mainprop.yearsOwed}  mbi={mainprop.mbi} actiony={(action,d,i,pt)=>{
+        return <MemberPayTypes  mbi={mainprop.mbi} actiony={(action,d,i,pt)=>{
             setDues(d)
             setInvestments(i)
             setPayRecord(pt)

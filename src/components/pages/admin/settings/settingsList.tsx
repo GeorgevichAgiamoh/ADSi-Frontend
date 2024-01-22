@@ -1,7 +1,7 @@
 import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, UploadOutlined, AccountBalance, PeopleOutline } from "@mui/icons-material"
 import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, ErrorCont, isEmlValid, isMemID, formatMemId } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, ErrorCont, isEmlValid, isMemID, formatMemId, masterID } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -10,6 +10,7 @@ import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { adminUserEle, adsiInfoEle, permHelp } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -756,6 +757,7 @@ export function SettingsList(){
                 </div>
                 
         </div>}
+        <PoweredBySSS />
     </div>
 
     function grantPerm(index:number) {
@@ -848,6 +850,10 @@ export function SettingsList(){
                 }} alignStart special/>
                 <Line />
                 <MyCell text="Delete" ocl={()=>{
+                    if(prop.user.getMemId()==masterID){
+                        toast('Cannot delete master Admin',0)
+                        return;
+                    }
                     setLoad(true)
                     makeRequest.get(`removeAdmin/${formatMemId(prop.user.getMemId())}`,{},(task)=>{
                         setLoad(false)

@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { AxiosResponse } from "axios";
 import { useLocation } from "react-router-dom";
 import { getMemId } from "./requesthandler";
+import PieDonutChart from "@garvae/react-pie-donut-chart";
 
 //----------colors
 class myCols{
@@ -118,6 +119,7 @@ export function BoldText(prop:{maxLines?:number,isNgt:boolean,text:string, size:
     }
     return (
         <p onClick={prop.onClick} style={{margin:"1px",fontSize: prop.size,color: prop.color||MyCols(prop.isNgt).black, fontWeight: "bold",
+        cursor:prop.onClick!==undefined?"pointer":"default",
         maxLines:ln,whiteSpace:prop.wrapit?"normal":"nowrap", textAlign:prop.center?"center":"start"}}>{prop.text}</p>
     )
 }
@@ -590,31 +592,14 @@ export function fixedString(s:string, numDig:number){
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  export function MyPieChart(prop:{values:number[],colors:string[]}){
-    const total = prop.values.reduce((acc, val) => acc + val, 0);
-    let cumulativePercent = 0;
+  export function MyPieChart(prop:{size:number,values:number[],colors:string[]}){
 
-    return (
-        <svg width="100%" height="100%">
-        {prop.values.map((value, index) => {
-            const percentage = (value / total) * 100;
-            const sliceColor = prop.colors[index] || `hsl(${(index / prop.values.length) * 360}, 70%, 50%)`;
-
-            const pathData = `
-            M 50% 50%
-            L 50% 0
-            A 50% 50% 0 ${percentage > 50 ? 1 : 0} 1
-            ${Math.cos((cumulativePercent * Math.PI) / 180) * 50 + 50}%
-            ${Math.sin((cumulativePercent * Math.PI) / 180) * 50 + 50}%
-            Z
-            `;
-
-            cumulativePercent += percentage;
-
-            return <path key={index} d={pathData} fill={sliceColor} />;
-        })}
-        </svg>
-    );
+    return <PieDonutChart data={prop.values.map((v,i)=>{
+        return {
+            color:prop.colors[i],
+            value:v
+        }
+    })} size={prop.size}/>;
   }
 
   export function LoadLay(){
@@ -745,3 +730,5 @@ export function fixedString(s:string, numDig:number){
   export const paystackPK = 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4'
 
   export const pricePerShare = 10
+
+  export const masterID = '11111111'

@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { makeRequest, resHandler } from "../../../helper/requesthandler";
+import { PoweredBySSS } from "../../../helper/adsi";
 
 
 
@@ -213,6 +214,7 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
                 <ArrowRightOutlined className="icon" />
              </div>
         </div>
+        <PoweredBySSS />
     </div>
 
 function AnnLay(prop:{ele:annEle}) {

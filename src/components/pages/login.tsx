@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
-import { MsgAlert, PincodeLay } from "../../helper/adsi";
+import { MsgAlert, PincodeLay, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType, formatMemId, isPhoneNigOk } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
@@ -442,6 +442,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             <Btn txt="REGISTER" onClick={()=>{
                 navigate(`/register?${isMemID(phn)?'mid':'phn'}=${phn}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
+            <PoweredBySSS floaatIt/>
         </div>
 
     </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useWindowDimensions from "../../../helper/dimension";
 import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../helper/general";
 import { AdminNav, MemberNav } from "../nav";
-import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
+import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, BuildOutlined, Close, DeveloperModeOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import dp from "../../../assets/dp.png"
 import { annEle } from "../../classes/classes";
 import { MemberDashboard } from "./dashbrd";
@@ -214,10 +214,10 @@ export function Members(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {mbi?tabPos===0?<MemberDashboard goto={(a)=>{
+                    {(mgi && mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
                         setMyKey(Date.now())
-                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments yearsOwed={yearsOwing} mbi={mbi} />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}
+                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}
                 </div>
             </div>
         </div>
@@ -243,4 +243,52 @@ export function Members(){
         </div>
     </div>
 
+    function AskToVerif() {
+        return <div className="ctr" style={{
+            width:'100%',
+            height:'100%'
+        }}>
+            <div className="vlc">
+                <PersonOutline style={{
+                    fontSize:30,
+                    color:mye.mycol.primarycol
+                }} />
+                <Mgin top={20} />
+                <mye.HTv text={mgi?"Pending Verification":'Complete Profile'} />
+                <Mgin top={10} />
+                <mye.Tv text={mgi?'Your profile is pending verification by the admin. Please check back later':'Please click button below to complete your profile'} />
+                <div style={{
+                    display:mgi?'none':undefined
+                }}>
+                    <Mgin top={10} />
+                    <Btn txt="COMPLETE PROFILE" width={120} onClick={()=>{
+                        setTabPos(3)
+                        setMyKey(Date.now())
+                    }}/>
+                </div>
+            </div>
+        </div>
+    }
+
+}
+
+
+export function MsgTBD() {
+    const mye = new myEles(false)
+    
+    return <div className="ctr" style={{
+        width:'100%',
+        height:'100%'
+    }}>
+        <div className="vlc">
+            <DeveloperModeOutlined style={{
+                fontSize:30,
+                color:mye.mycol.primarycol
+            }} />
+            <Mgin top={20} />
+            <mye.HTv text={'Coming Soon'} />
+            <Mgin top={10} />
+            <mye.Tv text={'Messaging is coming soon'} />
+        </div>
+    </div>
 }
