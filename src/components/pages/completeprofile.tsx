@@ -42,7 +42,6 @@ export function CompleteProfile(){
     const[town,setTown] = useState('')
     const[addr,setAddr] = useState('')
     const[job,setJob] = useState('')
-    const[nin,setNin] = useState('')
     const[kin_fname,setkinFname] = useState('')
     const[kin_lname,setkinLname] = useState('')
     const[kin_mname,setkinMname] = useState('')
@@ -96,7 +95,6 @@ export function CompleteProfile(){
                             setTown(mgi.getTown())
                             setAddr(mgi.getAddr())
                             setJob(mgi.getJob())
-                            setNin(mgi.getNin())
                             setkinFname(mgi.getkin_FirstName())
                             setkinLname(mgi.getkin_LastName())
                             setkinMname(mgi.getkin_MiddleName())
@@ -247,7 +245,7 @@ export function CompleteProfile(){
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email Address" />
+                <mye.Tv text="*Email Address" />
                 <Mgin top={5} />
                 <EditTextFilled hint="Enter Email Address" value={eml} noSpace min={0} recv={(v)=>{
                     setEml(v.trim())
@@ -261,7 +259,7 @@ export function CompleteProfile(){
             }}>
                 <mye.Tv text="*Phone Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="08012345678" value={phn} digi noSpace min={11} max={15} recv={(v)=>{
+                <EditTextFilled hint="08012345678" value={phn} digi noSpace min={5} max={20} recv={(v)=>{
                     setPhn(v.trim())
                 }} />
             </div>
@@ -271,7 +269,7 @@ export function CompleteProfile(){
                     toast('Invalid Name Input',0)
                     return;
                 }
-                if(eml.length >0 && !isEmlValid(eml)){
+                if(!isEmlValid(eml)){
                     toast('Invalid Email',0)
                     return
                 }
@@ -468,16 +466,6 @@ export function CompleteProfile(){
                 }} />
             </div>
             <Mgin top={15} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="*NIN Number" />
-                <Mgin top={5} />
-                <EditTextFilled hint="NIN Number" value={nin} digi min={8} recv={(v)=>{
-                    setNin(v.trim())
-                }} />
-            </div>
-            <Mgin top={15} />
             <LrText wrap={!dimen.dsk}
             left={<div>
                 <mye.Tv text="*VALID MEANS OF IDENTIFICATION"  />
@@ -574,7 +562,7 @@ export function CompleteProfile(){
             }}>
                 <mye.Tv text="*Phone Number of Next of Kin" />
                 <Mgin top={5} />
-                <EditTextFilled hint="08012345678" value={kin_phone} digi noSpace min={11} max={15} recv={(v)=>{
+                <EditTextFilled hint="08012345678" value={kin_phone} digi noSpace min={5} max={20} recv={(v)=>{
                     setkinPhone(v.trim())
                 }} />
             </div>
@@ -636,10 +624,6 @@ export function CompleteProfile(){
                     toast('Invalid Occupation Input',0)
                     return;
                 }
-                if(nin.length < 8){
-                    toast('Invalid Nin Input',0)
-                    return;
-                }
                 if(kin_fname.length < 3 || kin_mname.length < 3 || kin_lname.length < 3){
                     toast('Invalid Next of Kin Names Input',0)
                     return;
@@ -676,7 +660,6 @@ export function CompleteProfile(){
                     town:town,
                     addr:addr,
                     job:job,
-                    nin:nin,
                     kin_fname:kin_fname,
                     kin_lname:kin_lname,
                     kin_mname:kin_mname,

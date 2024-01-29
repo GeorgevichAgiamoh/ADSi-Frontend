@@ -22,7 +22,7 @@ export function Register(){
     const[fname,setFName] = useState('')
     const[mname,setMName] = useState('')
     const[lname,setLName] = useState('')
-    const[eml,setEml] = useState(qry.get('phn') ?? '')
+    const[eml,setEml] = useState('')
     const[phn,setPhn] = useState('')
     const[pwd1,setPwd1] = useState('')
     const[pwd2,setPwd2] = useState('')
@@ -134,7 +134,7 @@ export function Register(){
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email Address" />
+                <mye.Tv text="*Email Address" />
                 <Mgin top={5} />
                 <EditTextFilled hint="Enter Email Address" value={eml} noSpace min={0} recv={(v)=>{
                     setEml(v.trim())
@@ -148,7 +148,7 @@ export function Register(){
             }}>
                 <mye.Tv text="*Phone Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="08012345678" value={phn} digi noSpace min={11} max={15} recv={(v)=>{
+                <EditTextFilled hint="08012345678" value={phn} digi noSpace min={5} max={20} recv={(v)=>{
                     setPhn(v.trim())
                 }} />
             </div>
@@ -197,7 +197,7 @@ export function Register(){
                     toast('Invalid Last Name Input',0)
                     return;
                 }
-                if(eml.length >0 && !isEmlValid(eml)){
+                if(!isEmlValid(eml)){
                     toast('Invalid Email',0)
                     return
                 }
@@ -225,7 +225,7 @@ export function Register(){
                 const fMemId = formatMemId(memid)
                 makeRequest.post('register',{
                     memid:fMemId,
-                    phn:phn,
+                    email:eml,
                     password:pwd1
                 },(task)=>{
                     if(task.isSuccessful()){
@@ -238,7 +238,7 @@ export function Register(){
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay:'0'
+                            pay:'1'
                         },(task)=>{
                             saveMemId(fMemId)
                             makeRequest.get('logout',{},(task)=>{
@@ -257,7 +257,7 @@ export function Register(){
                 <mye.Tv text="Already have an account?" color={mye.mycol.primarycol} />
                 <Mgin right={10} />
                 <mye.Tv text="Sign In" color={mye.mycol.primarycol} onClick={()=>{
-                    navigate(`/login?phn=${memid.length>7?memid:phn}`)
+                    navigate(`/login?mid=${memid}`)
                 }} />
             </div>
             <PoweredBySSS/>

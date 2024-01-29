@@ -8,7 +8,7 @@ import Toast from "../../toast/toast";
 import { makeRequest, resHandler } from "../../../helper/requesthandler";
 import { useLocation, useNavigate } from "react-router-dom";
 import tabcard from "../../../assets/tabcard.png"
-import { PoweredBySSS } from "../../../helper/adsi";
+import { PoweredBySSS, getGreeting } from "../../../helper/adsi";
 
 
 
@@ -131,7 +131,7 @@ export function AdminDashboard(){
         <Mgin top={20} />
         <mye.BTv text="Hello Admin" size={26} color={mye.mycol.primarycol} />
         <Mgin top={20} />
-        <mye.Tv text="Good morning, welcome to your dashboard" />
+        <mye.Tv text={`Good ${getGreeting}, welcome to your dashboard`} />
         <Mgin top={30} />
         <div style={{
             display:'flex',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CircularProgress, IconButton, InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
 import { Close, Done, Visibility, VisibilityOff } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
@@ -275,13 +275,14 @@ export function isPhoneNigOk(phn:string){
 
 export function isEmlValid(eml:string){
     let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(eml);
+    return eml.length>0 && re.test(eml);
 }
 
 
 export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml?: boolean,pwd?: boolean,digi?: boolean
     ,singleLine?: boolean, noSpace?: boolean, icon?: any,value?:string,recv?:(val:string)=>void,finise?:(val:string)=>void}){
 
+        const inputRef = useRef<HTMLInputElement>(null);
         const [error, setError] = useState<{stat:boolean, msg?:string}>({stat: false,msg: undefined})
         const [label, showLabel] = useState(true)
         const [inpp, setInpp] = useState("")
@@ -299,7 +300,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
     var _singleLine = prop.singleLine??true
     var _noSpace = prop.noSpace ?? false
     return (
-        <TextField className="edittextf"
+        <TextField ref={inputRef} className="edittextf"
             variant="filled"
             fullWidth={true}
             defaultValue={prop.value}
@@ -346,6 +347,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
                   }else{
                     prop.finise(ok?inpp:"");
                   }
+                  inputRef.current?.focus(); //?? Will it work?
                 }
             }}
             error = {error.stat}
@@ -670,19 +672,19 @@ export function fixedString(s:string, numDig:number){
             <Close className="icon" />
         </div>
         <LrText 
-        left={<Btn smallie  width={80} txt="< 2 yrs" onClick={()=>{
-            setFocusYear(focusYear-2)
+        left={<Btn smallie  width={80} txt="< year" onClick={()=>{
+            setFocusYear(focusYear-1)
         }}/>}
-        right={<Btn smallie  width={80} txt="2 yrs >" onClick={()=>{
-            if(focusYear < (prop.toYear || (new Date().getFullYear()-10))){
-                setFocusYear(focusYear+2)
+        right={<Btn smallie  width={80} txt="year >" onClick={()=>{
+            if(focusYear < (prop.toYear || (new Date().getFullYear()-1))){
+                setFocusYear(focusYear+1)
             }
         }}/>}
         />
         <Mgin top={10} />
         <DayPicker key={focusYear}
             mode="single"
-            toYear={prop.toYear || (new Date().getFullYear()-10)}
+            toYear={prop.toYear || (new Date().getFullYear()-1)}
             fromYear={prop.fromYear || 1940}
             onSelect={(d)=>{
                 if(d){
@@ -699,7 +701,7 @@ export function fixedString(s:string, numDig:number){
   }
 
   export function isMemID(txt:string){
-    return isDigit(txt) && !isEmlValid(txt)
+    return txt.length>0 && isDigit(txt) && !isEmlValid(txt)
   }
 
   export function saveWhoType(admin:boolean){

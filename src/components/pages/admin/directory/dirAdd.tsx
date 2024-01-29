@@ -193,7 +193,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                 }}>
                     <mye.Tv text="Phone Number" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="09193282737" min={6} value={phn} recv={(v)=>{
+                    <EditTextFilled hint="09193282737" min={5} max={20} value={phn} recv={(v)=>{
                         setPhn(v)
                     }} />
                 </div>
@@ -427,7 +427,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     toast('Invalid Name Input',0)
                     return;
                 }
-                if(eml.length >0 && !isEmlValid(eml)){
+                if(!isEmlValid(eml)){
                     toast('Invalid Email',0)
                     return
                 }
@@ -469,7 +469,6 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                                     town:mainprop.user.getTown(),
                                     addr:addr,
                                     job:mainprop.user.getJob(),
-                                    nin:mainprop.user.getNin(),
                                     kin_fname:mainprop.user.getkin_FirstName(),
                                     kin_lname:mainprop.user.getkin_LastName(),
                                     kin_mname:mainprop.user.getkin_MiddleName(),

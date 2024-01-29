@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
-import { Btn, ErrorCont, Line, Mgin, appName, myEles, setTitle } from "../../../../helper/general"
+import { Btn, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
-import { defVal, getCreatedTime, memberGeneralinfo } from "../../../classes/models"
+import { defVal, fileEle, getCreatedTime, memberGeneralinfo } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
-import { makeRequest, resHandler } from "../../../../helper/requesthandler"
+import { endpoint, getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
@@ -16,10 +16,29 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const [mykey,setMyKey] = useState(Date.now())
+    const[memFiles,setMemfiles] = useState<fileEle[]>([])
 
     useEffect(()=>{
         setTitle(`Member Details - ${appName}`)
+        getMemFiles()
     },[])
+
+    function getMemFiles(){
+        setError(false)
+        setLoad(true)
+        makeRequest.get(`getFiles/${mainprop.user.getMemberID()}`,{},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                const tem:fileEle[] = []
+                for(const key in task.getData()){
+                    tem.push(new fileEle(task.getData()[key]))
+                }
+                setMemfiles(tem)
+            }else{
+                handleError(task)
+            }
+        })
+    }
 
     function handleError(task:resHandler){
         setLoad(false)
@@ -105,7 +124,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            //getVS()
+            getMemFiles()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -149,7 +168,13 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
             boxSizing:'border-box',
             padding:dimen.dsk?20:10
         }}>
-            {!mainprop.user.basicData!.isVerified()?<div className="hlc" style={{
+            {mainprop.user.basicData!.isDeleted()?<div className="hlc" style={{
+                alignSelf:'flex-end'
+            }}>
+                <Btn txt="RESTORE" onClick={()=>{
+                    updateData('verif','0',true)
+                }} width={120} />
+            </div>:!mainprop.user.basicData!.isVerified()?<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="APPROVE" onClick={()=>{
@@ -159,16 +184,24 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                 <Btn txt="EDIT" onClick={()=>{
                     mainprop.backy(1)
                 }} width={120} outlined/>
+                <Mgin right={20}/>
+                <Btn txt="DELETE" onClick={()=>{
+                    updateData('verif','2')
+                }} width={120} outlined/>
             </div>:<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
+                <Btn txt="DEACTIVATE" onClick={()=>{
+                    updateData('verif','0')
+                }} width={120} bkg={mye.mycol.red} />
+                <Mgin right={20}/>
                 <Btn txt="EDIT" onClick={()=>{
                     mainprop.backy(1)
                 }} width={120} outlined/>
                 <Mgin right={20}/>
-                 <Btn txt="DEACTIVATE" onClick={()=>{
-                    updateData('verif','0')
-                }} width={120} bkg={mye.mycol.red} />
+                <Btn txt="DELETE" onClick={()=>{
+                    updateData('verif','2')
+                }} width={120} outlined/>
             </div>}
             <Mgin top={20} />
             <div style={{
@@ -204,28 +237,27 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                     <InfoLay sub="Date of Initial Registration" main={getCreatedTime(mainprop.user.basicData!.data)} />
                     <div style={{
                         width:'100%',
-                        marginTop:dimen.dsk?20:20,
+                        marginTop:20,
                         marginRight:10
                     }}>
-                        <mye.Tv text={'Upload Document'} color={mye.mycol.imghint} size={12} />
+                        <mye.Tv text={'Uploaded Documents'} color={mye.mycol.imghint} size={12} />
                         <Mgin top={5} />
-                        <div className="hlc">
-                            <FileOpenOutlined style={{
-                                fontSize:20,
-                                color:mye.mycol.secondarycol
-                            }} />
-                            <Mgin right={5} />
-                            <mye.Tv text={"Driver's License.jpeg"} size={14} />
-                        </div>
-                        <Mgin top={5} />
-                        <div className="hlc">
-                            <FileOpenOutlined style={{
-                                fontSize:20,
-                                color:mye.mycol.secondarycol
-                            }} />
-                            <Mgin right={5} />
-                            <mye.Tv text={"CooperativeID.jpeg"} size={14} />
-                        </div>
+                        {
+                            memFiles.map((mf, index)=>{
+                                return <div key={mykey+index+0.34} style={{
+                                    marginBottom:5
+                                }} className="hlc">
+                                    <FileOpenOutlined style={{
+                                        fontSize:20,
+                                        color:mye.mycol.secondarycol
+                                    }} />
+                                    <Mgin right={5} />
+                                    <mye.Tv text={mf.getName()} size={14} onClick={()=>{
+                                        goUrl(`${endpoint}/getFile/${mf.getFolder()}/${mf.getName()}`)
+                                    }} />
+                                </div>
+                            })
+                        }
                     </div>
                 </div>
             </div>

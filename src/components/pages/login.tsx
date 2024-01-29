@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { ErrorOutline, Info, InfoOutlined } from "@mui/icons-material";
+import { DoneOutline, ErrorOutline, Info, InfoOutlined, MailOutline } from "@mui/icons-material";
 import { MsgAlert, PincodeLay, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, isEmlValid, EditTextFilled, Btn, LrText, ErrorCont, isMemID, useQuery, saveWhoType, formatMemId, isPhoneNigOk } from "../../helper/general";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import axios from "axios";
@@ -11,192 +11,127 @@ import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
 
 
 
-export function MemberLogin(){
+
+export function ForgotPassword(){
+    const navigate = useNavigate()
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
-    const[eml,setEml] = useState('')
-
-    useEffect(()=>{
-        setTitle(`Login - ${appName}`)
-    },[])
-
-    return <div className="ctr" style={{
-        width:dimen.width,
-        height:dimen.height
-    }}>
-        <div className="vlc" style={{
-            width:dimen.dsk?500:'100%',
-            padding:dimen.dsk?0:20,
-            boxSizing:'border-box'
-        }}>
-            <mye.BTv text="Member Login" size={40} />
-            <Mgin top={20} />
-            <mye.Tv text="Please enter the email you used to register on your organization's portal and we will send you a link to create a new password" center />
-            <Mgin top={10} />
-            <div style={{
-                display: isEmlValid(eml)?'none':undefined,
-                width:'100%'
-            }}>
-            <MsgAlert icon={ErrorOutline} mye={mye} msg="Please enter a valid emmail address" isError />
-            </div>
-            <Mgin top={10} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="Email" />
-                <Mgin top={5} />
-                <EditTextFilled hint="Enter Email" value={eml} eml noSpace min={3} recv={(v)=>{
-                    setEml(v)
-                }} />
-            </div>
-            <Mgin top={20} />
-            <Btn txt="SEND LINK" onClick={()=>{
-                //TODO implement
-            }} />
-            <Mgin top={20} />
-            <LrText left={<mye.Tv text="Don't have an account?" color={mye.mycol.primarycol} />} 
-            right={<mye.Tv text="Create an account" color={mye.mycol.primarycol} onClick={()=>{
-                //TODO Login
-            }} />}/>
-        </div>
-
-    </div>
-
-}
-
-
-
-
-export function Login(){
-    const mye = new myEles(false);
-    const dimen = useWindowDimensions();
-    const[idormail,setIdormail] = useState('')
-    const[pwd1,setPwd1] = useState('')
-    const[pwd2,setPwd2] = useState('')
-    const[remember, setRemember] = useState(false)
-
-    useEffect(()=>{
-        setTitle(`Login - ${appName}`)
-    },[])
-
-    return <div className="ctr" style={{
-        width:dimen.width,
-        height:dimen.height
-    }}>
-        <div className="vlc" style={{
-            width:dimen.dsk?500:'100%',
-            padding:dimen.dsk?0:20,
-            boxSizing:'border-box'
-        }}>
-            <mye.BTv text="Member Login" size={40} color={mye.mycol.primarycol} />
-            <Mgin top={20} />
-            <div style={{
-                display: pwd1.length>6?'none':undefined,
-                width:'100%'
-            }}>
-            <MsgAlert icon={Info} mye={mye} msg="Your Password must be at least 6 characters" />
-            </div>
-            <Mgin top={30} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="Member ID or Email" />
-                <Mgin top={5} />
-                <EditTextFilled hint="Enter ID or Email" value={idormail} noSpace min={6} recv={(v)=>{
-                    setIdormail(v)
-                }} />
-            </div>
-            <Mgin top={20} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="Create Password" />
-                <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd1} pwd min={6} recv={(v)=>{
-                    setPwd1(v)
-                }} />
-            </div>
-            <Mgin top={20} />
-            <div style={{
-                width:'100%'
-            }}>
-                <mye.Tv text="Re-enter Password" />
-                <Mgin top={5} />
-                <EditTextFilled hint="*******" value={pwd2} pwd min={6} recv={(v)=>{
-                    setPwd2(v)
-                }} />
-            </div>
-            <Mgin top={10} />
-            <label style={{
-                alignSelf:'flex-start'
-            }}>
-                <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={()=>{
-                        setRemember(!remember)
-                    }}
-                    />
-                Remember me
-            </label>
-            <Mgin top={25} />
-            <Btn txt="LOGIN" onClick={()=>{
-                //TODO implement
-            }} />
-            <Mgin top={20} />
-            <LrText left={<mye.Tv text="Don't have an account?" color={mye.mycol.primarycol} />} 
-            right={<mye.Tv text="Create an account" color={mye.mycol.primarycol} onClick={()=>{
-                //TODO Login
-            }} />}/>
-        </div>
-
-    </div>
-}
-
-
-
-
-export function ForgotPin(){
-    const mye = new myEles(false);
-    const dimen = useWindowDimensions();
-    const[eml,setEml] = useState('')
+    const[mid,setMemid] = useState('')
+    const[sent,setSent] = useState(false)
 
     useEffect(()=>{
         setTitle(`Forgot password - ${appName}`)
     },[])
 
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
+
     return <div className="ctr" style={{
         width:dimen.width,
         height:dimen.height
     }}>
-        <div className="vlc" style={{
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
+        {sent?<div className="ctr" style={{
+            width:'100%',
+            height:'100%'
+        }}>
+            <MailOutline style={{
+                color:mye.mycol.primarycol,
+                fontSize:30
+            }} />
+            <Mgin top={10} />
+            <mye.BTv text="Reset Email Sent" size={18} />
+            <Mgin top={10} />
+            <mye.Tv text="Go and click the password reset link sent to your email" />
+        </div>:<div className="vlc" style={{
             width:dimen.dsk?500:'100%',
             padding:dimen.dsk?0:20,
             boxSizing:'border-box'
         }}>
             <mye.BTv text="Forgot Pin" size={40} color={mye.mycol.primarycol} />
             <Mgin top={20} />
-            <mye.Tv text="Please enter your registered email address to receive a password reset link" center />
+            <mye.Tv text="Please enter your ADSI Number and we will send a password reset link to the email you registred with" center />
             <Mgin top={20} />
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Email" />
+                <mye.Tv text="ADSI Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter Email" value={eml} eml noSpace min={3} recv={(v)=>{
-                    setEml(v)
+                <EditTextFilled hint="Enter ADSI Number" value={mid} digi min={1} recv={(v)=>{
+                    setMemid(v)
                 }} />
             </div>
             <Mgin top={20} />
             <Btn txt="SEND LINK" onClick={()=>{
-                //TODO implement
+                if(!isMemID(mid)){
+                    toast('Invalid ADSI Number',0)
+                    return
+                }
+                setLoad(true)
+                makeRequest.post('sendPasswordResetEmail',{
+                    memid:mid
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        setSent(true)
+                    }else{
+                        toast(task.getErrorMsg(),0)
+                    }
+                })
             }} />
             <Mgin top={20} />
             <LrText left={<mye.Tv text="Don't have an account?" color={mye.mycol.primarycol} />} 
             right={<mye.Tv text="Create an account" color={mye.mycol.primarycol} onClick={()=>{
-                //TODO Login
+                navigate(`/register`)
             }} />}/>
-        </div>
+        </div>}
 
     </div>
 
@@ -251,27 +186,96 @@ export function Verif(){
 
 
 
-export function ResetPin(){
+export function ResetPassword(){
+    const navigate = useNavigate()
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
     const[pwd1,setPwd1] = useState('')
     const[pwd2,setPwd2] = useState('')
-    const[remember, setRemember] = useState(false)
+    const token = useParams().token;
+    const[changed,setChanged] = useState(false)
 
     useEffect(()=>{
-        setTitle(`Reset Pin - ${appName}`)
+        setTitle(`Reset Password - ${appName}`)
     },[])
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+      var _delay = delay || 5000
+      setToastMeta({
+          action: action,
+          msg: msg,
+          visible:true,
+          invoked: Date.now()
+      })
+      clearTimeout(timy.timer)
+      setTimy({
+          timer:setTimeout(()=>{
+              if(Date.now()-toastMeta.invoked > 4000){
+                  setToastMeta({
+                      action:2,
+                      msg:"",
+                      visible:false,
+                      invoked: 0
+                  })
+              }
+          },_delay)
+      });
+    }
 
     return <div className="ctr" style={{
         width:dimen.width,
         height:dimen.height
     }}>
-        <div className="vlc" style={{
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
+        {changed?<div className="ctr" style={{
+            width:'100%',
+            height:'100%'
+        }}>
+            <DoneOutline style={{
+                color:mye.mycol.primarycol,
+                fontSize:30
+            }} />
+            <Mgin top={10} />
+            <mye.BTv text="Password Changed" size={18} />
+            <Mgin top={10} />
+            <mye.Tv text="Please proceed to login" />
+            <Mgin top={10} />
+            <Btn txt="LOGIN" width={100} onClick={()=>{
+                navigate(`/login`)
+            }} />
+        </div>:<div className="vlc" style={{
             width:dimen.dsk?500:'100%',
             padding:dimen.dsk?0:20,
             boxSizing:'border-box'
         }}>
-            <mye.BTv text="Reset Pin" size={40} color={mye.mycol.primarycol} />
+            <mye.BTv text="Reset Password" size={40} color={mye.mycol.primarycol} />
             <Mgin top={20} />
             <div style={{
                 display: pwd1.length>6?'none':undefined,
@@ -299,29 +303,35 @@ export function ResetPin(){
                     setPwd2(v)
                 }} />
             </div>
-            <Mgin top={10} />
-            <label style={{
-                alignSelf:'flex-start'
-            }}>
-                <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={()=>{
-                        setRemember(!remember)
-                    }}
-                    />
-                Remember me
-            </label>
             <Mgin top={25} />
-            <Btn txt="RESET PIN" onClick={()=>{
-                //TODO implement
+            <Btn txt="RESET PASSWORD" onClick={()=>{
+                if(pwd1.length<6){
+                    toast('Password must be minimum of 6 characters',0)
+                    return;
+                }
+                if(pwd1 != pwd2){
+                    toast('Password mismatch',0)
+                    return;
+                }
+                setLoad(true)
+                makeRequest.post('resetPassword',{
+                    token: token,
+                    pwd:pwd1
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        setChanged(true)
+                    }else{
+                        toast(task.getErrorMsg(),0)
+                    }
+                })
             }} />
             <Mgin top={20} />
             <LrText left={<mye.Tv text="Don't have an account?" color={mye.mycol.primarycol} />} 
             right={<mye.Tv text="Create an account" color={mye.mycol.primarycol} onClick={()=>{
-                //TODO Login
+                navigate(`/register`)
             }} />}/>
-        </div>
+        </div>}
 
     </div>
 }
@@ -333,7 +343,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
     const rdr  = qry.get('rdr')||""
     const mye = new myEles(false);
     const dimen = useWindowDimensions();
-    const[phn,setPhn] = useState(qry.get('phn') ?? getMemId())
+    const[mid,setMid] = useState(qry.get('mid') ?? '')
     const[pwd,setPwd] = useState('')
     const navigate = useNavigate();
 
@@ -408,11 +418,11 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             <div style={{
                 width:'100%'
             }}>
-                <mye.Tv text="Phone or ADSI Number" />
+                <mye.Tv text="ADSI Number" />
                 <Mgin top={5} />
-                <EditTextFilled hint="Enter Phone or ADSI Number" value={phn} noSpace min={1} recv={(v)=>{
+                <EditTextFilled hint="Enter ADSI Number" value={mid} digi noSpace min={1} recv={(v)=>{
                     console.log('..LOGIN.')
-                    setPhn(v.trim())
+                    setMid(v.trim())
                 }} />
             </div>
             <Mgin top={20} />
@@ -432,15 +442,15 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                 do_login()
             }} />
             <Mgin top={10} />
-            <LrText left={<mye.Tv text="Forgot your password?" color={mye.mycol.primarycol} />} 
+            <LrText left={<mye.Tv text="" color={mye.mycol.primarycol} />} 
             right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
-
+                navigate('/forgotpassword')
             }} />}/>
             <Mgin top={10} />
             <mye.Tv text="Haven't registered yet ?"  />
             <Mgin top={10} />
             <Btn txt="REGISTER" onClick={()=>{
-                navigate(`/register?${isMemID(phn)?'mid':'phn'}=${phn}`)
+                navigate(`/register?mid=${mid}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
             <PoweredBySSS floaatIt noPadding/>
         </div>
@@ -448,25 +458,19 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
     </div>
 
     function do_login() {
-        console.log(phn.length)
+        console.log(mid.length)
         if(pwd.length < 6){
             toast('Invalid password',0)
             return;
         }
-        if(!isMemID(phn) && !isPhoneNigOk(phn)){
-            toast('Invalid Phone/ID',0)
+        if(!isMemID(mid)){
+            toast('Invalid ID',0)
             return;
         }
-        let memId = '', phone = ''
-        if(isMemID(phn)){
-            memId = formatMemId(phn)
-        }else{
-            phone = phn
-        }
+        let memId = formatMemId(mid)
         setLoad(true)
         makeRequest.post('login',{
             memid: memId,
-            phn: phone,
             password: pwd,
         },(task)=>{
             if(task.isSuccessful()){

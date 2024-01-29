@@ -211,7 +211,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 }}>
                     <mye.Tv text="Phone Number" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="09193282737" min={6} value={phn} recv={(v)=>{
+                    <EditTextFilled hint="09193282737" min={5} max={20} value={phn} recv={(v)=>{
                         setPhn(v)
                     }} />
                 </div>
@@ -444,7 +444,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                     toast('Invalid Name Input',0)
                     return;
                 }
-                if(eml.length >0 && !isEmlValid(eml)){
+                if(!isEmlValid(eml)){
                     toast('Invalid Email',0)
                     return
                 }
@@ -487,7 +487,6 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                                         town:mainprop.mgi.getTown(),
                                         addr:addr,
                                         job:mainprop.mgi.getJob(),
-                                        nin:mainprop.mgi.getNin(),
                                         kin_fname:mainprop.mgi.getkin_FirstName(),
                                         kin_lname:mainprop.mgi.getkin_LastName(),
                                         kin_mname:mainprop.mgi.getkin_MiddleName(),

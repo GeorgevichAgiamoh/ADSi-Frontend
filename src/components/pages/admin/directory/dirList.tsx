@@ -19,7 +19,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
-    const[showVerified, setShowVerified] = useState(true)
+    const[vpos, setVpos] = useState(1)
     const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
@@ -43,25 +43,29 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         getVS()
     },[])
 
-    function getVS(){
+    function getVS(dontGetUsers?:boolean){
         setLoad(true)
         setError(false)
         makeRequest.get('getVerificationStats',{},(task)=>{
             if(task.isSuccessful()){
                 setVStats(new verifStat(task.getData()))
-                getUsers(true,0)
+                if(dontGetUsers){
+                    setLoad(false)
+                }else{
+                    getUsers(vpos,0)
+                }
             }else{
                 handleError(task)
             }
         })
     }
 
-    function getUsers(verified:boolean, index:number){
+    function getUsers(vpos:number, index:number){
         setOptToShow(-1)
-        setShowVerified(verified)
+        setVpos(vpos)
         setError(false)
         setLoad(true)
-        makeRequest.get(`getMembersByV/${verified?'1':'0'}`,{
+        makeRequest.get(`getMembersByV/${vpos}`,{
             start:(index*20),
             count:20
         },(task)=>{
@@ -150,6 +154,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         }}>
             <Tab1 icon={PersonOutline} title="Verified Members" value={vStats?vStats.getTotalVerified():'...'} color={mye.mycol.primarycol} />
             <Tab1 icon={PersonOutline} title="Unverified Members" value={vStats?vStats.getTotalUnverified():'...'} color={mye.mycol.primarycol} />
+            <Tab1 icon={PersonOutline} title="Deleted Members" value={vStats?vStats.getTotalDeleted():'...'} color={mye.mycol.red} />
         </div>
         <div style={{
             display:'flex',
@@ -209,16 +214,24 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 flex:1
             }}>
                 <Btn txt="Verified" round onClick={()=>{
-                    getUsers(true,0)
-                }} transparent={!showVerified} />
+                    getUsers(1,0)
+                }} transparent={vpos!=1} />
             </div>
             <Mgin right={10} />
             <div style={{
                 flex:1
             }}>
                 <Btn txt="Unverified" round onClick={()=>{
-                    getUsers(false,0)
-                }} transparent={showVerified}/>
+                    getUsers(0,0)
+                }} transparent={vpos!=0}/>
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Deleted" round onClick={()=>{
+                    getUsers(2,0)
+                }} transparent={vpos!=2}/>
             </div>
         </div>}
         right={<div className="flexi">
@@ -262,7 +275,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
             }}>
                 <div style={{
                     width:dimen.dsk2?'100%':undefined,
-                    paddingBottom:optToShow!=-1?150:0,
+                    paddingBottom:optToShow!=-1?200:0,
                 }}>
                     <div className="hlc">
                         <MyCell text="S/N"  isBold/>
@@ -288,6 +301,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                                     const i = index+showingIndex*20
                                     const al = [...infos.slice(0, i), ...infos.slice(i + 1)]
                                     setInfos(al)
+                                    getVS(true)
                                 }} />
                             </div>
                         })
@@ -299,19 +313,19 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 <ArrowBack id="clk" className="icon" onClick={()=>{
                     if(showingIndex >0){
                         const index = showingIndex-1
-                        getUsers(showVerified,index)
+                        getUsers(vpos,index)
                     }
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor((showVerified?vStats.getTotalVerified():vStats.getTotalUnverified())/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((vpos==1?vStats.getTotalVerified():vpos==0?vStats.getTotalUnverified():vStats.getTotalDeleted())/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
                             backgroundColor:showingIndex==index?mye.mycol.black:'transparent',
                             borderRadius:'50%'
                         }} onClick={()=>{
-                            getUsers(showVerified,index)
+                            getUsers(vpos,index)
                         }}>
                             <mye.BTv text={(index+1).toString()} color={showingIndex==index?mye.mycol.white:mye.mycol.black} size={16}/>
                         </div>
@@ -319,10 +333,10 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor((showVerified?vStats.getTotalVerified():vStats.getTotalUnverified())/20)
+                    const len = Math.floor((vpos==1?vStats.getTotalVerified():vpos==0?vStats.getTotalUnverified():vStats.getTotalDeleted())/20)
                     if(showingIndex < len){
                         const index = showingIndex+1
-                        getUsers(showVerified,index)
+                        getUsers(vpos,index)
                     }
                 }} />
             </div>:<div></div>}
@@ -384,50 +398,73 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                     doIt(0)
                 }} alignStart special />
                 <Line />
-                <MyCell text="Edit" ocl={()=>{
-                    doIt(1)
-                }} alignStart special/>
-                <Line />
-                <MyCell text={prop.user.basicData?.isVerified()?"Deactivate":"Approve"} ocl={()=>{
-                    setLoad(true)
-                    const ndata = {...prop.user.basicData!.data}
-                    const value = prop.user.basicData?.isVerified()?'0':'1'
-                    ndata['verif'] = value
-                    makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
-                        if(task.isSuccessful()){
-                            if(!prop.user.basicData?.isVerified()){
-                                if(prop.user.basicData!.getEmail()!=defVal){
-                                    toast('Mailing user..',2)
-                                    makeRequest.post('sendMail',{
-                                        name: prop.user.basicData!.getFirstName(),
-                                        email: prop.user.basicData!.getEmail(),
-                                        subject: "ADSI Account Verified",
-                                        body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
-                                    },(task)=>{
+                <div style={{
+                    width:'100%',
+                    display: prop.user.basicData?.isDeleted()?'none':undefined
+                }}>
+                    <MyCell text="Edit" ocl={()=>{
+                        doIt(1)
+                    }} alignStart special/>
+                    <Line />
+                    <MyCell text={prop.user.basicData?.isVerified()?"Deactivate":"Approve"} ocl={()=>{
+                        setLoad(true)
+                        const ndata = {...prop.user.basicData!.data}
+                        const value = prop.user.basicData?.isVerified()?'0':'1'
+                        ndata['verif'] = value
+                        makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
+                            if(task.isSuccessful()){
+                                if(!prop.user.basicData?.isVerified()){
+                                    if(prop.user.basicData!.getEmail()!=defVal){
+                                        toast('Mailing user..',2)
+                                        makeRequest.post('sendMail',{
+                                            name: prop.user.basicData!.getFirstName(),
+                                            email: prop.user.basicData!.getEmail(),
+                                            subject: "ADSI Account Verified",
+                                            body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
+                                        },(task)=>{
+                                            setLoad(false)
+                                            if(task.isSuccessful()){
+                                                toast('Approval successful and user has been mailed',1)
+                                            }else{
+                                                toast('APPROVAL SUCCESSFUL. But '+task.getErrorMsg(),2);
+                                            }
+                                            prop.user.basicData!.data['verif'] = value
+                                            setOptToShow(-1)
+                                            prop.rmvMe()
+                                        })
+                                    }else{
                                         setLoad(false)
-                                        if(task.isSuccessful()){
-                                            toast('Approval successful and user has been mailed',1)
-                                        }else{
-                                            toast('APPROVAL SUCCESSFUL. But '+task.getErrorMsg(),2);
-                                        }
+                                        toast('Successful. But we could not mail user as no email was provided',2,10000)
                                         prop.user.basicData!.data['verif'] = value
                                         setOptToShow(-1)
                                         prop.rmvMe()
-                                    })
+                                    }
                                 }else{
                                     setLoad(false)
-                                    toast('Successful. But we could not mail user as no email was provided',2,10000)
+                                    toast('Update successful',1)
                                     prop.user.basicData!.data['verif'] = value
                                     setOptToShow(-1)
                                     prop.rmvMe()
                                 }
                             }else{
-                                setLoad(false)
-                                toast('Update successful',1)
-                                prop.user.basicData!.data['verif'] = value
-                                setOptToShow(-1)
-                                prop.rmvMe()
+                                handleError(task,true)
                             }
+                        })
+                    }} alignStart special />
+                    <Line />
+                </div>
+                <MyCell text={prop.user.basicData?.isDeleted()?"Restore":"Delete"} ocl={()=>{
+                    setLoad(true)
+                    const ndata = {...prop.user.basicData!.data}
+                    const value = prop.user.basicData?.isDeleted()?'0':'2'
+                    ndata['verif'] = value
+                    makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
+                        if(task.isSuccessful()){
+                            setLoad(false)
+                            toast(`${prop.user.basicData?.isDeleted()?'Restored':'Deleted'} successfully`,1)
+                            prop.user.basicData!.data['verif'] = value
+                            setOptToShow(-1)
+                            prop.rmvMe()
                         }else{
                             handleError(task,true)
                         }

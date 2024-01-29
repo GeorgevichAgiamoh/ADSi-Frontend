@@ -30,6 +30,9 @@ export class memberBasicinfo{
     isVerified(){
         return this.data['verif']=='1'
     }
+    isDeleted(){
+        return this.data['verif']=='2'
+    }
     isPaid(){ //One time reg fee
         return this.data['pay']=='1'
     }
@@ -78,9 +81,6 @@ export class memberGeneralinfo{
     }
     getJob(){
         return !this.data?defVal:this.data['job']
-    }
-    getNin(){
-        return !this.data?defVal:this.data['nin']
     }
     getkin_FirstName(){
         return !this.data?defVal:this.data['kin_fname']
@@ -201,6 +201,9 @@ export class verifStat{
     }
     getTotalUnverified(){
         return this.data['totalUnverified']
+    }
+    getTotalDeleted(){
+        return this.data['totalDeleted']
     }
 }
 
@@ -361,4 +364,18 @@ export class permHelp{
     }
 }
 
+
+
+export class fileEle{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getName(){
+        return this.data['file']
+    }
+    getFolder(){
+        return this.data['folder']
+    }
+}
 

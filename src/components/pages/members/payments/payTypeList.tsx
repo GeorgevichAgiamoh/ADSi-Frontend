@@ -66,7 +66,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
                 setDues(tem)
                 const cy = new Date().getFullYear()
                 const tem2:string[] = []
-                for(let i = cy; i > 2023; i--){ //Starts at 2024
+                for(let i = cy; i > 2022; i--){ //Starts at 2023
                     tem2.push(i.toString())
                 }
                 let paids = 0;

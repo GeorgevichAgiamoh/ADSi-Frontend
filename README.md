@@ -105,7 +105,6 @@ Mails can now be sent at the sendMail endpoint (POST)
   "town": "(,,)",
   "addr": "(,,)",
   "job": "(,,)",
-  "nin": "(,,)",
   "kin_fname": "(,,)",
   "kin_lname": "(,,)",
   "kin_mname": "(,,)",

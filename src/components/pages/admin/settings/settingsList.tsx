@@ -435,7 +435,7 @@ export function SettingsList(){
                 }}>
                     <mye.Tv text="Phone Number" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="0817265252" min={11} max={11} value={phn} digi recv={(v)=>{
+                    <EditTextFilled hint="0817265252" min={5} max={20} value={phn} digi recv={(v)=>{
                         setPhn(v)
                     }} />
                 </div>
@@ -492,8 +492,8 @@ export function SettingsList(){
                     toast('Please add personal name',0)
                     return;
                 }
-                if(email.length<3){
-                    toast('Please add personal email',0)
+                if(!isEmlValid(email)){
+                    toast('Invalid personal email',0)
                     return;
                 }
                 if(phn.length<3){
