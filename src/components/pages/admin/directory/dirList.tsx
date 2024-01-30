@@ -237,7 +237,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         right={<div className="flexi">
             <div>
                 <OlnBtnPlus text="New User" ocl={()=>{
-
+                    mainprop.actiony(3)
                 }} />
             </div>
             <Mgin right={10} />
@@ -493,15 +493,17 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
     }
 
     function OlnBtnPlus(prop:{text:string,ocl:()=>void}) {
-        return <div className="hlc" style={{
+        return <div id="clk" className="hlc" style={{
             border: `solid ${mye.mycol.primarycol} 1px`,
             padding:9,
             borderRadius:10,
-            width:120
-        }}>
+            width:100
+        }} onClick={prop.ocl}>
             <LrText 
             left={<mye.Tv text={prop.text} wrapit={false} color={mye.mycol.primarycol}/>}
-            right={<Add className="icon" />}
+            right={<Add className="icon" style={{
+                fontSize:20
+            }} />}
             />
         </div>
     }

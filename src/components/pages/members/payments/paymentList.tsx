@@ -5,7 +5,7 @@ import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, Err
 import { indivEle, payInfo, payTypeEle } from "../../../classes/classes"
 import Barcode from "react-barcode"
 import { payRecordEle } from "../../../classes/models"
-import { resHandler } from "../../../../helper/requesthandler"
+import { getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -13,13 +13,13 @@ import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
-export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],investments:payRecordEle[], backy:()=>void}){
+export function MemberPaymentList(mainprop:{tabPos:number,outstanding?:string[], backy:()=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
-    const[showDues, setShowDues] = useState(true)
+    const[tabPos, setTabPos] = useState(0)
     const[cpay, setCPay] = useState<payRecordEle>()
     const[showReminder, setShowReminder] = useState(false)
     const[showReceipt, setShowReceipt] = useState(false)
@@ -27,10 +27,37 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
 
+    const[pays, setPays] = useState<payRecordEle[]>([])
+
     useEffect(()=>{
         setTitle(`Payment List - ${appName}`)
-        setShowDues(mainprop.isDues)
+        getPays(mainprop.tabPos,0)
     },[])
+
+    function getPays(tabPos:number,index:number){
+        setError(false)
+        setTabPos(tabPos)
+        if(tabPos==2){
+            return;
+        }
+        setLoad(true)
+        makeRequest.get(`getMemPays/${getMemId()}/${tabPos==0?'2':'1'}`,{
+            start:(index*5),
+            count:5
+        },(task)=>{
+          if(task.isSuccessful()){
+            const tem:payRecordEle[] = []
+            for(const key in task.getData()){
+                tem.push(new payRecordEle(task.getData()[key]))
+            }
+            setPays(tem)
+            setLoad(false)
+            setShowingIndex(index)
+          }else{
+            handleError(task)
+          } 
+        })
+    }
 
     function handleError(task:resHandler){
         setLoad(false)
@@ -78,7 +105,7 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            
+            getPays(mainprop.tabPos,0)
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -164,17 +191,25 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Dues" round onClick={()=>{
-                    setShowDues(true)
-                }} transparent={!showDues} />
+                <Btn txt="Investments" round onClick={()=>{
+                    getPays(0,0)
+                }} transparent={tabPos!=0} width={120}/>
             </div>
             <Mgin right={10} />
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Investments" round onClick={()=>{
-                    setShowDues(false)
-                }} transparent={showDues}/>
+                <Btn txt="Dues" round onClick={()=>{
+                    getPays(1,0)
+                }} transparent={tabPos!=1} />
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Outstanding" round onClick={()=>{
+                    getPays(2,0)
+                }} transparent={tabPos!=2} width={120}/>
             </div>
         </div>}
         right={<div className="flexi">
@@ -188,7 +223,15 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
         </div>}
         />
         <Mgin top={15} />
-        <div className="vlc" id='lshdw' style={{
+        {tabPos==2?<div>
+            <mye.BTv text="You are owing dues for the following years" size={20} color={mye.mycol.primarycol} />
+            <Mgin top={20} />
+            {
+                mainprop.outstanding?mainprop.outstanding.map((yr,i)=>{
+                    return <mye.Tv key={myKey+i+0.923} text={yr}/>
+                }):<mye.Tv text="No Outstanding. Thank you"  />
+            }
+        </div>:<div className="vlc" id='lshdw' style={{
             width:'100%',
             backgroundColor:mye.mycol.white,
             borderRadius:10,
@@ -203,7 +246,7 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                     fontSize:20
                 }} />
                 <Mgin right={10}/>
-                <mye.HTv text={`${showDues?'Dues':'Investments'} History`} size={16} color={mye.mycol.secondarycol} />
+                <mye.HTv text={`${tabPos==0?'Investments':'Dues'} History`} size={16} color={mye.mycol.secondarycol} />
             </div>
             <Mgin top={20} />
             <div className="hlc" style={{
@@ -211,29 +254,7 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                 overflowX:'scroll'
             }}>
                 {
-                    showDues?<div style={{
-                        width:dimen.dsk2?'100%':undefined,
-                        paddingBottom:optToShow!=-1?150:0,
-                    }}>
-                        <div className="hlc">
-                            <MyCell text="S/N"  isBold/>
-                            <MyCell text="Year"  isBold/>
-                            <MyCell text="Amount"  isBold/>
-                            <MyCell text="Date"  isBold/>
-                            <MyCell text="Action"  isBold/>
-                        </div>
-                        {
-                            mainprop.dues.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
-                                return <div className="hlc" key={myKey+index+showingIndex*20}>
-                                    <MyCell text={(index+1+showingIndex*20).toString()} />
-                                    <MyCell text={ele.getYear()} />
-                                    <MyCell text={`N${ele.getAmt()}`} />
-                                    <MyCell text={ele.getDate()} />
-                                    <Opts index={index} pay={ele} />
-                                </div>
-                            })
-                        }
-                    </div>:<div style={{
+                    tabPos==0?<div style={{
                     width:dimen.dsk2?'100%':undefined,
                     paddingBottom:optToShow!=-1?150:0,
                 }}>
@@ -245,9 +266,9 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                         <MyCell text="Action"  isBold/>
                     </div>
                     {
-                        mainprop.investments.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
-                            return <div className="hlc" key={myKey+index+showingIndex*20}>
-                                <MyCell text={(index+1+showingIndex*20).toString()} />
+                        pays.slice((showingIndex*5),(showingIndex*5+5)).map((ele,index)=>{
+                            return <div className="hlc" key={myKey+index+showingIndex*5}>
+                                <MyCell text={(index+1+showingIndex*5).toString()} />
                                 <MyCell text={ele.getShares()} />
                                 <MyCell text={`N${ele.getAmt()}`} />
                                 <MyCell text={ele.getDate()} />
@@ -255,26 +276,48 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                             </div>
                         })
                     }
-                </div>
+                </div>:<div style={{
+                        width:dimen.dsk2?'100%':undefined,
+                        paddingBottom:optToShow!=-1?150:0,
+                    }}>
+                        <div className="hlc">
+                            <MyCell text="S/N"  isBold/>
+                            <MyCell text="Year"  isBold/>
+                            <MyCell text="Amount"  isBold/>
+                            <MyCell text="Date"  isBold/>
+                            <MyCell text="Action"  isBold/>
+                        </div>
+                        {
+                            pays.slice((showingIndex*5),(showingIndex*5+5)).map((ele,index)=>{
+                                return <div className="hlc" key={myKey+index+showingIndex*5}>
+                                    <MyCell text={(index+1+showingIndex*5).toString()} />
+                                    <MyCell text={ele.getYear()} />
+                                    <MyCell text={`N${ele.getAmt()}`} />
+                                    <MyCell text={ele.getDate()} />
+                                    <Opts index={index} pay={ele} />
+                                </div>
+                            })
+                        }
+                    </div>
                 }
             </div>
             <Mgin top={20} />
             <div className="hlc">
                 <ArrowBack id="clk" className="icon" onClick={()=>{
                     if(showingIndex >0){
-                        setShowingIndex(showingIndex-1)
+                        getPays(tabPos,showingIndex-1)
                     }
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor((showDues?mainprop.dues:mainprop.investments).length/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((pays).length/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
                             backgroundColor:showingIndex==index?mye.mycol.black:'transparent',
                             borderRadius:'50%'
                         }} onClick={()=>{
-                            setShowingIndex(index)
+                            getPays(tabPos,showingIndex)
                         }}>
                             <mye.BTv text={(index+1).toString()} color={showingIndex==index?mye.mycol.white:mye.mycol.black} size={16}/>
                         </div>
@@ -282,15 +325,15 @@ export function MemberPaymentList(mainprop:{isDues:boolean,dues:payRecordEle[],i
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor((showDues?mainprop.dues:mainprop.investments).length/20)
+                    const len = Math.floor((pays).length/20)
                     console.log(len)
                     console.log(showingIndex)
                     if(showingIndex < len){
-                        setShowingIndex(showingIndex+1)
+                        getPays(tabPos,showingIndex+1)
                     }
                 }} />
             </div>
-        </div>
+        </div>}
         <PoweredBySSS />
          {/* Absolutely positioned (dialog) */}
          <div className="ctr" style={{

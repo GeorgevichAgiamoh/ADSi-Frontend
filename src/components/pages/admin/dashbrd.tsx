@@ -131,7 +131,7 @@ export function AdminDashboard(){
         <Mgin top={20} />
         <mye.BTv text="Hello Admin" size={26} color={mye.mycol.primarycol} />
         <Mgin top={20} />
-        <mye.Tv text={`Good ${getGreeting}, welcome to your dashboard`} />
+        <mye.Tv text={`Good ${getGreeting()}, welcome to your dashboard`} />
         <Mgin top={30} />
         <div style={{
             display:'flex',

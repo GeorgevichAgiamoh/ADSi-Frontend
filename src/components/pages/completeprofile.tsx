@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Add, CalendarMonth, InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
-import { MsgAlert, PoweredBySSS } from "../../helper/adsi";
+import { CustomCountryTip, MsgAlert, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,9 @@ export function CompleteProfile(){
     const[nationality,setNationality] = useState<mLoc>()
     const[state,setState] = useState<mLoc>()
     const[lga,setLga] = useState<mLoc>()
+    const[nationality_custom, setNationality_custom] = useState('')
+    const[state_custom, setState_custom] = useState('')
+    const[lga_custom, setLga_custom] = useState('')
     const[town,setTown] = useState('')
     const[addr,setAddr] = useState('')
     const[job,setJob] = useState('')
@@ -89,9 +92,15 @@ export function CompleteProfile(){
                             setSex(mgi.getGender())
                             setMarital(mgi.getMarital())
                             setDob(new Date(parseFloat(mgi.getDob())))
-                            setNationality(mCountry.getCountryByCode(mgi.getCountry()))
-                            setState(mState.getStateByCode(mgi.getCountry(), mgi.getState()))
-                            setLga(mLga.getLgaByCode(mgi.getCountry(),mgi.getState(),mgi.getLga()))
+                            if(mgi.isLocsCustom()){
+                                setNationality_custom(mgi.getCountry())
+                                setState_custom(mgi.getState())
+                                setLga_custom(mgi.getLga())
+                            }else{
+                                setNationality(mCountry.getCountryByCode(mgi.getCountry()))
+                                setState(mState.getStateByCode(mgi.getCountry(), mgi.getState()))
+                                setLga(mLga.getLgaByCode(mgi.getCountry(),mgi.getState(),mgi.getLga()))
+                            }
                             setTown(mgi.getTown())
                             setAddr(mgi.getAddr())
                             setJob(mgi.getJob())
@@ -377,6 +386,8 @@ export function CompleteProfile(){
                     </div>
             </div>
             <Mgin top={15} />
+            <CustomCountryTip />
+            <Mgin top={5} />
             <div style={{
                 width:'100%'
             }}>
@@ -385,6 +396,8 @@ export function CompleteProfile(){
                 <select id="dropdown" name="dropdown" value={nationality?.getId() || ''} onChange={(e)=>{
                     const ele = mCountry.getCountryByCode(e.target.value)
                     setNationality(ele)
+                    setState(undefined)
+                    setLga(undefined)
                 }}>
                     <option value="">Click to Choose</option>
                     {
@@ -392,11 +405,13 @@ export function CompleteProfile(){
                             return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                         })
                     }
+                    <option value="bycfcveqvc">Let me input manually</option>
                 </select>
             </div>
-            <Mgin top={15} />
             <div style={{
-                width:'100%'
+                width:'100%',
+                marginTop:15,
+                display:nationality==undefined?'none':undefined
             }}>
                 <mye.Tv text="*State Of Origin" />
                 <Mgin top={5}/>
@@ -404,6 +419,7 @@ export function CompleteProfile(){
                     if(nationality){
                         const ele = mState.getStateByCode(nationality!.getId(),e.target.value)
                         setState(ele)
+                        setLga(undefined)
                     }
                     
                 }}>
@@ -415,9 +431,10 @@ export function CompleteProfile(){
                     }
                 </select>
             </div>
-            <Mgin top={15} />
             <div style={{
-                width:'100%'
+                width:'100%',
+                marginTop:15,
+                display:nationality==undefined?'none':undefined
             }}>
                 <mye.Tv text="*Local Government Area" />
                 <Mgin top={5}/>
@@ -434,6 +451,39 @@ export function CompleteProfile(){
                         }):<option value="option1">Choose Country & State First</option>
                     }
                 </select>
+            </div>
+            <div style={{
+                width:'100%',
+                marginTop:15,
+                display:nationality==undefined?undefined:'none'
+            }}>
+                <mye.Tv text="Type Country" />
+                <Mgin top={5}/>
+                <EditTextFilled hint="Your Country" min={3} value={nationality_custom} recv={(v)=>{
+                    setNationality_custom(v)
+                }} />
+            </div>
+            <div style={{
+                width:'100%',
+                marginTop:15,
+                display:nationality==undefined?undefined:'none'
+            }}>
+                <mye.Tv text="Type State" />
+                <Mgin top={5}/>
+                <EditTextFilled hint="Your State" min={3} value={state_custom} recv={(v)=>{
+                    setState_custom(v)
+                }} />
+            </div>
+            <div style={{
+                width:'100%',
+                marginTop:15,
+                display:nationality==undefined?undefined:'none'
+            }}>
+                <mye.Tv text="Type City" />
+                <Mgin top={5}/>
+                <EditTextFilled hint="Your City" min={3} value={lga_custom} recv={(v)=>{
+                    setLga_custom(v)
+                }} />
             </div>
             <Mgin top={15} />
             <div style={{
@@ -600,16 +650,16 @@ export function CompleteProfile(){
                     toast('Invalid Date of Birth Input',0)
                     return
                 }
-                if(!nationality){
+                if(!nationality && nationality_custom.length <3){
                     toast('Invalid Nationality Input',0)
                     return
                 }
-                if(!state){
+                if(!state && state_custom.length <3){
                     toast('Invalid State Input',0)
                     return
                 }
-                if(!lga){
-                    toast('Invalid Local Government Input',0)
+                if(!lga && lga_custom.length <3){
+                    toast('Invalid LGA/City Input',0)
                     return
                 }
                 if(town.length < 3){
@@ -654,9 +704,9 @@ export function CompleteProfile(){
                     sex:sex,
                     marital:marital,
                     dob:dob.getTime().toString(),
-                    nationality:nationality.getId(),
-                    state:state.getId(),
-                    lga:lga.getId(),
+                    nationality:nationality?nationality.getId():nationality_custom,
+                    state:state?state.getId():state_custom,
+                    lga:lga?lga.getId():lga_custom,
                     town:town,
                     addr:addr,
                     job:job,
@@ -676,7 +726,7 @@ export function CompleteProfile(){
                         }
                         console.log('--------Upld id');
                         toast('Uploading ID',2)
-                        makeRequest.uploadFile('id',getMemId(),id!, (task)=>{
+                        makeRequest.uploadFile('id',getMemId(),getMemId(),id!, (task)=>{
                             if(task.isSuccessful()){
                                 setLoad(false)
                                 toast('General Info update successful',1)

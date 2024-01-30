@@ -1,15 +1,16 @@
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, MonetizationOnOutlined } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont, hexToRgba } from "../../../../helper/general"
 import { payTypeEle } from "../../../classes/classes"
 import Barcode from "react-barcode"
-import { payRecordEle } from "../../../classes/models"
+import { payRecordEle, payStat } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
+import tabcard from "../../../../assets/tabcard.png"
 
 
 
@@ -28,11 +29,12 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
     const[showingIndex,setShowingIndex] = useState(0)
     const[pays,setPays] = useState<payRecordEle[]>([])
     const[outstandings,setOutstandings] = useState<payRecordEle[]>([])
+    const[stat,setStat] = useState<payStat>()
     
 
     useEffect(()=>{
         setTitle(`${mainprop.payType.name} - ${appName}`)
-        begin(true)
+        getStats()
     },[])
 
     function handleError(task:resHandler){
@@ -45,23 +47,59 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         }
     }
 
+    function getStats(dontGetPays?:boolean){
+        function fins(){
+            if(dontGetPays){
+                setLoad(false)
+            }else{
+                getThePays(0)
+            }
+        }
 
-    function begin(paid:boolean){
-        setShowPaid(paid)
+        setLoad(true)
+        setError(false)
+        makeRequest.get(`getRevenue/${mainprop.payType.payId}`,{},(task)=>{
+            if(task.isSuccessful()){
+                setStat(new payStat(task.getData()))
+                //---GET OUTSTANDING IF REGFEE
+                if(mainprop.payType.payId==0){
+                    makeRequest.get('getOutstandingRegFees',{},(task)=>{
+                        if(task.isSuccessful()){
+                            const tem:payRecordEle[] = []
+                            for(const key in task.getData()){
+                                tem.push(new payRecordEle(task.getData()[key]))
+                            }
+                            setOutstandings(tem)
+                            fins()
+                        }else{
+                            handleError(task)
+                        }
+                    })
+                }else{
+                    fins()
+                }
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+    function getThePays(index:number){
+        setShowPaid(true)
         setError(false)
         setLoad(true)
-        makeRequest.get(`getPayments/${mainprop.payType.payId}`,{},(task)=>{
+        makeRequest.get(`getPayments/${mainprop.payType.payId}`,{
+            start:(index*20),
+            count:20
+        },(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
                 const tem:payRecordEle[] = []
                 for(const key in task.getData()){
                     tem.push(new payRecordEle(task.getData()[key]))
                 }
-                if(paid){
-                    setPays(tem)
-                }else{
-                    setOutstandings(tem)
-                }
+                setPays(tem)
+                setShowingIndex(index)
             }else{
                 handleError(task)
             }
@@ -103,7 +141,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            begin(true)
+            getStats()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -180,7 +218,18 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         </div>
         <Mgin top={10} />
         <FiltrLay icon={ListAltOutlined} text="Entries" />
-        <Mgin top={40} />
+        <Mgin top={20} />
+        <div style={{
+            display:'flex',
+            width:'100%',
+            flexWrap:'wrap',
+            alignItems:'center'
+        }}>
+            <Tab1 icon={MonetizationOnOutlined} title="Total Payment" value={stat?stat.getTotal():'...'} color={mye.mycol.hs_blue} />
+            {mainprop.payType.payId==0?
+            <Tab1 icon={PersonOutline} title="Outstanding" value={(outstandings.length*5000).toString()} color={mye.mycol.red} />:<div></div>}
+        </div>
+        <Mgin top={20} />
         <mye.HTv text={mainprop.payType.name} color={mye.mycol.primarycol} size={25} />
         <Mgin top={20} />
         <LrText wrap={!dimen.dsk}
@@ -192,7 +241,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 flex:1
             }}>
                 <Btn txt="Paid" round onClick={()=>{
-                    begin(true)
+                    getThePays(0)
                 }} transparent={!showPaid} />
             </div>
             <Mgin right={10} />
@@ -200,8 +249,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 flex:1
             }}>
                 <Btn txt="Outstanding" round onClick={()=>{
-                    toast('In dev',2)
-                    //begin(false)
+                    setShowPaid(false)
                 }} transparent={showPaid}/>
             </div>
         </div>}
@@ -296,7 +344,12 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
             <div className="hlc">
                 <ArrowBack id="clk" className="icon" onClick={()=>{
                     if(showingIndex >0){
-                        setShowingIndex(showingIndex-1)
+                        const index = showingIndex-1
+                        if(showPaid){
+                            getThePays(index)
+                        }else{
+                            setShowingIndex(index)
+                        }
                     }
                 }} />
                 <Mgin right={10} />
@@ -308,7 +361,11 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                             backgroundColor:showingIndex==index?mye.mycol.black:'transparent',
                             borderRadius:'50%'
                         }} onClick={()=>{
-                            setShowingIndex(index)
+                            if(showPaid){
+                                getThePays(index)
+                            }else{
+                                setShowingIndex(index)
+                            }
                         }}>
                             <mye.BTv text={(index+1).toString()} color={showingIndex==index?mye.mycol.white:mye.mycol.black} size={16}/>
                         </div>
@@ -320,7 +377,12 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                     console.log(len)
                     console.log(showingIndex)
                     if(showingIndex < len){
-                        setShowingIndex(showingIndex+1)
+                        const index = showingIndex+1
+                        if(showPaid){
+                            getThePays(index)
+                        }else{
+                            setShowingIndex(index)
+                        }
                     }
                 }} />
             </div>
@@ -563,13 +625,14 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
             height:150,
             boxSizing:'border-box',
             position:'relative',
-            borderRadius:5,
-            backgroundColor:mye.mycol.btnstrip5,
+            borderRadius:10,
+            backgroundImage: `url(${tabcard})`,
+            backgroundSize: 'cover',
         }}>
             <div className="ctr" style={{
                 width:70,
                 height:70,
-                backgroundColor:prop.color,//TODO: With Opacity
+                backgroundColor:hexToRgba(prop.color,0.1),
                 borderRadius:'50%',
                 position:'absolute',
                 top:20,

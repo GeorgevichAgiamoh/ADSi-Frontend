@@ -5,7 +5,7 @@ import useWindowDimensions from "../../../../helper/dimension"
 import tabcard from "../../../../assets/tabcard.png"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, hexToRgba, ErrorCont, pricePerShare, isDigit, paystackPK, getPayRef } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
-import { defVal, memberBasicinfo, payRecordEle } from "../../../classes/models"
+import { defVal, memberBasicinfo, payRecordEle, payStat } from "../../../classes/models"
 import { useLocation, useNavigate } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
@@ -15,7 +15,7 @@ import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
-export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:number,dues:payRecordEle[],investments:payRecordEle[],payRecord?:payRecordEle)=>void}){
+export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:number, outstanding:string[],payRecord?:payRecordEle)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -24,18 +24,21 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
     const[optToShow,setOptToShow] = useState(-1)
     const[makePaymet,setMakePayment] = useState(0)
     const[showPP,setShowPP] = useState(false)
-    const[investments,setInvestments] = useState<payRecordEle[]>([])
+
+    const[investments5,setInvestments5] = useState<payRecordEle[]>([])
     const[dues,setDues] = useState<payRecordEle[]>([])
-    const[totShares,setTotShares] = useState('...')
-    const[totDues,setTotDues] = useState('...')
+    const[dueStat,setDueStat] = useState<payStat>()
+    const[invStat,setInvStat] = useState<payStat>()
+
     const[cpay, setCPay] = useState<payRecordEle>()
+
     const[showReceipt, setShowReceipt] = useState(false)
-    const[duesOtsd,setDuesOtsd] = useState('...')
+    const[outstanding,setOutstanding] = useState<string[]>([])
     
 
     useEffect(()=>{
         setTitle(`My Payments - ${appName}`)
-        begin()
+        getStats()
     },[])
 
     function handleError(task:resHandler){
@@ -48,49 +51,73 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
         }
     }
 
-    function begin(){
+    function getStats(){
         setLoad(true)
         setError(false)
-        makeRequest.get(`getMemPays/${getMemId()}`,{},(task)=>{
+        makeRequest.get(`getMemPaysStat/${getMemId()}/1`,{},(task)=>{
+            if(task.isSuccessful()){
+                setDueStat(new payStat(task.getData()))
+                makeRequest.get(`getMemPaysStat/${getMemId()}/2`,{},(task)=>{
+                    if(task.isSuccessful()){
+                        setInvStat(new payStat(task.getData()))
+                        get5pays();
+                    }else{
+                        handleError(task)
+                    }
+                })
+            }else{
+                handleError(task)
+            }
+        })
+    }
+
+    function get5pays(){
+        setLoad(true)
+        setError(false)
+        makeRequest.get(`getMemPays/${getMemId()}/2`,{
+            start: 0,
+            count: 5
+        },(task)=>{
           if(task.isSuccessful()){
-            const du = task.getData()['d']
-            if(du){
-                let td = 0
+            const tem:payRecordEle[] = []
+            for(const key in task.getData()){
+                tem.push(new payRecordEle(task.getData()[key]))
+            }
+            setInvestments5(tem)
+            makeRequest.get(`getMemPays/${getMemId()}/1`,{
+                start: 0,
+                count: 50
+            },(task)=>{
+              if(task.isSuccessful()){
                 const tem:payRecordEle[] = []
-                for(const key in du){
-                    const pr = new payRecordEle(du[key])
-                    td += parseFloat(pr.getAmt())
-                    tem.push(pr)
+                for(const key in task.getData()){
+                    tem.push(new payRecordEle(task.getData()[key]))
                 }
-                setTotDues(td.toString())
                 setDues(tem)
+                //--- OUTSTANDINGS
                 const cy = new Date().getFullYear()
-                const tem2:string[] = []
+                const yrs:string[] = []
                 for(let i = cy; i > 2022; i--){ //Starts at 2023
-                    tem2.push(i.toString())
+                    yrs.push(i.toString())
                 }
-                let paids = 0;
+                let paids:string[] = [];
                 for(let d of tem){
-                    if(tem2.includes(d.getYear())){
-                        paids=paids+1;
+                    if(yrs.includes(d.getYear())){
+                        paids.push(d.getYear())
                     }
                 }
-                setDuesOtsd(((tem2.length-paids)*12000).toString())
-            }
-            const shares = task.getData()['s']
-            if(shares){
-                let ts = 0
-                const tem:payRecordEle[] = []
-                for(const key in shares){
-                    const pr = new payRecordEle(shares[key])
-                    ts+=parseFloat(pr.getShares())
-                    tem.push(pr)
+                const notPaids:string[] = []
+                for (let y in yrs){
+                    if(!paids.includes(yrs[y])){
+                        notPaids.push(yrs[y])
+                    }
                 }
-                setInvestments(tem)
-                const tsa = ts * pricePerShare
-                setTotShares(`N${tsa} / ${ts} shares`)
-            }
-            setLoad(false)
+                setOutstanding(notPaids)
+                setLoad(false)
+              }else{
+                handleError(task)
+              } 
+            })
           }else{
             handleError(task)
           } 
@@ -132,7 +159,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            begin()
+            getStats()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -160,9 +187,15 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={MonetizationOnOutlined} title="Total Share Capital" value={totShares} color={mye.mycol.green} />
-            <Tab1 icon={MonetizationOnOutlined} title="Total Dues Paid" value={totDues} color={mye.mycol.hs_blue} />
-            <Tab1 icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${duesOtsd}`} color={mye.mycol.red} />
+            <Tab1 ocl={()=>{
+                mainprop.actiony(0,outstanding)
+            }}  icon={MonetizationOnOutlined} title="Total Share Capital" value={invStat?(invStat.getTotal()+'/'+(invStat.getTotal()/10)+' shares'):'...'} color={mye.mycol.green} />
+            <Tab1 ocl={()=>{
+                mainprop.actiony(1,outstanding)
+            }} icon={MonetizationOnOutlined} title="Total Dues Paid" value={dueStat?dueStat.getTotal():'...'} color={mye.mycol.hs_blue} />
+            <Tab1 ocl={()=>{
+                mainprop.actiony(2,outstanding)
+            }} icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${outstanding.length*5000}`} color={mye.mycol.red} />
         </div>
         <Mgin top={30} />
         <div id='lshdw' style={{
@@ -203,7 +236,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
                     </div>
                     <Line />
                     {
-                        investments.map((ele,index)=>{
+                        investments5.map((ele,index)=>{
                             return <div key={myKey+index+0.011} style={{
                                 width:'100%'
                             }}>
@@ -220,7 +253,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
                 </div>
             </div>
             <div id="clk" className="hlc" onClick={()=>{
-                mainprop.actiony(0,dues,investments)
+                mainprop.actiony(0,outstanding)
             }}>
             <mye.HTv text="View All" color={mye.mycol.primarycol} size={12} />
             <Mgin right={10} />
@@ -283,7 +316,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
                 </div>
             </div>
             <div id="clk" className="hlc" onClick={()=>{
-                mainprop.actiony(1,dues,investments)
+                mainprop.actiony(1,outstanding)
             }}>
             <mye.HTv text="View All" color={mye.mycol.primarycol} size={12} />
             <Mgin right={10} />
@@ -491,7 +524,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
     }
 
 
-    function Tab1(prop:{title:string, value:string, icon:icony, color:string}) {
+    function Tab1(prop:{title:string, value:string, icon:icony, color:string, ocl:()=>void}) {
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -502,7 +535,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             borderRadius:10,
             backgroundImage: `url(${tabcard})`,
             backgroundSize: 'cover',
-        }}>
+        }} onClick={prop.ocl}>
             <div className="ctr" style={{
                 width:70,
                 height:70,

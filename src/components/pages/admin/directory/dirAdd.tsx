@@ -2,7 +2,7 @@ import { ArrowBack, PersonOutline, CalendarMonth, AccountBalance } from "@mui/ic
 import { format } from "date-fns"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid, formatMemId } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
 import { defVal, memberGeneralinfo } from "../../../classes/models"
@@ -11,10 +11,10 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import { PoweredBySSS } from "../../../../helper/adsi"
+import { CustomCountryTip, PoweredBySSS } from "../../../../helper/adsi"
 
 
-export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGeneralinfo}){
+export function AdminDirAdd(mainprop:{backy:(action:number)=>void}){
     const dimen = useWindowDimensions()
     const navigate = useNavigate()
     const location = useLocation()
@@ -26,43 +26,10 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
     const[memID, setMemID] = useState('')
     const[phn, setPhn] = useState('')
     const[eml, setEml] = useState('')
-    const[addr, setAddr] = useState('')
-    const[acctName, setAcctname] = useState('')
-    const[acctNum, setAcctNum] = useState('')
-    const[bank, setBank] = useState('')
-
-    const[gender, setGender] = useState('')
-    const[country, setCountry] = useState<mLoc>()
-    const[state, setState] = useState<mLoc>()
-    const[city, setCity] = useState<mLoc>()
-
-    const[dob, setDOB] = useState<Date>()
-    const[askdob, setAskDOB] = useState(false)
 
 
     useEffect(()=>{
-        setTitle(`Edit Member - ${appName}`)
-        setFname(mainprop.user.basicData!.getFirstName())
-        setMname(mainprop.user.basicData!.getMiddleName())
-        setLname(mainprop.user.basicData!.getlastName())
-        setMemID(mainprop.user.getMemberID())
-        setPhn(mainprop.user.basicData!.getPhone())
-        setEml(mainprop.user.basicData!.getEmail())
-        setAddr(mainprop.user.getAddr())
-        setAcctname(mainprop.user.finData!.getAccountName())
-        setAcctNum(mainprop.user.finData!.getAccountNumber())
-        setBank(mainprop.user.finData!.getBankCode())
-
-        setGender(mainprop.user.getGender())
-        setCountry(mCountry.getCountryByCode(mainprop.user.getCountry()))
-        setState(mCountry.getCountryByCode(mainprop.user.getState()))
-        setCity(mCountry.getCountryByCode(mainprop.user.getLga()))
-        
-        if(mainprop.user.getDob()!=defVal){
-            setDOB(new Date(parseFloat(mainprop.user.getDob())))
-        }
-        setMyKey(Date.now())
-        
+        setTitle(`Create Member - ${appName}`)        
     },[])
 
     function gimmeWidth(long?:boolean){
@@ -143,7 +110,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     color:mye.mycol.secondarycol
                 }} />
                 <Mgin right={10} />
-                <mye.HTv size={14} text="Personal Information" color={mye.mycol.secondarycol} />
+                <mye.HTv size={14} text="New Member" color={mye.mycol.secondarycol} />
             </div>
             <Mgin top={20} />
             <div className="flexi">
@@ -151,9 +118,9 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5
                 }}>
-                    <mye.Tv text="First Name" />
+                    <mye.Tv text="*First Name" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="Grey" min={6} value={fname} recv={(v)=>{
+                    <EditTextFilled hint="Grey" min={3} value={fname} recv={(v)=>{
                         setFname(v)
                     }} />
                 </div>
@@ -163,7 +130,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                 }}>
                     <mye.Tv text="Middle Name" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="Amarchi" min={6} value={mname} recv={(v)=>{
+                    <EditTextFilled hint="Amarchi" min={3} value={mname} recv={(v)=>{
                         setMname(v)
                     }} />
                 </div>
@@ -171,9 +138,9 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5
                 }}>
-                    <mye.Tv text="Last Name" />
+                    <mye.Tv text="*Last Name" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="Adamma" min={6} value={lname} recv={(v)=>{
+                    <EditTextFilled hint="Adamma" min={3} value={lname} recv={(v)=>{
                         setLname(v)
                     }} />
                 </div>
@@ -183,7 +150,7 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                 }}>
                     <mye.Tv text="ADSI Number" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="00000000" min={6} value={memID} recv={(v)=>{
+                    <EditTextFilled hint="00000000" min={1} value={memID} recv={(v)=>{
                         setMemID(v)
                     }} />
                 </div>
@@ -198,63 +165,6 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     }} />
                 </div>
                 <div style={{
-                    width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Gender" />
-                    <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={gender} onChange={(e)=>{
-                        setGender(e.target.value)
-                    }}>
-                        <option value="">Choose One</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                    </select>
-                </div>
-                <div style={{
-                    width:gimmeWidth(true),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Date of Birth" />
-                    <Mgin top={5}/>
-                    <div style={{
-                        width:'100%',
-                        height:45,
-                        borderRadius:8,
-                        backgroundColor:mye.mycol.btnstrip,
-                        padding:10,
-                        boxSizing:'border-box',
-                        position:'relative'
-                    }} >
-                        <LrText 
-                        left={<div id="clk" onClick={()=>{
-                            setAskDOB(true)
-                        }}><mye.Tv text={dob?format(dob,'dd-MM-yy'):'DD/MM/YY'} /></div>}
-                        right={<CalendarMonth id="clk" style={{
-                            fontSize:20,
-                            color:mye.mycol.secondarycol
-                        }} onClick={()=>{
-                            setAskDOB(true)
-                        }}/>}
-                        />
-                        <div style={{
-                            display:askdob?undefined:'none',
-                            position:'absolute',
-                            top:0,
-                            right:0,
-                            zIndex:2,
-                            pointerEvents:'auto'
-                        }}>
-                            <DatePicky rdy={(d)=>{
-                                setAskDOB(false)
-                                setDOB(d)
-                            }} closy={()=>{
-                                setAskDOB(false)
-                            }}/>
-                        </div>
-                    </div>
-                </div>
-                <div style={{
                     width:gimmeWidth(true),
                     margin:dimen.dsk?20:5
                 }}>
@@ -264,167 +174,15 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                         setEml(v)
                     }} />
                 </div>
-                <div style={{
-                    width:'100%',
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Residential Address" />
-                    <Mgin top={5}/>
-                    <EditTextFilled hint="A place on earth" min={6} value={addr} recv={(v)=>{
-                        setAddr(v)
-                    }} />
-                </div>
-                <div style={{
-                    width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Country" />
-                    <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={country?.getId() || ''} onChange={(e)=>{
-                        const ele = mCountry.getCountryByCode(e.target.value)
-                        setCountry(ele)
-                    }}>
-                        <option value="">Choose One</option>
-                        {
-                            mCountry.getAllCountries().map((ele, index)=>{
-                                return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
-                            })
-                        }
-                    </select>
-                </div>
-                <div style={{
-                    width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="State" />
-                    <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
-                        if(country){
-                            const ele = mState.getStateByCode(country!.getId(),e.target.value)
-                            setState(ele)
-                        }
-                        
-                    }}>
-                        <option value="">Choose One</option>
-                        {
-                            country?mState.getStatesByCountry(country!.getId(),true).map((ele, index)=>{
-                                return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
-                            }):<option value="option1">Choose Country First</option>
-                        }
-                    </select>
-                </div>
-                <div style={{
-                    width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="City" />
-                    <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={city?.getId()||''} onChange={(e)=>{
-                        if(country && state){
-                            const ele = mLga.getLgaByCode(country!.getId(),state!.getId(),e.target.value)
-                            setCity(ele)
-                        }
-                    }}>
-                        <option value="">Choose One</option>
-                        {
-                            (country&& state)?mLga.getLgasByState(country!.getId(),state!.getId(),true).map((ele, index)=>{
-                                return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
-                            }):<option value="option1">Choose Country & State First</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <Mgin top={60} />
-            <div className="hlc">
-                <AccountBalance style={{
-                    fontSize:20,
-                    color:mye.mycol.secondarycol
-                }} />
-                <Mgin right={10} />
-                <mye.HTv size={14} text="Account Details" color={mye.mycol.secondarycol} />
-            </div>
-            <Mgin top={20} />
-            <div className="flexi">
-                <div style={{
-                    width:'100%',
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Account Name" />
-                    <Mgin top={5}/>
-                    <EditTextFilled hint="Account Name" min={6} value={acctName} recv={(v)=>{
-                        setAcctname(v)
-                    }} />
-                </div>
-                <div style={{
-                    width:gimmeWidth(true),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Account Number" />
-                    <Mgin top={5}/>
-                    <EditTextFilled hint="00000000000" digi min={7} max={12} value={acctNum} recv={(v)=>{
-                        setAcctNum(v)
-                    }} />
-                </div>
-                <div style={{
-                    width:gimmeWidth(true),
-                    margin:dimen.dsk?20:5
-                }}>
-                    <mye.Tv text="Bank" />
-                    <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={bank} onChange={(e)=>{
-                        setBank(e.target.value)
-                    }}>
-                        <option value="">Click to Choose</option>
-                        {
-                            mBanks.getAllBanks(true).map((ele,index)=>{
-                                return <option key={myKey+0.015+index} value={ele.code}>{ele.name}</option>
-                            })
-                        }
-                    </select>
-                </div>
             </div>
             <Mgin top={50}/>
-            <Btn txt="SAVE" onClick={()=>{
-
-                if(bank.length == 0){
-                    toast('Invalid Bank Input',0)
-                    return
-                }
-                if(acctNum.length < 10){
-                    toast('Invalid Account Number',0)
-                    return
-                }
-                if(acctName.length < 3){
-                    toast('Invalid Account Name',0)
-                    return
-                }
-
-                if(gender.length == 0){
-                    toast('Invalid gender Input',0)
-                    return
-                }
-                if(!dob){
-                    toast('Invalid Date of Birth Input',0)
-                    return
-                }
-                if(!country){
-                    toast('Invalid Nationality Input',0)
-                    return
-                }
-                if(!state){
-                    toast('Invalid State Input',0)
-                    return
-                }
-                if(!city){
-                    toast('Invalid Local Government Input',0)
-                    return
-                }
-                if(addr.length < 3){
-                    toast('Invalid Address Input',0)
+            <Btn txt="CREATE MEMBER" onClick={()=>{
+                if(fname.length < 3){
+                    toast('Invalid First Name Input',0)
                     return;
                 }
-                if(fname.length < 3 || lname.length < 3 || mname.length < 3){
-                    toast('Invalid Name Input',0)
+                if(lname.length < 3){
+                    toast('Invalid Last Name Input',0)
                     return;
                 }
                 if(!isEmlValid(eml)){
@@ -435,64 +193,36 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     toast('Invalid Phone Number',0)
                     return
                 }
-
+                if(memID.length == 0){
+                    toast('Enter ADSI Number',0)
+                    return
+                }
                 setLoad(true)
-                toast('Updating financial info',2)
-                makeRequest.post('setMemberFinancialInfo',{
-                    memid:mainprop.user.getMemberID(),
-                    bnk:bank,
-                    anum:acctNum,
-                    aname:acctName,
+                const fMemId = formatMemId(memID)
+                makeRequest.post('register',{
+                    memid:fMemId,
+                    email:eml,
+                    password:'123456' //Default pwd
                 },(task)=>{
                     if(task.isSuccessful()){
-                        toast('Updating basic info',2)
+                        //Set Basic Data
                         makeRequest.post('setMemberBasicInfo',{
-                            memid:mainprop.user.getMemberID(),
+                            memid:fMemId,
                             fname:fname,
                             lname:lname,
                             mname:mname,
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay: (mainprop.user.basicData!.isPaid())?'1':'0'
+                            pay:'1'
                         },(task)=>{
+                            setLoad(false)
                             if(task.isSuccessful()){
-                                toast('Updating General Info',2)
-                                makeRequest.post('setMemberGeneralInfo',{
-                                    memid:mainprop.user.getMemberID(),
-                                    sex:gender,
-                                    marital:mainprop.user.getMarital(),
-                                    dob:dob.getTime().toString(),
-                                    nationality:country.getId(),
-                                    state:state.getId(),
-                                    lga:city.getId(),
-                                    town:mainprop.user.getTown(),
-                                    addr:addr,
-                                    job:mainprop.user.getJob(),
-                                    kin_fname:mainprop.user.getkin_FirstName(),
-                                    kin_lname:mainprop.user.getkin_LastName(),
-                                    kin_mname:mainprop.user.getkin_MiddleName(),
-                                    kin_type:mainprop.user.getkin_Type(),
-                                    kin_phn:mainprop.user.getkin_phone(),
-                                    kin_addr:mainprop.user.getkin_Addr(),
-                                    kin_eml:mainprop.user.getkin_Email()
-                                },(task)=>{
-                                    setLoad(false)
-                                    if(task.isSuccessful()){
-                                        toast('All Info update successful',1)
-                                    }else{
-                                        if(task.isLoggedOut()){
-                                            navigate('/login')
-                                            return
-                                        }
-                                        toast(task.getErrorMsg(),0)
-                                    }
-                                })
+                                mainprop.backy(-1)
                             }else{
-                                setLoad(false)
                                 if(task.isLoggedOut()){
-                                    navigate('/login')
-                                    return
+                                    navigate('/adminlogin')
+                                    return;
                                 }
                                 toast(task.getErrorMsg(),0)
                             }
@@ -500,13 +230,14 @@ export function AdminDirAdd(mainprop:{backy:(action:number)=>void,user:memberGen
                     }else{
                         setLoad(false)
                         if(task.isLoggedOut()){
-                            navigate('/login')
-                            return
+                            navigate('/adminlogin')
+                            return;
                         }
                         toast(task.getErrorMsg(),0)
                     }
-                })
-            }} width={200} />
+                },true)
+                
+            }} width={300} />
         </div>
         <PoweredBySSS floaatIt/>
     </div>

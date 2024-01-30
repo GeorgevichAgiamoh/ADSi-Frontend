@@ -12,8 +12,7 @@ export function MemberPayments(mainprop:{mbi:memberBasicinfo}){
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[payRecord, setPayRecord] = useState<payRecordEle>()
-    const[dues, setDues] = useState<payRecordEle[]>([])
-    const[investments, setInvestments] = useState<payRecordEle[]>([])
+    const[outstanding, setOutstanding] = useState<string[]>()
     const[stage, setStage] = useState(-1)
 
     useEffect(()=>{
@@ -22,23 +21,16 @@ export function MemberPayments(mainprop:{mbi:memberBasicinfo}){
 
 
     if(stage == -1){
-        return <MemberPayTypes  mbi={mainprop.mbi} actiony={(action,d,i,pt)=>{
-            setDues(d)
-            setInvestments(i)
+        return <MemberPayTypes  mbi={mainprop.mbi} actiony={(action,o,pt)=>{
             setPayRecord(pt)
+            setOutstanding(o)
             setStage(action)
         }} />
     }
-    if(stage == 0 || stage == 1){
-        return <MemberPaymentList isDues={stage==1} dues={dues} investments={investments} backy={()=>{
+    if(stage == 0 || stage == 1|| (stage == 2 && outstanding)){
+        return <MemberPaymentList tabPos={stage} outstanding={outstanding} backy={()=>{
             setStage(-1)
         }} />
-    }
-    if(stage == 1  && payRecord){
-        
-    }
-    if(stage == 2 && payRecord){
-        
     }
     return <div className="ctr" style={{
         width:'100%',

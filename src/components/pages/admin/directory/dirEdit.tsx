@@ -1,24 +1,23 @@
-import { useState, useEffect, useRef } from "react"
+import { ArrowBack, PersonOutline, CalendarMonth, AccountBalance } from "@mui/icons-material"
+import { format } from "date-fns"
+import { useState, useEffect } from "react"
+import useWindowDimensions from "../../../../helper/dimension"
+import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
+import { defVal, memberGeneralinfo } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
-import { defVal, memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../classes/models"
-import { Btn, DatePicky, EditTextFilled, ErrorCont, LrText, Mgin, appName, isEmlValid, isPhoneNigOk, myEles, setTitle } from "../../../helper/general"
-import { ArrowBack, PersonOutline, CalendarMonth, AccountBalance } from "@mui/icons-material"
 import { CircularProgress } from "@mui/material"
-import { format } from "date-fns"
+import Toast from "../../../toast/toast"
+import { makeRequest } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import useWindowDimensions from "../../../helper/dimension"
-import { resHandler, makeRequest, getMemId } from "../../../helper/requesthandler"
-import Toast from "../../toast/toast"
-import { CustomCountryTip } from "../../../helper/adsi"
+import { CustomCountryTip, PoweredBySSS } from "../../../../helper/adsi"
 
 
-
-export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo}){
-    const location = useLocation()
-    const navigate = useNavigate()
+export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGeneralinfo}){
     const dimen = useWindowDimensions()
+    const navigate = useNavigate()
+    const location = useLocation()
     const mye = new myEles(false)
     const [myKey, setMyKey] = useState(Date.now())
     const[fname, setFname] = useState('')
@@ -43,64 +42,41 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
     const[dob, setDOB] = useState<Date>()
     const[askdob, setAskDOB] = useState(false)
 
-    const[showPP,setShowPP] = useState(false)
-
 
     useEffect(()=>{
-        setTitle(`My Profile - ${appName}`)
-        setFname(mainprop.mbi.getFirstName())
-        setMname(mainprop.mbi.getMiddleName())
-        setLname(mainprop.mbi.getlastName())
-        setMemID(mainprop.mbi.getMemberID())
-        setPhn(mainprop.mbi.getPhone())
-        setEml(mainprop.mbi.getEmail())
+        setTitle(`Edit Member - ${appName}`)
+        setFname(mainprop.user.basicData!.getFirstName())
+        setMname(mainprop.user.basicData!.getMiddleName())
+        setLname(mainprop.user.basicData!.getlastName())
+        setMemID(mainprop.user.getMemberID())
+        setPhn(mainprop.user.basicData!.getPhone())
+        setEml(mainprop.user.basicData!.getEmail())
+        setAddr(mainprop.user.getAddr())
+        setAcctname(mainprop.user.finData!.getAccountName())
+        setAcctNum(mainprop.user.finData!.getAccountNumber())
+        setBank(mainprop.user.finData!.getBankCode())
 
-        if(mainprop.mgi){
-            setAddr(mainprop.mgi.getAddr())
-            setGender(mainprop.mgi.getGender())
-            if(mainprop.mgi.isLocsCustom()){
-                setCountry_custom(mainprop.mgi.getCountry())
-                setState_custom(mainprop.mgi.getState())
-                setCity_custom(mainprop.mgi.getLga())
-            }else{
-                setCountry(mCountry.getCountryByCode(mainprop.mgi.getCountry()))
-                setState(mCountry.getCountryByCode(mainprop.mgi.getState()))
-                setCity(mCountry.getCountryByCode(mainprop.mgi.getLga()))
-            }
-            if(mainprop.mgi.getDob()!=defVal){
-                setDOB(new Date(parseFloat(mainprop.mgi.getDob())))
-            }
+        setGender(mainprop.user.getGender())
+        if(mainprop.user.isLocsCustom()){
+            setCountry_custom(mainprop.user.getCountry())
+            setState_custom(mainprop.user.getState())
+            setCity_custom(mainprop.user.getLga())
+        }else{
+            setCountry(mCountry.getCountryByCode(mainprop.user.getCountry()))
+            setState(mCountry.getCountryByCode(mainprop.user.getState()))
+            setCity(mCountry.getCountryByCode(mainprop.user.getLga()))
+        }
+        
+        
+        if(mainprop.user.getDob()!=defVal){
+            setDOB(new Date(parseFloat(mainprop.user.getDob())))
         }
         setMyKey(Date.now())
-        begin()
+        
     },[])
 
-    function handleError(task:resHandler){
-        setLoad(false)
-        setError(true)
-        if(task.isLoggedOut()){
-            navigate(`/login?rdr=${location.pathname.substring(1)}`)
-        }else{
-            toast(task.getErrorMsg(),0)
-        }
-    }
-
-    function begin(){
-        setLoad(true)
-        setError(false)
-        makeRequest.get(`getMemberFinancialInfo/${getMemId()}`,{},(task)=>{
-            if(task.isSuccessful()){
-                if(task.exists()){
-                    const mfi = new memberFinancialinfo(task.getData())
-                    setAcctname(mfi.getAccountName())
-                    setAcctNum(mfi.getAccountNumber())
-                    setBank(mfi.getBankCode())
-                }
-                setLoad(false)
-            }else{
-                handleError(task)
-            }
-        })
+    function gimmeWidth(long?:boolean){
+        return dimen.dsk?long?'450px':'300px':'100%'
     }
 
     const[load, setLoad]=useState(false)
@@ -131,14 +107,13 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
       });
     }
 
-    return <div key={myKey} className="vlc" style={{
+    return <div key={myKey} style={{
         width:'100%',
         boxSizing:'border-box',
         padding:dimen.dsk?40:20
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            begin()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -159,7 +134,14 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                     invoked:0,
                 })
             }} />
-        <Mgin top={40} />
+        <div id="clk" className="hlc" onClick={()=>{
+            mainprop.backy(-1)
+        }}>
+            <ArrowBack className="icon" />
+            <Mgin right={10} />
+            <mye.HTv text="Go Back" size={14} />
+        </div>
+        <Mgin top={20} />
         <div id="lshdw" style={{
             backgroundColor: mye.mycol.white,
             borderRadius:10,
@@ -181,7 +163,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 }}>
                     <mye.Tv text="First Name" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="Grey" min={6} value={fname} recv={(v)=>{
+                    <EditTextFilled hint="Grey" min={3} value={fname} recv={(v)=>{
                         setFname(v)
                     }} />
                 </div>
@@ -191,7 +173,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 }}>
                     <mye.Tv text="Middle Name" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="Amarchi" min={6} value={mname} recv={(v)=>{
+                    <EditTextFilled hint="Amarchi" min={3} value={mname} recv={(v)=>{
                         setMname(v)
                     }} />
                 </div>
@@ -211,7 +193,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 }}>
                     <mye.Tv text="ADSI Number" />
                     <Mgin top={5}/>
-                    <EditTextFilled hint="00000000" min={6} value={memID} recv={(v)=>{
+                    <EditTextFilled disabled hint="00000000" min={1} value={memID} recv={(v)=>{
                         setMemID(v)
                     }} />
                 </div>
@@ -453,6 +435,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
             </div>
             <Mgin top={50}/>
             <Btn txt="SAVE" onClick={()=>{
+
                 if(bank.length == 0){
                     toast('Invalid Bank Input',0)
                     return
@@ -506,7 +489,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 setLoad(true)
                 toast('Updating financial info',2)
                 makeRequest.post('setMemberFinancialInfo',{
-                    memid:mainprop.mbi.getMemberID(),
+                    memid:mainprop.user.getMemberID(),
                     bnk:bank,
                     anum:acctNum,
                     aname:acctName,
@@ -514,52 +497,47 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                     if(task.isSuccessful()){
                         toast('Updating basic info',2)
                         makeRequest.post('setMemberBasicInfo',{
-                            memid:mainprop.mbi.getMemberID(),
+                            memid:mainprop.user.getMemberID(),
                             fname:fname,
                             lname:lname,
                             mname:mname,
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay: (mainprop.mbi.isPaid())?'1':'0'
+                            pay: (mainprop.user.basicData!.isPaid())?'1':'0'
                         },(task)=>{
                             if(task.isSuccessful()){
-                                if(mainprop.mgi){
-                                    toast('Updating General Info',2)
-                                    makeRequest.post('setMemberGeneralInfo',{
-                                        memid:mainprop.mgi.getMemberID(),
-                                        sex:gender,
-                                        marital:mainprop.mgi.getMarital(),
-                                        dob:dob.getTime().toString(),
-                                        nationality:country?country.getId():country_custom,
-                                        state:state?state.getId():state_custom,
-                                        lga:city?city.getId():city_custom,
-                                        town:mainprop.mgi.getTown(),
-                                        addr:addr,
-                                        job:mainprop.mgi.getJob(),
-                                        kin_fname:mainprop.mgi.getkin_FirstName(),
-                                        kin_lname:mainprop.mgi.getkin_LastName(),
-                                        kin_mname:mainprop.mgi.getkin_MiddleName(),
-                                        kin_type:mainprop.mgi.getkin_Type(),
-                                        kin_phn:mainprop.mgi.getkin_phone(),
-                                        kin_addr:mainprop.mgi.getkin_Addr(),
-                                        kin_eml:mainprop.mgi.getkin_Email()
-                                    },(task)=>{
-                                        setLoad(false)
-                                        if(task.isSuccessful()){
-                                            toast('All Info update successful',1)
-                                        }else{
-                                            if(task.isLoggedOut()){
-                                                navigate('/login')
-                                                return
-                                            }
-                                            toast(task.getErrorMsg(),0)
-                                        }
-                                    })
-                                }else{
+                                toast('Updating General Info',2)
+                                makeRequest.post('setMemberGeneralInfo',{
+                                    memid:mainprop.user.getMemberID(),
+                                    sex:gender,
+                                    marital:mainprop.user.getMarital(),
+                                    dob:dob.getTime().toString(),
+                                    nationality:country?country.getId():country_custom,
+                                    state:state?state.getId():state_custom,
+                                    lga:city?city.getId():city_custom,
+                                    town:mainprop.user.getTown(),
+                                    addr:addr,
+                                    job:mainprop.user.getJob(),
+                                    kin_fname:mainprop.user.getkin_FirstName(),
+                                    kin_lname:mainprop.user.getkin_LastName(),
+                                    kin_mname:mainprop.user.getkin_MiddleName(),
+                                    kin_type:mainprop.user.getkin_Type(),
+                                    kin_phn:mainprop.user.getkin_phone(),
+                                    kin_addr:mainprop.user.getkin_Addr(),
+                                    kin_eml:mainprop.user.getkin_Email()
+                                },(task)=>{
                                     setLoad(false)
-                                    setShowPP(true)
-                                }
+                                    if(task.isSuccessful()){
+                                        toast('All Info update successful',1)
+                                    }else{
+                                        if(task.isLoggedOut()){
+                                            navigate('/login')
+                                            return
+                                        }
+                                        toast(task.getErrorMsg(),0)
+                                    }
+                                })
                             }else{
                                 setLoad(false)
                                 if(task.isLoggedOut()){
@@ -580,50 +558,7 @@ export function MyProfile(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneralinfo})
                 })
             }} width={200} />
         </div>
-        {/* Absolutely positioned (dialog) */}
-        <div className="ctr" style={{
-            display:showPP?undefined:'none',
-            position:'absolute',
-            top:0,
-            left:0,
-            width:'100%',
-            height:'100%',
-            backgroundColor:'rgba(0,0,0,0.1)'
-        }}>
-            <ShowPP closy={()=>{
-                setShowPP(false)
-            }} />
-        </div>
+        <PoweredBySSS floaatIt/>
     </div>
-    
-    function ShowPP(prop:{closy:()=>void}) {
-
-        return <div className="ctr" style={{
-            backgroundColor:mye.mycol.bkg,
-            borderRadius:10,
-            padding:dimen.dsk?40:20,
-            boxSizing:'border-box',
-            overflow:'scroll',
-            width:dimen.dsk2?'40%':dimen.dsk?'50%':'80%',
-            height:'50%'
-        }}>
-            <div className="vlc" style={{
-                width:'100%',
-            }} >
-                <mye.HTv text="Complete Profile" />
-                <Mgin top={20} />
-                <mye.Tv text="We could not update some information as your profile is not yet complete" />
-                <Mgin top={20} />
-                <Btn txt="COMPLETE PROFILE" width={140} onClick={()=>{
-                    navigate('/completeprofile')
-                }} />
-            </div>
-        </div>
-    }
-
-    function gimmeWidth(long?:boolean){
-        return dimen.dsk?long?'450px':'300px':'100%'
-    }
 
 }
-

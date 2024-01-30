@@ -10,7 +10,7 @@ import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { adminUserEle, adsiInfoEle, permHelp } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
-import { PoweredBySSS } from "../../../../helper/adsi"
+import { CustomCountryTip, PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -59,6 +59,9 @@ export function SettingsList(){
     const[country, setCountry] = useState<mLoc>()
     const[state, setState] = useState<mLoc>()
     const[city, setCity] = useState<mLoc>()
+    const[country_custom, setCountry_custom] = useState('')
+    const[state_custom, setState_custom] = useState('')
+    const[city_custom, setCity_custom] = useState('')
 
     useEffect(()=>{
         setTitle(`Settings - ${appName}`)
@@ -76,9 +79,15 @@ export function SettingsList(){
                 setName(adsi.getName())
                 setRegNo(adsi.getRegNo())
                 setAddr(adsi.getAddr())
-                setCountry(mCountry.getCountryByCode(adsi.getNationality()))
-                setState(mState.getStateByCode(adsi.getNationality(),adsi.getState()))
-                setCity(mLga.getLgaByCode(adsi.getNationality(),adsi.getState(),adsi.getLga()))
+                if(adsi.isLocsCustom()){
+                    setCountry_custom(adsi.getNationality())
+                    setState_custom(adsi.getState())
+                    setCity_custom(adsi.getLga())
+                }else{
+                    setCountry(mCountry.getCountryByCode(adsi.getNationality()))
+                    setState(mState.getStateByCode(adsi.getNationality(),adsi.getState()))
+                    setCity(mLga.getLgaByCode(adsi.getNationality(),adsi.getState(),adsi.getLga()))
+                }
                 setAName(adsi.getAccountName())
                 setANum(adsi.getAccountNumber())
                 setBank(adsi.getBankCode())
@@ -287,15 +296,18 @@ export function SettingsList(){
                         setAddr(v)
                     }} />
                 </div>
+                <CustomCountryTip />
                 <div style={{
                     width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
+                    margin:dimen.dsk?20:5,
                 }}>
                     <mye.Tv text="Country" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={country?.getId() || ''} onChange={(e)=>{
                         const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
+                        setState(undefined)
+                        setCity(undefined)
                     }}>
                         <option value="">Choose One</option>
                         {
@@ -303,11 +315,13 @@ export function SettingsList(){
                                 return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                             })
                         }
+                        <option value="bycfcveqvc">Let me input manually</option>
                     </select>
                 </div>
                 <div style={{
                     width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
+                    margin:dimen.dsk?20:5,
+                    display:country==undefined?'none':undefined
                 }}>
                     <mye.Tv text="State" />
                     <Mgin top={5}/>
@@ -315,6 +329,7 @@ export function SettingsList(){
                         if(country){
                             const ele = mState.getStateByCode(country!.getId(),e.target.value)
                             setState(ele)
+                            setCity(undefined)
                         }
                         
                     }}>
@@ -328,7 +343,8 @@ export function SettingsList(){
                 </div>
                 <div style={{
                     width:gimmeWidth(),
-                    margin:dimen.dsk?20:5
+                    margin:dimen.dsk?20:5,
+                    display:country==undefined?'none':undefined
                 }}>
                     <mye.Tv text="City" />
                     <Mgin top={5}/>
@@ -345,6 +361,39 @@ export function SettingsList(){
                             }):<option value="option1">Choose Country & State First</option>
                         }
                     </select>
+                </div>
+                <div style={{
+                    width:gimmeWidth(),
+                    margin:dimen.dsk?20:5,
+                    display:country==undefined?undefined:'none'
+                }}>
+                    <mye.Tv text="Type Country" />
+                    <Mgin top={5}/>
+                    <EditTextFilled hint="Your Country" min={3} value={country_custom} recv={(v)=>{
+                        setCountry_custom(v)
+                    }} />
+                </div>
+                <div style={{
+                    width:gimmeWidth(),
+                    margin:dimen.dsk?20:5,
+                    display:country==undefined?undefined:'none'
+                }}>
+                    <mye.Tv text="Type State" />
+                    <Mgin top={5}/>
+                    <EditTextFilled hint="Your State" min={3} value={state_custom} recv={(v)=>{
+                        setState_custom(v)
+                    }} />
+                </div>
+                <div style={{
+                    width:gimmeWidth(),
+                    margin:dimen.dsk?20:5,
+                    display:country==undefined?undefined:'none'
+                }}>
+                    <mye.Tv text="Type City" />
+                    <Mgin top={5}/>
+                    <EditTextFilled hint="Your City" min={3} value={city_custom} recv={(v)=>{
+                        setCity_custom(v)
+                    }} />
                 </div>
             </div>
             <div className="hlc" style={{
@@ -464,17 +513,17 @@ export function SettingsList(){
                     toast('Please add cooperative address',0)
                     return;
                 }
-                if(!country){
-                    toast('Please set country',0)
-                    return;
+                if(!country && country_custom.length <3){
+                    toast('Invalid Country Input',0)
+                    return
                 }
-                if(!state){
-                    toast('Please set state',0)
-                    return;
+                if(!state &&  state_custom.length < 3){
+                    toast('Invalid State Input',0)
+                    return
                 }
-                if(!city){
-                    toast('Please set city',0)
-                    return;
+                if(!city && city_custom.length < 3){
+                    toast('Invalid City Input',0)
+                    return
                 }
                 if(aname.length<3){
                     toast('Please add account name',0)
@@ -510,9 +559,9 @@ export function SettingsList(){
                     cname:name,
                     regno:regNo,
                     addr: addr,
-                    nationality: country!.getId(),
-                    state: state!.getId(),
-                    lga: city!.getId(),
+                    nationality: country?country.getId():country_custom,
+                    state: state?state.getId():state_custom,
+                    lga: city?city.getId():city_custom,
                     aname: aname,
                     anum: anum,
                     bnk: bank,

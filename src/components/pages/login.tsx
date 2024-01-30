@@ -95,7 +95,7 @@ export function ForgotPassword(){
             padding:dimen.dsk?0:20,
             boxSizing:'border-box'
         }}>
-            <mye.BTv text="Forgot Pin" size={40} color={mye.mycol.primarycol} />
+            <mye.BTv text="Forgot Password" size={40} color={mye.mycol.primarycol} />
             <Mgin top={20} />
             <mye.Tv text="Please enter your ADSI Number and we will send a password reset link to the email you registred with" center />
             <Mgin top={20} />
@@ -116,7 +116,7 @@ export function ForgotPassword(){
                 }
                 setLoad(true)
                 makeRequest.post('sendPasswordResetEmail',{
-                    memid:mid
+                    memid:formatMemId(mid)
                 },(task)=>{
                     setLoad(false)
                     if(task.isSuccessful()){
@@ -348,7 +348,7 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
     const navigate = useNavigate();
 
     useEffect(()=>{
-        setTitle(`Login - ${appName}`)
+        setTitle(`${mainprop.isAdmin?'Admin ':''}Login - ${appName}`)
     },[])
 
 
@@ -447,9 +447,9 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
                 navigate('/forgotpassword')
             }} />}/>
             <Mgin top={10} />
-            <mye.Tv text="Haven't registered yet ?"  />
+            <mye.Tv text="Don't have an account ?"  />
             <Mgin top={10} />
-            <Btn txt="REGISTER" onClick={()=>{
+            <Btn txt="CREATE ACCOUNT" onClick={()=>{
                 navigate(`/register?mid=${mid}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
             <PoweredBySSS floaatIt noPadding/>

@@ -30,7 +30,7 @@ export function Register(){
     const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     useEffect(()=>{
-        setTitle(`Register - ${appName}`)
+        setTitle(`Create Account - ${appName}`)
     },[])
 
     

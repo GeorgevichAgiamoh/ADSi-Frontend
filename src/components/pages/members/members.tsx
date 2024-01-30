@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useWindowDimensions from "../../../helper/dimension";
 import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../helper/general";
 import { AdminNav, MemberNav } from "../nav";
-import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, BuildOutlined, Close, DeveloperModeOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
-import dp from "../../../assets/dp.png"
+import { Add, Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, BuildOutlined, Close, DeveloperModeOutlined, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import { annEle } from "../../classes/classes";
 import { MemberDashboard } from "./dashbrd";
 import { AdminMessaging } from "./messages/messages";
 import { MemberPayments } from "./payments/payments";
-import { getMemId, makeRequest } from "../../../helper/requesthandler";
+import { endpoint, getMemId, makeRequest } from "../../../helper/requesthandler";
 import { useNavigate } from "react-router-dom";
 import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
@@ -27,6 +26,10 @@ export function Members(){
     const[mbi, setMBI] = useState<memberBasicinfo>()
     const[mgi, setMGI] = useState<memberGeneralinfo>()
     const[yearsOwing, setYearsOwing] = useState<string[]>([])
+    const[ppic,setPpic] = useState('')
+    const[uplPic,setUplPic] = useState<File>()
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    
     const tabs = [
         'Dashboard',
         'Payments',
@@ -72,6 +75,13 @@ export function Members(){
         
         confirmYearOwing(new Date().getFullYear().toString())
         //TODO auto do for other years
+
+        //Profile pic
+        makeRequest.get(`fileExists/dp/${getMemId()}`,{},(task)=>{
+            if(task.isSuccessful()){
+                setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
+            }
+        })
     }
 
     function updateYearsOwed(ny:string){
@@ -147,7 +157,7 @@ export function Members(){
                     invoked:0,
                 })
             }} />
-        <div style={{
+        <div key={myKey} style={{
             width:'100%',
             height:'100%',
             display:'flex'
@@ -157,7 +167,7 @@ export function Members(){
                 height:'100%',
                 display: dimen.dsk?undefined:'none'
             }}>
-                <MemberNav  key={myKey} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
+                <MemberNav  key={myKey+0.2} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                     setTabPos(pos)
                     if(pos==4){
                         makeRequest.get('logout',{},(task)=>{
@@ -202,7 +212,53 @@ export function Members(){
                                 backgroundColor:mye.mycol.primarycol
                             }}></div>
                             <Mgin right={15}/>
-                            <img src={dp} alt="Admin Name" height={42}  />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e)=>{
+                                    const file = e.target.files?.[0];
+                                    if(file){
+                                        setLoad(true)
+                                        makeRequest.uploadFile('dp',getMemId(),getMemId(),file, (task)=>{
+                                            setLoad(false)
+                                            if(task.isSuccessful()){
+                                                toast('Profile picture set',1)
+                                                setTimeout(()=>{
+                                                    setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
+                                                },2000)
+                                            }else{
+                                                if(task.isLoggedOut()){
+                                                    navigate('/login')
+                                                    return
+                                                }
+                                                toast(task.getErrorMsg(),0)
+                                            }
+                                        })
+                                    }else{
+                                        toast('Invalid File. Try again',0)
+                                    }
+                                }}
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                            />
+                            <div id="clk" onClick={()=>{
+                                    fileInputRef.current?.click()
+                                }}>
+                                {ppic.length==0?<div  className="ctr" style={{
+                                    width:42,
+                                    height:42,
+                                    backgroundColor:mye.mycol.btnstrip,
+                                    borderRadius:50
+                                }} >
+                                    <Add className="icon" />
+                                </div>:<img src={ppic} alt="DP" style={{
+                                    objectFit:'cover',
+                                    width:42,
+                                    height:42,
+                                    backgroundColor:mye.mycol.btnstrip,
+                                    borderRadius:50
+                                }}  />}
+                            </div>
                             <Mgin right={5}/>
                             <ArrowDropDown className="icon" />
                         </div>}
@@ -214,7 +270,7 @@ export function Members(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {(mgi && mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
+                    {(mbi && mbi.isDeleted())?<ShowProfileDeleted />:(mgi && mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
                         setMyKey(Date.now())
                     }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}
@@ -229,7 +285,7 @@ export function Members(){
             height:'100%',
             display: (!dimen.dsk && showNav) ? undefined:'none'
         }}>
-            <MemberNav key={myKey} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
+            <MemberNav key={myKey+0.3} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                 setShowNav(false)
                 setTabPos(pos)
                 if(pos==4){
@@ -266,6 +322,24 @@ export function Members(){
                         setMyKey(Date.now())
                     }}/>
                 </div>
+            </div>
+        </div>
+    }
+
+    function ShowProfileDeleted() {
+        return <div className="ctr" style={{
+            width:'100%',
+            height:'100%'
+        }}>
+            <div className="vlc">
+                <LockOutlined style={{
+                    fontSize:30,
+                    color:mye.mycol.primarycol
+                }} />
+                <Mgin top={20} />
+                <mye.HTv text={'Profile Deleted'} />
+                <Mgin top={10} />
+                <mye.Tv text={'Your profile has been deleted by the admin. Please reach out to ADSI to resolve'} center />
             </div>
         </div>
     }

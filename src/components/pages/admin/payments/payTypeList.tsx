@@ -1,16 +1,17 @@
 /* eslint-disable eqeqeq */
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined } from "@mui/icons-material"
-import { useState, useEffect, ChangeEvent } from "react"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined, MonetizationOnOutlined } from "@mui/icons-material"
+import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare, formatMemId } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare, formatMemId, hexToRgba } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
 import { format } from "date-fns"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import { memberBasicinfo } from "../../../classes/models"
+import { memberBasicinfo, payStat } from "../../../classes/models"
 import { PoweredBySSS } from "../../../../helper/adsi"
+import tabcard from "../../../../assets/tabcard.png"
 
 
 
@@ -27,10 +28,34 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         new payTypeEle('Thrift/Annual Dues',12000,1),
         new payTypeEle('Share capital',10000,2),
     ]
+    const[totPays,setTotPays] = useState('...')
+    const[totCount,setTotCount] = useState('...')
 
     useEffect(()=>{
         setTitle(`Payment Types - ${appName}`)
+        getStat()
     },[])
+
+    function getStat(){
+        makeRequest.get(`getRevenue/0`,{},(task)=>{
+            if(task.isSuccessful()){
+                const st0 = new payStat(task.getData())
+                makeRequest.get(`getRevenue/1`,{},(task)=>{
+                    if(task.isSuccessful()){
+                        const st1 = new payStat(task.getData())
+                        makeRequest.get(`getRevenue/2`,{},(task)=>{
+                            if(task.isSuccessful()){
+                                const st2 = new payStat(task.getData())
+                                setTotPays((parseInt(st0.getTotal())+parseInt(st1.getTotal())+parseInt(st2.getTotal())).toString())
+                                setTotCount((parseInt(st0.getCount())+parseInt(st1.getCount())+parseInt(st2.getCount())).toString())
+                            }
+                        })
+                           
+                    }
+                })
+            }
+        })
+    }
 
     const[load, setLoad]=useState(false)
     const[loadMsg, setLoadMsg]=useState('Just a sec')
@@ -101,8 +126,8 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={SavingsOutlined} title="Total Payment" value="N300,000" color={mye.mycol.hs_blue} />
-            <Tab1 icon={PersonOutline} title="Outstanding" value="N50,000" color={mye.mycol.red} />
+            <Tab1 icon={MonetizationOnOutlined} title="Total Payment" value={totPays} color={mye.mycol.hs_blue} />
+            <Tab1 icon={PersonOutline} title="Number of Payments" value={totCount} color={mye.mycol.hs_blue} />
         </div>
         <Mgin top={50} />
         <div className="vlc" id='lshdw' style={{
@@ -265,13 +290,14 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
             height:150,
             boxSizing:'border-box',
             position:'relative',
-            borderRadius:5,
-            backgroundColor:mye.mycol.btnstrip5,
+            borderRadius:10,
+            backgroundImage: `url(${tabcard})`,
+            backgroundSize: 'cover',
         }}>
             <div className="ctr" style={{
                 width:70,
                 height:70,
-                backgroundColor:prop.color,//TODO: With Opacity
+                backgroundColor:hexToRgba(prop.color,0.1),
                 borderRadius:'50%',
                 position:'absolute',
                 top:20,
@@ -311,6 +337,9 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
     const[year,setYear] = useState('')
 
     const[years,setYears] = useState<string[]>([])
+
+    const[receipt,setReceipt] = useState<File>()
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(()=>{
         toast('REBUILDING',2)
@@ -505,15 +534,30 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
         <Mgin top={20} />
         <LrText wrap={!dimen.dsk}
         left={<div>
-            <mye.Tv text="*Receipt" size={12} color={mye.mycol.primarycol}  />
-            <Mgin top={2} />
-            <mye.Tv text="Upload official stamp when" size={12} />
-            <Mgin top={2} />
-            <mye.Tv text="Physical receipt is not available" size={12} />
+            <mye.Tv text="*Receipt, if any" size={12} color={mye.mycol.primarycol}  />
+            <div style={{
+                display:receipt?undefined:'none'
+            }}>
+                <Mgin top={2} />
+                <mye.Tv text={`${receipt?receipt.name:''} added`} size={12} color={mye.mycol.primarycol} />
+            </div>
         </div>}
-        right={<IconBtn icon={Add} mye={mye} ocl={()=>{
-            toast('Coming soon',2)
-        }} text="ATTACH DOC" />}
+        right={<div>
+            <input
+                type="file"
+                onChange={(e)=>{
+                    const file = e.target.files?.[0];
+                    if(file){
+                        setReceipt(file)
+                    }
+                }}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+            />
+           <IconBtn icon={Add} mye={mye} ocl={()=>{
+                fileInputRef.current?.click()
+            }} text="ATTACH DOC" />
+        </div>}
         />
         <Mgin top={20} />
         <Btn txt="ADD PAYMENT" onClick={()=>{
@@ -543,8 +587,9 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
                 if(task.isSuccessful()){
                     if(task.exists()){
                         const mbi = new memberBasicinfo(task.getData())
+                        const puuid = Date.now().toString() 
                         const pld:{[key:string]:string} = {
-                            ref: getPayRef(ptype,amt,mbi.getMemberID()),
+                            ref: getPayRef(ptype,amt,mbi.getMemberID(),puuid),
                             name: mbi.getFullName(),
                             time: dpd.getTime().toString()
                         }
@@ -556,8 +601,24 @@ function AddPay(prop:{closy:(ok?:boolean)=>void}) {
                         }
                         makeRequest.post('uploadPayment',pld,(task)=>{
                             if(task.isSuccessful()){
-                                setLoad(false)
-                                prop.closy(true)
+                                //Upload receipt if provided
+                                if(receipt){
+                                    makeRequest.uploadFile(`receipts_${ptype}`,puuid,mbi.getMemberID(),receipt, (task)=>{
+                                        setLoad(false)
+                                        if(task.isSuccessful()){
+                                            prop.closy(true)
+                                        }else{
+                                            if(task.isLoggedOut()){
+                                                navigate('/login')
+                                                return
+                                            }
+                                            toast("Could not upload receipt: "+task.getErrorMsg(),0)
+                                        }
+                                    })
+                                }else{
+                                    setLoad(false)
+                                    prop.closy(true)
+                                }
                             }else{
                                 handleError(task)
                             }

@@ -107,7 +107,7 @@ export function PincodeLay(prop:{mye:myEles, ocl:(val:string)=>void}){
 }
 
 
-export const getGreeting = (): string => {
+export function getGreeting(){
     const currentHour = new Date().getHours();
   
     if (currentHour >= 5 && currentHour < 12) {
@@ -120,7 +120,15 @@ export const getGreeting = (): string => {
   };
 
 
-
+export function CustomCountryTip(){
+    const mye = new myEles(false)
+    return <div style={{
+        width:'100%',
+        marginLeft:20
+    }}>
+        <mye.Tv text="If your country is not on the list - 'click Let me input manually'" size={12} color={mye.mycol.primarycol}/>
+    </div>
+}
 
 
 

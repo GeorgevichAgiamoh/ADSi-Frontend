@@ -64,6 +64,9 @@ export class memberGeneralinfo{
     getDob(){
         return !this.data?defVal:this.data['dob']
     }
+    isLocsCustom(){
+        return mCountry.getCountryByCode(this.getCountry()) == undefined
+    }
     getCountry(){
         return !this.data?defVal:this.data['nationality']
     }
@@ -280,6 +283,9 @@ export class adsiInfoEle{
     getAddr(){
         return this.data['addr']
     }
+    isLocsCustom(){
+        return mCountry.getCountryByCode(this.getNationality()) == undefined
+    }
     getNationality(){
         return this.data['nationality']
     }
@@ -376,6 +382,20 @@ export class fileEle{
     }
     getFolder(){
         return this.data['folder']
+    }
+}
+
+
+export class payStat{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getTotal(){
+        return this.data['total']
+    }
+    getCount(){
+        return this.data['count']
     }
 }
 

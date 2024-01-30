@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { adminUserEle, highlightEle } from "../../classes/models";
+import { MsgTBD } from "../members/members";
 
 
 export function Admin(){
@@ -207,7 +208,7 @@ export function Admin(){
                 }}>
                     {tabPos===0?((me && me.getRole()=='0')?<AdminDashboard />:<NotAllowed />):tabPos===1?(isPermGranted(1)?<AdminDirectory />:<NotAllowed/>)
                     :tabPos===2?(isPermGranted(2)?<AdminPayments />:<NotAllowed />)
-                    :tabPos===3?(isPermGranted(3)?<AdminMessaging />:<NotAllowed />)
+                    :tabPos===3?(isPermGranted(3)?<MsgTBD />:<NotAllowed />)
                     :tabPos===4?((me && me.getRole()=='0')?<AdminSettings />:<NotAllowed />):<LoadLay />}
                 </div>
             </div>

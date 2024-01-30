@@ -280,9 +280,8 @@ export function isEmlValid(eml:string){
 
 
 export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml?: boolean,pwd?: boolean,digi?: boolean
-    ,singleLine?: boolean, noSpace?: boolean, icon?: any,value?:string,recv?:(val:string)=>void,finise?:(val:string)=>void}){
+    ,singleLine?: boolean, noSpace?: boolean, icon?: any,value?:string,recv?:(val:string)=>void,finise?:(val:string)=>void,disabled?:boolean}){
 
-        const inputRef = useRef<HTMLInputElement>(null);
         const [error, setError] = useState<{stat:boolean, msg?:string}>({stat: false,msg: undefined})
         const [label, showLabel] = useState(true)
         const [inpp, setInpp] = useState("")
@@ -300,7 +299,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
     var _singleLine = prop.singleLine??true
     var _noSpace = prop.noSpace ?? false
     return (
-        <TextField ref={inputRef} className="edittextf"
+        <TextField disabled={prop.disabled} className="edittextf"
             variant="filled"
             fullWidth={true}
             defaultValue={prop.value}
@@ -347,7 +346,6 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
                   }else{
                     prop.finise(ok?inpp:"");
                   }
-                  inputRef.current?.focus(); //?? Will it work?
                 }
             }}
             error = {error.stat}
@@ -676,7 +674,7 @@ export function fixedString(s:string, numDig:number){
             setFocusYear(focusYear-1)
         }}/>}
         right={<Btn smallie  width={80} txt="year >" onClick={()=>{
-            if(focusYear < (prop.toYear || (new Date().getFullYear()-1))){
+            if(focusYear < (prop.toYear || (new Date().getFullYear()))){
                 setFocusYear(focusYear+1)
             }
         }}/>}
@@ -684,7 +682,7 @@ export function fixedString(s:string, numDig:number){
         <Mgin top={10} />
         <DayPicker key={focusYear}
             mode="single"
-            toYear={prop.toYear || (new Date().getFullYear()-1)}
+            toYear={prop.toYear || (new Date().getFullYear())}
             fromYear={prop.fromYear || 1940}
             onSelect={(d)=>{
                 if(d){
@@ -724,8 +722,8 @@ export function fixedString(s:string, numDig:number){
     }
   }
 
-  export function getPayRef(payId:string,amt:string,memid:string){
-    return `adsi-${payId}-${amt}-${memid}-${Date.now().toString()}`
+  export function getPayRef(payId:string,amt:string,memid:string,uuid?:string){
+    return `adsi-${payId}-${amt}-${memid}-${(uuid || Date.now().toString())}`
   }
 
   export const adsi_recaptcha_key = '6LcSDFUpAAAAACvhXLKW9yeuh9FWvSNHzc4LAovZ'
