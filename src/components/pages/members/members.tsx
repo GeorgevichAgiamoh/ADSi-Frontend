@@ -27,7 +27,6 @@ export function Members(){
     const[mgi, setMGI] = useState<memberGeneralinfo>()
     const[yearsOwing, setYearsOwing] = useState<string[]>([])
     const[ppic,setPpic] = useState('')
-    const[uplPic,setUplPic] = useState<File>()
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const tabs = [
@@ -212,38 +211,38 @@ export function Members(){
                                 backgroundColor:mye.mycol.primarycol
                             }}></div>
                             <Mgin right={15}/>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e)=>{
-                                    const file = e.target.files?.[0];
-                                    if(file){
-                                        setLoad(true)
-                                        makeRequest.uploadFile('dp',getMemId(),getMemId(),file, (task)=>{
-                                            setLoad(false)
-                                            if(task.isSuccessful()){
-                                                toast('Profile picture set',1)
-                                                setTimeout(()=>{
-                                                    setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
-                                                },2000)
-                                            }else{
-                                                if(task.isLoggedOut()){
-                                                    navigate('/login')
-                                                    return
-                                                }
-                                                toast(task.getErrorMsg(),0)
-                                            }
-                                        })
-                                    }else{
-                                        toast('Invalid File. Try again',0)
-                                    }
-                                }}
-                                ref={fileInputRef}
-                                style={{ display: 'none' }}
-                            />
                             <div id="clk" onClick={()=>{
                                     fileInputRef.current?.click()
                                 }}>
+                                    <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e)=>{
+                                        const file = e.target.files?.[0];
+                                        if(file){
+                                            setLoad(true)
+                                            makeRequest.uploadFile('dp',getMemId(),getMemId(),file, (task)=>{
+                                                setLoad(false)
+                                                if(task.isSuccessful()){
+                                                    toast('Profile picture set',1)
+                                                    setTimeout(()=>{
+                                                        setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
+                                                    },2000)
+                                                }else{
+                                                    if(task.isLoggedOut()){
+                                                        navigate('/login')
+                                                        return
+                                                    }
+                                                    toast(task.getErrorMsg(),0)
+                                                }
+                                            })
+                                        }else{
+                                            toast('Invalid File. Try again',0)
+                                        }
+                                    }}
+                                    ref={fileInputRef}
+                                    style={{ display: 'none' }}
+                                />
                                 {ppic.length==0?<div  className="ctr" style={{
                                     width:42,
                                     height:42,
@@ -270,7 +269,7 @@ export function Members(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {(mbi && mbi.isDeleted())?<ShowProfileDeleted />:(mgi && mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
+                    {(mbi && mbi.isDeleted())?<ShowProfileDeleted />:(mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
                         setMyKey(Date.now())
                     }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}

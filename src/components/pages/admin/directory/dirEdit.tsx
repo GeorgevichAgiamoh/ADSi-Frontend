@@ -48,7 +48,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
         setFname(mainprop.user.basicData!.getFirstName())
         setMname(mainprop.user.basicData!.getMiddleName())
         setLname(mainprop.user.basicData!.getlastName())
-        setMemID(mainprop.user.getMemberID())
+        setMemID(mainprop.user.basicData!.getMemberID())
         setPhn(mainprop.user.basicData!.getPhone())
         setEml(mainprop.user.basicData!.getEmail())
         setAddr(mainprop.user.getAddr())
@@ -473,7 +473,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                     toast('Invalid Address Input',0)
                     return;
                 }
-                if(fname.length < 3 || lname.length < 3 || mname.length < 3){
+                if(fname.length < 3 || lname.length < 3){
                     toast('Invalid Name Input',0)
                     return;
                 }
@@ -489,7 +489,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                 setLoad(true)
                 toast('Updating financial info',2)
                 makeRequest.post('setMemberFinancialInfo',{
-                    memid:mainprop.user.getMemberID(),
+                    memid:mainprop.user.basicData!.getMemberID(),
                     bnk:bank,
                     anum:acctNum,
                     aname:acctName,
@@ -497,7 +497,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                     if(task.isSuccessful()){
                         toast('Updating basic info',2)
                         makeRequest.post('setMemberBasicInfo',{
-                            memid:mainprop.user.getMemberID(),
+                            memid:mainprop.user.basicData!.getMemberID(),
                             fname:fname,
                             lname:lname,
                             mname:mname,
@@ -509,7 +509,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                             if(task.isSuccessful()){
                                 toast('Updating General Info',2)
                                 makeRequest.post('setMemberGeneralInfo',{
-                                    memid:mainprop.user.getMemberID(),
+                                    memid:mainprop.user.basicData!.getMemberID(),
                                     sex:gender,
                                     marital:mainprop.user.getMarital(),
                                     dob:dob.getTime().toString(),

@@ -596,6 +596,8 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
     function payWithPaystack() {
         if((window as any).PaystackPop){
             var handler = (window as any).PaystackPop.setup({
+
+                subaccount: "ACCT_putnq50bqlukxxj",
         
                 key: paystackPK,
             

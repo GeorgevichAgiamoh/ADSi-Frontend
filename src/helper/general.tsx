@@ -9,6 +9,7 @@ import { AxiosResponse } from "axios";
 import { useLocation } from "react-router-dom";
 import { getMemId } from "./requesthandler";
 import PieDonutChart from "@garvae/react-pie-donut-chart";
+import { defVal } from "../components/classes/models";
 
 //----------colors
 class myCols{
@@ -286,10 +287,22 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
         const [label, showLabel] = useState(true)
         const [inpp, setInpp] = useState("")
         const [showPassword, setShowPassword] = useState(false);
+        const[key, setKey] = useState(Date.now())
 
         const handleTogglePassword = () => {
             setShowPassword(!showPassword);
           };
+
+          //---
+          if(prop.value==defVal){
+            if(prop.recv!=null){
+                prop.recv('');
+                setTimeout(()=>{
+                    setKey(Date.now())
+                },10)
+            }
+          }
+          //---
         
     var _min = prop.min ?? 0
     var _max = prop.max ?? 300
@@ -299,7 +312,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
     var _singleLine = prop.singleLine??true
     var _noSpace = prop.noSpace ?? false
     return (
-        <TextField disabled={prop.disabled} className="edittextf"
+        <TextField key={key} disabled={prop.disabled} className="edittextf"
             variant="filled"
             fullWidth={true}
             defaultValue={prop.value}
@@ -728,7 +741,7 @@ export function fixedString(s:string, numDig:number){
 
   export const adsi_recaptcha_key = '6LcSDFUpAAAAACvhXLKW9yeuh9FWvSNHzc4LAovZ'
 
-  export const paystackPK = 'pk_test_78e515246b2448630a3ecd230ef593732b2e60c4'
+  export const paystackPK = 'pk_live_39b85ea0d5511afec94de96966c1bf60f4b3ad37'
 
   export const pricePerShare = 10
 

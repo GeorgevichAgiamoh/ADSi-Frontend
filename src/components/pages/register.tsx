@@ -399,6 +399,8 @@ export function PayRegFee(){
     function payWithPaystack() {
         if(mbi && (window as any).PaystackPop){
             var handler = (window as any).PaystackPop.setup({
+
+                subaccount: "ACCT_putnq50bqlukxxj",
       
                 key: paystackPK,
             

@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useWindowDimensions from "../../../helper/dimension";
 import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../helper/general";
 import { AdminNav } from "../nav";
-import { Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
-import dp from "../../../assets/dp.png"
+import { Add, Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
 import { AdminDirectory } from "./directory/directory";
 import { AdminMessaging } from "./messages/messages";
 import { AdminPayments } from "./payments/payments";
 import { AdminSettings } from "./settings/settings";
-import { getMemId, makeRequest, resHandler } from "../../../helper/requesthandler";
+import { endpoint, getMemId, makeRequest, resHandler } from "../../../helper/requesthandler";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
@@ -26,6 +25,8 @@ export function Admin(){
     const[showNav, setShowNav] = useState(false)
     const[tabPos, setTabPos] = useState(0)
     const[me, setMe] = useState<adminUserEle>()
+    const[ppic,setPpic] = useState('')
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const tabs = [
         'Overview',
         'Directory',
@@ -71,6 +72,13 @@ export function Admin(){
                 }
             }else{
                 handleError(task)
+            }
+        })
+
+        //Profile pic
+        makeRequest.get(`fileExists/dp/${getMemId()}`,{},(task)=>{
+            if(task.isSuccessful()){
+                setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
             }
         })
     }
@@ -194,7 +202,53 @@ export function Admin(){
                                 backgroundColor:mye.mycol.primarycol
                             }}></div>
                             <Mgin right={15}/>
-                            <img src={dp} alt="Admin Name" height={42}  />
+                            <div id="clk" onClick={()=>{
+                                    fileInputRef.current?.click()
+                                }}>
+                                    <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e)=>{
+                                        const file = e.target.files?.[0];
+                                        if(file){
+                                            setLoad(true)
+                                            makeRequest.uploadFile('dp',getMemId(),getMemId(),file, (task)=>{
+                                                setLoad(false)
+                                                if(task.isSuccessful()){
+                                                    toast('Profile picture set',1)
+                                                    setTimeout(()=>{
+                                                        setPpic(`${endpoint}/getFile/dp/${getMemId()}`)
+                                                    },2000)
+                                                }else{
+                                                    if(task.isLoggedOut()){
+                                                        navigate('/login')
+                                                        return
+                                                    }
+                                                    toast(task.getErrorMsg(),0)
+                                                }
+                                            })
+                                        }else{
+                                            toast('Invalid File. Try again',0)
+                                        }
+                                    }}
+                                    ref={fileInputRef}
+                                    style={{ display: 'none' }}
+                                />
+                                {ppic.length==0?<div  className="ctr" style={{
+                                    width:42,
+                                    height:42,
+                                    backgroundColor:mye.mycol.btnstrip,
+                                    borderRadius:50
+                                }} >
+                                    <Add className="icon" />
+                                </div>:<img src={ppic} alt="DP" style={{
+                                    objectFit:'cover',
+                                    width:42,
+                                    height:42,
+                                    backgroundColor:mye.mycol.btnstrip,
+                                    borderRadius:50
+                                }}  />}
+                            </div>
                             <Mgin right={5}/>
                             <ArrowDropDown className="icon" />
                         </div>}

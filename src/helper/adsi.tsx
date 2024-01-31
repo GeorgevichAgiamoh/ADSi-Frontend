@@ -49,7 +49,11 @@ export function PoweredBySSS(prop:{floaatIt?:boolean, noPadding?:boolean}){
         bottom:10,
         left:(dimen.dsk && !prop.noPadding)?150:0
     }}>
-        <div className="hlc">
+        <div id="lshdw" className="hlc" style={{
+            padding:5,
+            backgroundColor:mye.mycol.bkg,
+            borderRadius:10
+        }}>
             <mye.Tv text="POWERED BY "  size={12}/>
             <mye.BTv text="STABLE SHIELD SOLUTIONS" color={mye.mycol.primarycol} size={12} onClick={()=>{
                 const newTab = window.open('https://stableshield.com', '_blank');

@@ -351,7 +351,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 mainprop.actiony(action,prop.user)
             }else{
                 setLoad(true) //~
-                makeRequest.get(`getMemberFinancialInfo/${prop.user.getMemberID()}`,{},(task)=>{
+                makeRequest.get(`getMemberFinancialInfo/${prop.user.basicData!.getMemberID()}`,{},(task)=>{
                     if(task.isSuccessful()){
                         prop.user.setFinData(new memberFinancialinfo(task.getData()))//Will suffice, even if it doesnt exist
                         mainprop.actiony(action,prop.user)
@@ -420,7 +420,8 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                                             name: prop.user.basicData!.getFirstName(),
                                             email: prop.user.basicData!.getEmail(),
                                             subject: "ADSI Account Verified",
-                                            body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
+                                            body: `Your ADSI account has been approved. You can now use the portal at:`,
+                                            link: 'https://portal.adsicoop.com.ng'
                                         },(task)=>{
                                             setLoad(false)
                                             if(task.isSuccessful()){

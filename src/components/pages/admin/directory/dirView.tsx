@@ -26,7 +26,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
     function getMemFiles(){
         setError(false)
         setLoad(true)
-        makeRequest.get(`getFiles/${mainprop.user.getMemberID()}`,{},(task)=>{
+        makeRequest.get(`getFiles/${mainprop.user.basicData!.getMemberID()}`,{},(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
                 const tem:fileEle[] = []
@@ -93,7 +93,8 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                             name: mainprop.user.basicData!.getFirstName(),
                             email: mainprop.user.basicData!.getEmail(),
                             subject: "ADSI Account Verified",
-                            body: `Your ADSI account has been approved. You can now use the portal at https://portal.adsicoop.com.ng`
+                            body: `Your ADSI account has been approved. You can now use the portal at:`,
+                            link: 'https://portal.adsicoop.com.ng'
                         },(task)=>{
                             setLoad(false)
                             if(task.isSuccessful()){
@@ -215,7 +216,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                     <InfoLay sub="First Name" main={mainprop.user.basicData!.getFirstName()} />
                     <InfoLay sub="Middle Name" main={mainprop.user.basicData!.getMiddleName()} />
                     <InfoLay sub="Last Name" main={mainprop.user.basicData!.getlastName()} />
-                    <InfoLay sub="ADSI Number" main={mainprop.user.getMemberID()} />
+                    <InfoLay sub="ADSI Number" main={mainprop.user.basicData!.getMemberID()} />
                     <InfoLay sub="Phone Number" main={mainprop.user.basicData!.getPhone()} />
                     <InfoLay sub="Gender" main={mainprop.user.getGender()} />
                     <InfoLay sub="DOB" main={mainprop.user.getFormattedDOB()} />

@@ -8,6 +8,7 @@ import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import axios from "axios";
 import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
+import rpwd from "../../assets/rpwd.png"
 
 
 
@@ -443,9 +444,9 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             }} />
             <Mgin top={10} />
             <LrText left={<mye.Tv text="" color={mye.mycol.primarycol} />} 
-            right={<mye.Tv text="Reset password" color={mye.mycol.primarycol} onClick={()=>{
+            right={<img src={rpwd} alt="Reset Password" height={30} onClick={()=>{
                 navigate('/forgotpassword')
-            }} />}/>
+            }}/>}/>
             <Mgin top={10} />
             <mye.Tv text="Don't have an account ?"  />
             <Mgin top={10} />
