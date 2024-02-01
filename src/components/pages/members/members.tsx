@@ -316,10 +316,10 @@ export function Members(){
                     display:mgi?'none':undefined
                 }}>
                     <Mgin top={10} />
-                    <Btn txt="COMPLETE PROFILE" width={120} onClick={()=>{
+                    <Btn txt="COMPLETE PROFILE" width={150} onClick={()=>{
                         setTabPos(3)
                         setMyKey(Date.now())
-                    }}/>
+                    }} />
                 </div>
             </div>
         </div>

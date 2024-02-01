@@ -6,8 +6,12 @@ import { mBanks } from "monagree-banks"
 
 export class memberBasicinfo{
     data:any
+    generalData:memberGeneralinfo
+    finData:memberFinancialinfo
     constructor(data:any){
         this.data = data
+        this.generalData = new memberGeneralinfo(null)
+        this.finData = new memberFinancialinfo(null)
     }
     getMemberID(){
         return formatMemId(this.data['memid'])
@@ -41,14 +45,24 @@ export class memberBasicinfo{
     getFullName(){
         return this.getFirstName()+' '+this.getlastName()
     }
+
+    //--Custom
+    setGeneralData(generalData:memberGeneralinfo){
+        this.generalData = generalData;
+    }
+    setFinData(finData:memberFinancialinfo){
+        this.finData = finData
+    }
+
+    isPrepared(){
+        return this.generalData?.data!=null && this.finData?.data!=null
+    }
 }
 
 export const defVal = 'NIL'
 
 export class memberGeneralinfo{
     data:any
-    basicData?:memberBasicinfo
-    finData?:memberFinancialinfo
     constructor(data:any){
         this.data = data
     }
@@ -106,17 +120,7 @@ export class memberGeneralinfo{
     getkin_Email(){
         return !this.data?defVal:this.data['kin_eml']
     }
-    //--Custom
-    setBasicData(basicData:memberBasicinfo){
-        this.basicData = basicData;
-    }
-    setFinData(finData:memberFinancialinfo){
-        this.finData = finData
-    }
-
-    isPrepared(){
-        return this.basicData!=null && this.finData!=null
-    }
+    
 
 
     getFormattedDOB(){

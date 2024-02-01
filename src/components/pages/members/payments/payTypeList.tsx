@@ -11,7 +11,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
 import Barcode from "react-barcode"
-import { PoweredBySSS } from "../../../../helper/adsi"
+import { PaystackExplanation, PoweredBySSS } from "../../../../helper/adsi"
 
 
 
@@ -604,6 +604,8 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
                 email: prop.mbi.getEmail()==defVal?prop.mbi.getPhone()+'@adsicoop.com.ng':prop.mbi.getEmail(),
             
                 amount: parseFloat(amt) * 100, //In kobo
+
+                label: 'ADSI COOPERATIVE SOCIETY',
             
                 currency: 'NGN', 
             
@@ -721,9 +723,12 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
             <Mgin top={3}/>
             <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} recv={(v)=>{
                 const sh = v.trim()
+                console.log(sh)
                 setShares(sh)
-                if(sh.length>1 && isDigit(sh)){
+                if(isDigit(sh) && parseInt(sh)>999){
                     setAmt((parseFloat(sh)* pricePerShare).toString())
+                }else{
+                    setAmt('')
                 }
             }} />
         </div>}
@@ -736,7 +741,12 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
             <mye.BTv text={`NGN ${amt}`} size={16}/>
         </div>
         <Mgin top={15} />
+        <PaystackExplanation />
         <Btn txt="PAY" onClick={()=>{
+            if(amt.length==0){
+                toast('Please enter at least 1000 shares',0)
+                return;
+            }
             payWithPaystack()
         }} />
     </div>

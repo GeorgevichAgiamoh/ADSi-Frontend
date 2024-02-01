@@ -21,6 +21,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
     const[showPaid, setShowPaid] = useState(true)
+    const[showSearch, setShowSearch] = useState(false)
     const[cpay, setCPay] = useState<payRecordEle>()
     const[showReminder, setShowReminder] = useState(false)
     const[showReceipt, setShowReceipt] = useState(false)
@@ -171,54 +172,62 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         </div>
         <Mgin top={20} />
         <div style={{
+            width:dimen.dsk?500:'100%',
             display:'flex',
-            width:'100%',
-            flexWrap:'wrap',
-            alignItems:'center'
+            margin: dimen.dsk?10:5,
         }}>
-            <FiltrLay icon={FilterOutlined} text="Filter" />
-            <FiltrLay icon={SortOutlined} text="Sort" />
-            <div style={{
-                width:dimen.dsk?400:'100%',
-                display:'flex',
-                margin: dimen.dsk?10:5,
+            <div className="hlc" id="lshdw" style={{
+                flex:1,
+                backgroundColor:mye.mycol.white,
+                borderRadius:10,
             }}>
-                <div className="hlc" id="lshdw" style={{
-                    flex:1,
-                    backgroundColor:mye.mycol.white,
-                    borderRadius:10,
-                }}>
-                    <Mgin right={15} />
-                    <SearchOutlined style={{
-                        fontSize:20,
-                        color:mye.mycol.imghint
-                    }} />
-                    <Mgin right={5} />
-                    <input className="tinp"
-                        type="text"
-                        value={search}
-                        placeholder="Search"
-                        onChange={(e)=>{
-                            setSearch(e.target.value)
-                        }}
-                        style={{
-                            width:'100%',
-                        }}
-                    />
-                </div>
-                <Mgin right={10} />
-                <div style={{
-                    width:100
-                }}>
-                    <Btn txt="Search" onClick={()=>{
-                        
-                    }} />
-                </div>
+                <Mgin right={15} />
+                <SearchOutlined style={{
+                    fontSize:20,
+                    color:mye.mycol.imghint
+                }} />
+                <Mgin right={5} />
+                <input className="tinp"
+                    type="text"
+                    value={search}
+                    placeholder="Search"
+                    onChange={(e)=>{
+                        setSearch(e.target.value)
+                    }}
+                    style={{
+                        width:'100%',
+                    }}
+                />
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                width:100
+            }}>
+                <Btn txt="Search" onClick={()=>{
+                    const sc = search.trim()
+                    if(sc.length < 5){
+                        toast('Enter at least 5 characters',0)
+                        return;
+                    }
+                    setLoad(true)
+                    makeRequest.get(`searchPayment/${mainprop.payType.payId}`,{search:search},(task)=>{
+                        setLoad(false)
+                        if(task.isSuccessful()){
+                            setShowSearch(true)
+                            const tem:payRecordEle[] = []
+                            for(const key in task.getData()){
+                                tem.push(new payRecordEle(task.getData()[key]))
+                            }
+                            setPays(tem)
+                            setShowingIndex(0)
+                        }else{
+                            toast('No Result',0)
+                        }
+                    })
+                }} strip={search.length < 5} />
             </div>
         </div>
-        <Mgin top={10} />
-        <FiltrLay icon={ListAltOutlined} text="Entries" />
-        <Mgin top={20} />
+        <Mgin top={30} />
         <div style={{
             display:'flex',
             width:'100%',
@@ -233,7 +242,26 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
         <mye.HTv text={mainprop.payType.name} color={mye.mycol.primarycol} size={25} />
         <Mgin top={20} />
         <LrText wrap={!dimen.dsk}
-        left={<div style={{
+        left={showSearch?<div style={{
+            width:250,
+            display:'flex'
+        }}>
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Search Result" round onClick={()=>{
+                    
+                }} width={150} transparent />
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Close Search" round onClick={()=>{
+                    setShowSearch(false)
+                }}  width={120}/>
+            </div>
+        </div>:<div style={{
             width:250,
             display:'flex'
         }}>

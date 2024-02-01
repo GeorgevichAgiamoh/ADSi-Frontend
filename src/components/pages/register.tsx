@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
-import { MsgAlert, PoweredBySSS } from "../../helper/adsi";
+import { MsgAlert, PaystackExplanation, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef, paystackPK } from "../../helper/general";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -401,6 +401,8 @@ export function PayRegFee(){
             var handler = (window as any).PaystackPop.setup({
 
                 subaccount: "ACCT_putnq50bqlukxxj",
+
+                label: 'ADSI COOPERATIVE SOCIETY',
       
                 key: paystackPK,
             
@@ -529,6 +531,7 @@ export function PayRegFee(){
             <Mgin top={10}/>
             <mye.Tv text="You are required to pay a one-time registration fee of 5000 naira before you can proceed to your dashboard" center />
             <Mgin top={35} />
+            <PaystackExplanation />
             <Btn txt="PAY" onClick={()=>{
                 payWithPaystack()
             }} />

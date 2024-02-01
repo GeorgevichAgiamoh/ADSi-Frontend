@@ -5,7 +5,7 @@ import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
 import { mCountry, mLga, mState } from "monagree-locs"
-import { defVal, memberGeneralinfo } from "../../../classes/models"
+import { defVal, memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { CustomCountryTip, PoweredBySSS } from "../../../../helper/adsi"
 
 
-export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGeneralinfo}){
+export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBasicinfo}){
     const dimen = useWindowDimensions()
     const navigate = useNavigate()
     const location = useLocation()
@@ -45,31 +45,31 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
 
     useEffect(()=>{
         setTitle(`Edit Member - ${appName}`)
-        setFname(mainprop.user.basicData!.getFirstName())
-        setMname(mainprop.user.basicData!.getMiddleName())
-        setLname(mainprop.user.basicData!.getlastName())
-        setMemID(mainprop.user.basicData!.getMemberID())
-        setPhn(mainprop.user.basicData!.getPhone())
-        setEml(mainprop.user.basicData!.getEmail())
-        setAddr(mainprop.user.getAddr())
+        setFname(mainprop.user.getFirstName())
+        setMname(mainprop.user.getMiddleName())
+        setLname(mainprop.user.getlastName())
+        setMemID(mainprop.user.getMemberID())
+        setPhn(mainprop.user.getPhone())
+        setEml(mainprop.user.getEmail())
+        setAddr(mainprop.user.generalData.getAddr())
         setAcctname(mainprop.user.finData!.getAccountName())
         setAcctNum(mainprop.user.finData!.getAccountNumber())
         setBank(mainprop.user.finData!.getBankCode())
 
-        setGender(mainprop.user.getGender())
-        if(mainprop.user.isLocsCustom()){
-            setCountry_custom(mainprop.user.getCountry())
-            setState_custom(mainprop.user.getState())
-            setCity_custom(mainprop.user.getLga())
+        setGender(mainprop.user.generalData.getGender())
+        if(mainprop.user.generalData.isLocsCustom()){
+            setCountry_custom(mainprop.user.generalData.getCountry())
+            setState_custom(mainprop.user.generalData.getState())
+            setCity_custom(mainprop.user.generalData.getLga())
         }else{
-            setCountry(mCountry.getCountryByCode(mainprop.user.getCountry()))
-            setState(mCountry.getCountryByCode(mainprop.user.getState()))
-            setCity(mCountry.getCountryByCode(mainprop.user.getLga()))
+            setCountry(mCountry.getCountryByCode(mainprop.user.generalData.getCountry()))
+            setState(mCountry.getCountryByCode(mainprop.user.generalData.getState()))
+            setCity(mCountry.getCountryByCode(mainprop.user.generalData.getLga()))
         }
         
         
-        if(mainprop.user.getDob()!=defVal){
-            setDOB(new Date(parseFloat(mainprop.user.getDob())))
+        if(mainprop.user.generalData.getDob()!=defVal){
+            setDOB(new Date(parseFloat(mainprop.user.generalData.getDob())))
         }
         setMyKey(Date.now())
         
@@ -489,7 +489,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                 setLoad(true)
                 toast('Updating financial info',2)
                 makeRequest.post('setMemberFinancialInfo',{
-                    memid:mainprop.user.basicData!.getMemberID(),
+                    memid:mainprop.user.getMemberID(),
                     bnk:bank,
                     anum:acctNum,
                     aname:acctName,
@@ -497,35 +497,35 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberGe
                     if(task.isSuccessful()){
                         toast('Updating basic info',2)
                         makeRequest.post('setMemberBasicInfo',{
-                            memid:mainprop.user.basicData!.getMemberID(),
+                            memid:mainprop.user.getMemberID(),
                             fname:fname,
                             lname:lname,
                             mname:mname,
                             eml:eml,
                             phn:phn,
                             verif:'0',
-                            pay: (mainprop.user.basicData!.isPaid())?'1':'0'
+                            pay: (mainprop.user.isPaid())?'1':'0'
                         },(task)=>{
                             if(task.isSuccessful()){
                                 toast('Updating General Info',2)
                                 makeRequest.post('setMemberGeneralInfo',{
-                                    memid:mainprop.user.basicData!.getMemberID(),
+                                    memid:mainprop.user.getMemberID(),
                                     sex:gender,
-                                    marital:mainprop.user.getMarital(),
+                                    marital:mainprop.user.generalData.getMarital(),
                                     dob:dob.getTime().toString(),
                                     nationality:country?country.getId():country_custom,
                                     state:state?state.getId():state_custom,
                                     lga:city?city.getId():city_custom,
-                                    town:mainprop.user.getTown(),
+                                    town:mainprop.user.generalData.getTown(),
                                     addr:addr,
-                                    job:mainprop.user.getJob(),
-                                    kin_fname:mainprop.user.getkin_FirstName(),
-                                    kin_lname:mainprop.user.getkin_LastName(),
-                                    kin_mname:mainprop.user.getkin_MiddleName(),
-                                    kin_type:mainprop.user.getkin_Type(),
-                                    kin_phn:mainprop.user.getkin_phone(),
-                                    kin_addr:mainprop.user.getkin_Addr(),
-                                    kin_eml:mainprop.user.getkin_Email()
+                                    job:mainprop.user.generalData.getJob(),
+                                    kin_fname:mainprop.user.generalData.getkin_FirstName(),
+                                    kin_lname:mainprop.user.generalData.getkin_LastName(),
+                                    kin_mname:mainprop.user.generalData.getkin_MiddleName(),
+                                    kin_type:mainprop.user.generalData.getkin_Type(),
+                                    kin_phn:mainprop.user.generalData.getkin_phone(),
+                                    kin_addr:mainprop.user.generalData.getkin_Addr(),
+                                    kin_eml:mainprop.user.generalData.getkin_Email()
                                 },(task)=>{
                                     setLoad(false)
                                     if(task.isSuccessful()){

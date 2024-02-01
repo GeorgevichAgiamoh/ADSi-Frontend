@@ -131,15 +131,22 @@ export function HeadText(prop:{isNgt:boolean,text:string,color?:string,size?: nu
     )
 }
 
-export function Btn(prop:{txt:string,onClick?:()=>void,round?:boolean,smallie?:boolean,transparent?:boolean,width?:number,outlined?:boolean,bkg?:string,tcol?:string}){
+export function Btn(prop:{txt:string,onClick?:()=>void,round?:boolean,smallie?:boolean,transparent?:boolean,width?:number,outlined?:boolean,bkg?:string,tcol?:string,strip?:boolean}){
+    const mye = new myEles(false)
+    let bkgCol = prop.bkg||((prop.transparent)?'transparent':undefined)
+    let tCol = prop.tcol || (prop.transparent?new myCols(false).primarycol:undefined)
+    if(prop.strip){
+        bkgCol = mye.mycol.btnstrip
+        tCol = mye.mycol.primarycol
+    }
     return (
         <button className={prop.outlined?'btnoln':'btn'} id="max_width" onClick={prop.onClick} style={{
             borderRadius:prop.round?'30px':'10px',
             height:prop.smallie?'35px':'45px',
             width:prop.width,
             fontSize:prop.smallie?'12px':'16px',
-            backgroundColor:prop.bkg||((prop.transparent)?'transparent':undefined),
-            color: prop.tcol || (prop.transparent?new myCols(false).primarycol:undefined)
+            backgroundColor:bkgCol,
+            color: tCol
         }}>{prop.txt}</button>
     )
 }
@@ -288,15 +295,17 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
         const [inpp, setInpp] = useState("")
         const [showPassword, setShowPassword] = useState(false);
         const[key, setKey] = useState(Date.now())
+        const[defDone, setDefDone] = useState(false)
 
         const handleTogglePassword = () => {
             setShowPassword(!showPassword);
           };
 
           //---
-          if(prop.value==defVal){
+          if(prop.value==defVal && !defDone){
             if(prop.recv!=null){
                 prop.recv('');
+                setDefDone(true)
                 setTimeout(()=>{
                     setKey(Date.now())
                 },10)
@@ -332,7 +341,7 @@ export function EditTextFilled(prop:{hint: string,min?: number, max?: number,eml
                     }
                 }
                 if(prop.recv!=null){
-                    prop.recv(ok?inp:"");
+                    prop.recv(inp); //prop.recv(ok?inp:"");
                 }
             }}
             onKeyDown = {(event)=>{

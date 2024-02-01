@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Btn, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
-import { defVal, fileEle, getCreatedTime, memberGeneralinfo } from "../../../classes/models"
+import { defVal, fileEle, getCreatedTime, memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { endpoint, getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
 
-export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:number)=>void}){
+export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -26,7 +26,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
     function getMemFiles(){
         setError(false)
         setLoad(true)
-        makeRequest.get(`getFiles/${mainprop.user.basicData!.getMemberID()}`,{},(task)=>{
+        makeRequest.get(`getFiles/${mainprop.user.getMemberID()}`,{},(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
                 const tem:fileEle[] = []
@@ -81,17 +81,17 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
 
     function updateData(key:string, value:string, mailUser?:boolean){
         setLoad(true)
-        const ndata = {...mainprop.user.basicData!.data}
+        const ndata = {...mainprop.user.data}
         ndata[key] = value
         makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
             if(task.isSuccessful()){
-                mainprop.user.basicData!.data[key] = value
+                mainprop.user.data[key] = value
                 if(mailUser){
-                    if(mainprop.user.basicData!.getEmail()!=defVal){
+                    if(mainprop.user.getEmail()!=defVal){
                         toast('Mailing user..',2)
                         makeRequest.post('sendMail',{
-                            name: mainprop.user.basicData!.getFirstName(),
-                            email: mainprop.user.basicData!.getEmail(),
+                            name: mainprop.user.getFirstName(),
+                            email: mainprop.user.getEmail(),
                             subject: "ADSI Account Verified",
                             body: `Your ADSI account has been approved. You can now use the portal at:`,
                             link: 'https://portal.adsicoop.com.ng'
@@ -169,13 +169,13 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
             boxSizing:'border-box',
             padding:dimen.dsk?20:10
         }}>
-            {mainprop.user.basicData!.isDeleted()?<div className="hlc" style={{
+            {mainprop.user.isDeleted()?<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="RESTORE" onClick={()=>{
                     updateData('verif','0',true)
                 }} width={120} />
-            </div>:!mainprop.user.basicData!.isVerified()?<div className="hlc" style={{
+            </div>:!mainprop.user.isVerified()?<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="APPROVE" onClick={()=>{
@@ -213,18 +213,18 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                 <div className="flexi" style={{
                     flex:dimen.dsk?1:undefined,
                 }}>
-                    <InfoLay sub="First Name" main={mainprop.user.basicData!.getFirstName()} />
-                    <InfoLay sub="Middle Name" main={mainprop.user.basicData!.getMiddleName()} />
-                    <InfoLay sub="Last Name" main={mainprop.user.basicData!.getlastName()} />
-                    <InfoLay sub="ADSI Number" main={mainprop.user.basicData!.getMemberID()} />
-                    <InfoLay sub="Phone Number" main={mainprop.user.basicData!.getPhone()} />
-                    <InfoLay sub="Gender" main={mainprop.user.getGender()} />
-                    <InfoLay sub="DOB" main={mainprop.user.getFormattedDOB()} />
-                    <InfoLay sub="Email" main={mainprop.user.basicData!.getEmail()} />
-                    <InfoLay sub="Residential Address" main={mainprop.user.getAddr()} />
-                    <InfoLay sub="Country" main={mainprop.user.getFormattedCountry()} />
-                    <InfoLay sub="State" main={mainprop.user.getFormattedState()} />
-                    <InfoLay sub="City" main={mainprop.user.getFormattedLGA()} />
+                    <InfoLay sub="First Name" main={mainprop.user.getFirstName()} />
+                    <InfoLay sub="Middle Name" main={mainprop.user.getMiddleName()} />
+                    <InfoLay sub="Last Name" main={mainprop.user.getlastName()} />
+                    <InfoLay sub="ADSI Number" main={mainprop.user.getMemberID()} />
+                    <InfoLay sub="Phone Number" main={mainprop.user.getPhone()} />
+                    <InfoLay sub="Gender" main={mainprop.user.generalData.getGender()} />
+                    <InfoLay sub="DOB" main={mainprop.user.generalData.getFormattedDOB()} />
+                    <InfoLay sub="Email" main={mainprop.user.getEmail()} />
+                    <InfoLay sub="Residential Address" main={mainprop.user.generalData.getAddr()} />
+                    <InfoLay sub="Country" main={mainprop.user.generalData.getFormattedCountry()} />
+                    <InfoLay sub="State" main={mainprop.user.generalData.getFormattedState()} />
+                    <InfoLay sub="City" main={mainprop.user.generalData.getFormattedLGA()} />
                 </div>
                 <Mgin right={dimen.dsk?20:0} top={dimen.dsk?0:20} />
                 <Line vertical={dimen.dsk} col={mye.mycol.btnstrip} height={200}/>
@@ -235,7 +235,7 @@ export function AdminDirView(mainprop:{user:memberGeneralinfo,backy:(action:numb
                     <InfoLay sub="Account Name" main={mainprop.user.finData!.getAccountName()} />
                     <InfoLay sub="Account Number" main={mainprop.user.finData!.getAccountNumber()} />
                     <InfoLay sub="Bank" main={mainprop.user.finData!.getFormattedbank()} />
-                    <InfoLay sub="Date of Initial Registration" main={getCreatedTime(mainprop.user.basicData!.data)} />
+                    <InfoLay sub="Date of Initial Registration" main={getCreatedTime(mainprop.user.data)} />
                     <div style={{
                         width:'100%',
                         marginTop:20,

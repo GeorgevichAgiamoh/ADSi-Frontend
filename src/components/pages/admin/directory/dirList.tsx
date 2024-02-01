@@ -13,7 +13,7 @@ import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
-export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGeneralinfo)=>void}){
+export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasicinfo)=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -24,7 +24,7 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
     const[vStats,setVStats] = useState<verifStat>()
-    const[infos,setInfos] = useState<memberGeneralinfo[]>([])
+    const[infos,setInfos] = useState<memberBasicinfo[]>([])
     
     
 
@@ -71,18 +71,17 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         },(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
-                const tem:memberGeneralinfo[] = []
+                const tem:memberBasicinfo[] = []
                 for(const key in task.getData()){
                     const basic = task.getData()[key]['b']
                     const general = task.getData()[key]['g']
                     const mbi = new memberBasicinfo(basic)
                     const mgi = new memberGeneralinfo(general)
-                    mgi.setBasicData(mbi)
-                    tem.push(mgi)
+                    mbi.setGeneralData(mgi)
+                    tem.push(mbi)
                 }
                 setInfos(tem)
                 setShowingIndex(index)
-                console.log(tem.length)
             }else{
                 handleError(task)
             }
@@ -156,58 +155,91 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
             <Tab1 icon={PersonOutline} title="Unverified Members" value={vStats?vStats.getTotalUnverified():'...'} color={mye.mycol.primarycol} />
             <Tab1 icon={PersonOutline} title="Deleted Members" value={vStats?vStats.getTotalDeleted():'...'} color={mye.mycol.red} />
         </div>
+        <Mgin top={20} />
         <div style={{
+            width:dimen.dsk?500:'100%',
             display:'flex',
-            width:'100%',
-            flexWrap:'wrap',
-            alignItems:'center'
+            margin: dimen.dsk?10:5,
         }}>
-            <FiltrLay icon={FilterOutlined} text="Filter" />
-            <FiltrLay icon={SortOutlined} text="Sort" />
-            <div style={{
-                width:dimen.dsk?400:'100%',
-                display:'flex',
-                margin: dimen.dsk?10:5,
+            <div className="hlc" id="lshdw" style={{
+                flex:1,
+                backgroundColor:mye.mycol.white,
+                borderRadius:10,
             }}>
-                <div className="hlc" id="lshdw" style={{
-                    flex:1,
-                    backgroundColor:mye.mycol.white,
-                    borderRadius:10,
-                }}>
-                    <Mgin right={15} />
-                    <SearchOutlined style={{
-                        fontSize:20,
-                        color:mye.mycol.imghint
-                    }} />
-                    <Mgin right={5} />
-                    <input className="tinp"
-                        type="text"
-                        value={search}
-                        placeholder="Search"
-                        onChange={(e)=>{
-                            setSearch(e.target.value)
-                        }}
-                        style={{
-                            width:'100%',
-                        }}
-                    />
-                </div>
-                <Mgin right={10} />
-                <div style={{
-                    width:100
-                }}>
-                    <Btn txt="Search" onClick={()=>{
-                        
-                    }} />
-                </div>
+                <Mgin right={15} />
+                <SearchOutlined style={{
+                    fontSize:20,
+                    color:mye.mycol.imghint
+                }} />
+                <Mgin right={5} />
+                <input className="tinp"
+                    type="text"
+                    value={search}
+                    placeholder="Search"
+                    onChange={(e)=>{
+                        setSearch(e.target.value)
+                    }}
+                    style={{
+                        width:'100%',
+                    }}
+                />
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                width:100
+            }}>
+                <Btn txt="Search" onClick={()=>{
+                    const sc = search.trim()
+                    if(sc.length < 5){
+                        toast('Enter at least 5 characters',0)
+                        return;
+                    }
+                    setLoad(true)
+                    makeRequest.get('searchMember',{search:search},(task)=>{
+                        setLoad(false)
+                        if(task.isSuccessful()){
+                            setVpos(3)
+                            const tem:memberBasicinfo[] = []
+                            for(const key in task.getData()){
+                                const basic = task.getData()[key]['b']
+                                const general = task.getData()[key]['g']
+                                const mbi = new memberBasicinfo(basic)
+                                const mgi = new memberGeneralinfo(general)
+                                mbi.setGeneralData(mgi)
+                                tem.push(mbi)
+                            }
+                            setInfos(tem)
+                            setShowingIndex(0)
+                        }else{
+                            toast('No Result',0)
+                        }
+                    })
+                }} strip={search.length < 5} />
             </div>
         </div>
-        <Mgin top={10} />
-        <FiltrLay icon={ListAltOutlined} text="Entries" />
         <Mgin top={30} />
         <LrText wrap={!dimen.dsk}
-        left={<div style={{
+        left={vpos==3?<div style={{
             width:250,
+            display:'flex'
+        }}>
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Search Result" round onClick={()=>{
+                    
+                }} width={150} transparent />
+            </div>
+            <Mgin right={10} />
+            <div style={{
+                flex:1
+            }}>
+                <Btn txt="Close Search" round onClick={()=>{
+                    getUsers(1,0)
+                }}  width={120}/>
+            </div>
+        </div>:<div style={{
+            width:360,
             display:'flex'
         }}>
             <div style={{
@@ -291,12 +323,12 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                         infos.map((ele,index)=>{
                             return <div className="hlc" key={myKey+index+showingIndex*20}>
                                 <MyCell text={(index+1+showingIndex*20).toString()} />
-                                <MyCell text={ele.basicData!.getlastName()} />
-                                <MyCell text={ele.basicData!.getFirstName()+' '+ele.basicData!.getMiddleName()} />
-                                <MyCell text={ele.getGender()} />
-                                <MyCell text={ele.getFormattedDOB()} />
-                                <MyCell text={ele.basicData!.getMemberID()} />
-                                <MyCell text={ele.basicData!.getPhone()} />
+                                <MyCell text={ele.getlastName()} />
+                                <MyCell text={ele.getFirstName()+' '+ele.getMiddleName()} />
+                                <MyCell text={ele.generalData.getGender()} />
+                                <MyCell text={ele.generalData.getFormattedDOB()} />
+                                <MyCell text={ele.getMemberID()} />
+                                <MyCell text={ele.getPhone()} />
                                 <Opts index={index} user={ele} rmvMe={()=>{
                                     const i = index+showingIndex*20
                                     const al = [...infos.slice(0, i), ...infos.slice(i + 1)]
@@ -344,14 +376,12 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
         <PoweredBySSS />
     </div>
 
-    function Opts(prop:{index:number,user:memberGeneralinfo, rmvMe:()=>void}) {
+    function Opts(prop:{index:number,user:memberBasicinfo, rmvMe:()=>void}) {
 
         function doIt(action:number){
-            if(prop.user.isPrepared()){
-                mainprop.actiony(action,prop.user)
-            }else{
-                setLoad(true) //~
-                makeRequest.get(`getMemberFinancialInfo/${prop.user.basicData!.getMemberID()}`,{},(task)=>{
+
+            function rndFin(){
+                makeRequest.get(`getMemberFinancialInfo/${prop.user.getMemberID()}`,{},(task)=>{
                     if(task.isSuccessful()){
                         prop.user.setFinData(new memberFinancialinfo(task.getData()))//Will suffice, even if it doesnt exist
                         mainprop.actiony(action,prop.user)
@@ -359,6 +389,24 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                         handleError(task)
                     }
                 })
+            }
+
+            if(prop.user.isPrepared()){
+                mainprop.actiony(action,prop.user)
+            }else{
+                setLoad(true) //~
+                if(prop.user.generalData.data == null){
+                    makeRequest.get(`getMemberGeneralInfo/${prop.user.getMemberID()}`,{},(task)=>{
+                        if(task.isSuccessful()){
+                            prop.user.setGeneralData(new memberGeneralinfo(task.getData()))//Will suffice, even if it doesnt exist
+                            rndFin()
+                        }else{
+                            handleError(task)
+                        }
+                    })
+                }else{
+                    rndFin()
+                }
             }
         }
 
@@ -400,25 +448,25 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                 <Line />
                 <div style={{
                     width:'100%',
-                    display: prop.user.basicData?.isDeleted()?'none':undefined
+                    display: prop.user.isDeleted()?'none':undefined
                 }}>
                     <MyCell text="Edit" ocl={()=>{
                         doIt(1)
                     }} alignStart special/>
                     <Line />
-                    <MyCell text={prop.user.basicData?.isVerified()?"Deactivate":"Approve"} ocl={()=>{
+                    <MyCell text={prop.user.isVerified()?"Deactivate":"Approve"} ocl={()=>{
                         setLoad(true)
-                        const ndata = {...prop.user.basicData!.data}
-                        const value = prop.user.basicData?.isVerified()?'0':'1'
+                        const ndata = {...prop.user.data}
+                        const value = prop.user.isVerified()?'0':'1'
                         ndata['verif'] = value
                         makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
                             if(task.isSuccessful()){
-                                if(!prop.user.basicData?.isVerified()){
-                                    if(prop.user.basicData!.getEmail()!=defVal){
+                                if(!prop.user.isVerified()){
+                                    if(prop.user.getEmail()!=defVal){
                                         toast('Mailing user..',2)
                                         makeRequest.post('sendMail',{
-                                            name: prop.user.basicData!.getFirstName(),
-                                            email: prop.user.basicData!.getEmail(),
+                                            name: prop.user.getFirstName(),
+                                            email: prop.user.getEmail(),
                                             subject: "ADSI Account Verified",
                                             body: `Your ADSI account has been approved. You can now use the portal at:`,
                                             link: 'https://portal.adsicoop.com.ng'
@@ -429,21 +477,21 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                                             }else{
                                                 toast('APPROVAL SUCCESSFUL. But '+task.getErrorMsg(),2);
                                             }
-                                            prop.user.basicData!.data['verif'] = value
+                                            prop.user.data['verif'] = value
                                             setOptToShow(-1)
                                             prop.rmvMe()
                                         })
                                     }else{
                                         setLoad(false)
                                         toast('Successful. But we could not mail user as no email was provided',2,10000)
-                                        prop.user.basicData!.data['verif'] = value
+                                        prop.user.data['verif'] = value
                                         setOptToShow(-1)
                                         prop.rmvMe()
                                     }
                                 }else{
                                     setLoad(false)
                                     toast('Update successful',1)
-                                    prop.user.basicData!.data['verif'] = value
+                                    prop.user.data['verif'] = value
                                     setOptToShow(-1)
                                     prop.rmvMe()
                                 }
@@ -454,16 +502,16 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberGenera
                     }} alignStart special />
                     <Line />
                 </div>
-                <MyCell text={prop.user.basicData?.isDeleted()?"Restore":"Delete"} ocl={()=>{
+                <MyCell text={prop.user.isDeleted()?"Restore":"Delete"} ocl={()=>{
                     setLoad(true)
-                    const ndata = {...prop.user.basicData!.data}
-                    const value = prop.user.basicData?.isDeleted()?'0':'2'
+                    const ndata = {...prop.user.data}
+                    const value = prop.user.isDeleted()?'0':'2'
                     ndata['verif'] = value
                     makeRequest.post('setMemberBasicInfo',ndata,(task)=>{
                         if(task.isSuccessful()){
                             setLoad(false)
-                            toast(`${prop.user.basicData?.isDeleted()?'Restored':'Deleted'} successfully`,1)
-                            prop.user.basicData!.data['verif'] = value
+                            toast(`${prop.user.isDeleted()?'Restored':'Deleted'} successfully`,1)
+                            prop.user.data['verif'] = value
                             setOptToShow(-1)
                             prop.rmvMe()
                         }else{

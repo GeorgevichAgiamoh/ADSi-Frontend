@@ -6,7 +6,7 @@ import { AdminDirEdit } from "./dirEdit"
 import { AdminDirList } from "./dirList"
 import { AdminDirView } from "./dirView"
 import { CircularProgress } from "@mui/material"
-import { memberGeneralinfo } from "../../../classes/models"
+import { memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
 import { AdminDirAdd } from "./dirAdd"
 
 
@@ -14,7 +14,7 @@ import { AdminDirAdd } from "./dirAdd"
 export function AdminDirectory(){
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
-    const[user, setUser] = useState<memberGeneralinfo>()
+    const[user, setUser] = useState<memberBasicinfo>()
     const[stage, setStage] = useState(-1)
 
     useEffect(()=>{

@@ -134,6 +134,15 @@ export function CustomCountryTip(){
     </div>
 }
 
+export function PaystackExplanation(){
+    const mye = new myEles(false)
+    return <div>
+        <Mgin top={5}/>
+        <mye.Tv text="Please note that payment will be processed by our technology partner - STABLE SHIELD SOLUTIONS. Their name and logo will appear as you pay" size={12} color={mye.mycol.hint} />
+        <Mgin top={5}/>
+    </div>
+}
+
 
 
 
