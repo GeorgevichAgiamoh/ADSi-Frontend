@@ -4,7 +4,7 @@ import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { CustomCountryTip, MsgAlert, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay, spin_genders, spin_marital, spin_nok } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
@@ -260,8 +260,6 @@ export function CompleteProfile(){
                     setEml(v.trim())
                 }} />
             </div>
-            <Mgin top={5} />
-            <mye.Tv text="For Verification purposes, please use official cooperative email address" color={mye.mycol.hint} size={12} />
             <Mgin top={15} />
             <div style={{
                 width:'100%'
@@ -321,8 +319,9 @@ export function CompleteProfile(){
                     setSex(e.target.value)
                 }}>
                     <option value="">Click to Choose</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
+                    {Object.entries(spin_genders).map(([key,value])=>{
+                        return <option value={key}>{value}</option>
+                    })}
                 </select>
             </div>
             <Mgin top={15} />
@@ -335,11 +334,9 @@ export function CompleteProfile(){
                     setMarital(e.target.value)
                 }}>
                     <option value="">Click to Choose</option>
-                    <option value="M">Married</option>
-                    <option value="S">Single</option>
-                    <option value="D">Divorced</option>
-                    <option value="W">Widowed</option>
-                    <option value="P">Separated</option>
+                    {Object.entries(spin_marital).map(([key,value])=>{
+                        return <option value={key}>{value}</option>
+                    })}
                 </select>
             </div>
             <Mgin top={15} />
@@ -399,13 +396,12 @@ export function CompleteProfile(){
                     setState(undefined)
                     setLga(undefined)
                 }}>
-                    <option value="">Click to Choose</option>
+                    <option value="">Let me input manually</option>
                     {
                         mCountry.getAllCountries(true).map((ele, index)=>{
                             return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                         })
                     }
-                    <option value="bycfcveqvc">Let me input manually</option>
                 </select>
             </div>
             <div style={{
@@ -597,13 +593,9 @@ export function CompleteProfile(){
                     setkinType(e.target.value)
                 }}>
                     <option value="">Click to Choose</option>
-                    <option value="S">Spouse</option>
-                    <option value="P">Parent</option>
-                    <option value="B">Sibling</option>
-                    <option value="C">Child</option>
-                    <option value="R">Relative</option>
-                    <option value="F">Friend</option>
-                    <option value="W">Colleague</option>
+                    {Object.entries(spin_nok).map(([key,value])=>{
+                        return <option value={key}>{value}</option>
+                    })}
                 </select>
             </div>
             <Mgin top={15} />
@@ -655,7 +647,7 @@ export function CompleteProfile(){
                     return
                 }
                 if(!state && state_custom.length <3){
-                    toast('Invalid State Input',0)
+                    toast('Invalid State location Input',0)
                     return
                 }
                 if(!lga && lga_custom.length <3){

@@ -212,7 +212,7 @@ export function MemberPaymentList(mainprop:{tabPos:number,outstanding?:string[],
                 }}  width={120}/>
             </div>
         </div>:<div style={{
-            width:250,
+            width:400,
             display:'flex'
         }}>
             <div style={{

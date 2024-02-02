@@ -450,10 +450,10 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasici
                     width:'100%',
                     display: prop.user.isDeleted()?'none':undefined
                 }}>
-                    <MyCell text="Edit" ocl={()=>{
+                    {/* <MyCell text="Edit" ocl={()=>{
                         doIt(1)
                     }} alignStart special/>
-                    <Line />
+                    <Line /> */}
                     <MyCell text={prop.user.isVerified()?"Deactivate":"Approve"} ocl={()=>{
                         setLoad(true)
                         const ndata = {...prop.user.data}

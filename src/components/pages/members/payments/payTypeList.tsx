@@ -195,7 +195,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             }} icon={MonetizationOnOutlined} title="Total Dues Paid" value={dueStat?dueStat.getTotal():'...'} color={mye.mycol.hs_blue} />
             <Tab1 ocl={()=>{
                 mainprop.actiony(2,outstanding)
-            }} icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${outstanding.length*5000}`} color={mye.mycol.red} />
+            }} icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${outstanding.length*12000}`} color={mye.mycol.red} />
         </div>
         <Mgin top={30} />
         <div id='lshdw' style={{
@@ -576,11 +576,11 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
 
     useEffect(()=>{
         const cy = new Date().getFullYear()
-        const tem:string[] = []
-        for(let i = cy; i > cy-20; i--){
-            tem.push(i.toString())
+        const yrs:string[] = []
+        for(let i = cy; i > 2022; i--){ //Starts at 2023
+            yrs.push(i.toString())
         }
-        setYears(tem)
+        setYears(yrs)
         if(prop.makePaymet==1){
             setAmt('12000')
         }

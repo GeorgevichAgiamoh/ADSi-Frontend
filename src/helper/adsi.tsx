@@ -130,7 +130,7 @@ export function CustomCountryTip(){
         width:'100%',
         marginLeft:20
     }}>
-        <mye.Tv text="If your country is not on the list - 'click Let me input manually'" size={12} color={mye.mycol.primarycol}/>
+        <mye.Tv text="If your country is not on the list, leave it at 'Let me input manually' and continue" size={12} color={mye.mycol.primarycol}/>
     </div>
 }
 

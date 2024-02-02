@@ -34,11 +34,11 @@ export function AdminDirectory(){
             setStage(action)
         }}/>
     }
-    if(stage == 1 && user){
-        return <AdminDirEdit user={user} backy={()=>{
-            setStage(-1)
-        }}/>
-    }
+    // if(stage == 1 && user){
+    //     return <AdminDirEdit user={user} backy={()=>{
+    //         setStage(-1)
+    //     }}/>
+    // }
     if(stage == 3){
         return <AdminDirAdd  backy={()=>{
             setStage(-1)

@@ -8,7 +8,6 @@ import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import axios from "axios";
 import { getMemId, makeRequest, saveMemId } from "../../helper/requesthandler";
-import rpwd from "../../assets/rpwd.png"
 
 
 
@@ -444,15 +443,23 @@ export function MailLogin(mainprop:{isAdmin?:boolean}){
             }} />
             <Mgin top={10} />
             <LrText left={<mye.Tv text="" color={mye.mycol.primarycol} />} 
-            right={<img src={rpwd} alt="Reset Password" height={30} onClick={()=>{
+            right={<mye.Tv text="reset password" color={mye.mycol.primarycol} onClick={()=>{
                 navigate('/forgotpassword')
-            }}/>}/>
+            }} />}/>
             <Mgin top={10} />
             <mye.Tv text="Don't have an account ?"  />
             <Mgin top={10} />
             <Btn txt="CREATE ACCOUNT" onClick={()=>{
                 navigate(`/register?mid=${mid}`)
             }} bkg={mye.mycol.btnstrip} tcol={mye.mycol.primarycol} />
+            <Mgin top={50} />
+            <div className="ctr" style={{
+                width:'100%'
+            }}>
+                <mye.Tv text="Back To Home" color={mye.mycol.primarycol} onClick={()=>{
+                    window.location.href = 'https://adsicoop.com.ng'
+                }} />
+            </div>
             <PoweredBySSS floaatIt noPadding/>
         </div>
 

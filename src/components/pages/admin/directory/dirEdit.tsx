@@ -297,13 +297,12 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                         setState(undefined)
                         setCity(undefined)
                     }}>
-                        <option value="">Choose One</option>
+                        <option value="">Let me input manually</option>
                         {
                             mCountry.getAllCountries().map((ele, index)=>{
                                 return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                             })
                         }
-                        <option value="bycfcveqvc">Let me input manually</option>
                     </select>
                 </div>
                 <div style={{
@@ -462,7 +461,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                     return
                 }
                 if(!state &&  state_custom.length < 3){
-                    toast('Invalid State Input',0)
+                    toast('Invalid State location Input',0)
                     return
                 }
                 if(!city && city_custom.length < 3){

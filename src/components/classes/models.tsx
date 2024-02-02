@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { mCountry, mLga, mState } from "monagree-locs"
-import { formatMemId, myEles } from "../../helper/general"
+import { formatMemId, myEles, spin_genders, spin_marital, spin_nok } from "../../helper/general"
 import { mBanks } from "monagree-banks"
 
 
@@ -127,13 +127,22 @@ export class memberGeneralinfo{
         return  !this.data?defVal:format(new Date(parseFloat(this.getDob())), 'dd/MM/yy')
     }
     getFormattedCountry(){
-        return !this.data?defVal:mCountry.getCountryByCode(this.getCountry())!.getName()
+        return !this.data?defVal:(mCountry.getCountryByCode(this.getCountry())?.getName() || (this.getCountry() as string))
     }
     getFormattedState(){
-        return !this.data?defVal:mState.getStateByCode(this.getCountry(),this.getState())!.getName()
+        return !this.data?defVal:(mState.getStateByCode(this.getCountry(),this.getState())?.getName() || (this.getState() as string))
     }
     getFormattedLGA(){
-        return !this.data?defVal:mLga.getLgaByCode(this.getCountry(),this.getState(),this.getLga())!.getName()
+        return !this.data?defVal:(mLga.getLgaByCode(this.getCountry(),this.getState(),this.getLga())?.getName() || (this.getLga() as string))
+    }
+    getFormattedGender(){
+        return !this.data?defVal:spin_genders[this.data['sex']]
+    }
+    getFormattedMarital(){
+        return !this.data?defVal:spin_marital[this.data['marital']]
+    }
+    getFormattedKinType(){
+        return !this.data?defVal:spin_nok[this.data['kin_type']]
     }
     
 }

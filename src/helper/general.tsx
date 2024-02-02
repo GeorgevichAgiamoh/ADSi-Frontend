@@ -755,3 +755,26 @@ export function fixedString(s:string, numDig:number){
   export const pricePerShare = 10
 
   export const masterID = '11111111'
+
+  export const spin_genders:{[key:string]:string} = {
+    'M': 'Male',
+    'F': 'Female'
+  }
+
+  export const spin_marital:{[key:string]:string} = {
+    'M': 'Married',
+    'S': 'Single',
+    'D': 'Divorced',
+    'W': 'Widowed',
+    'P': 'Separated',
+  }
+
+  export const spin_nok:{[key:string]:string} = {
+    'S': 'Spouse',
+    'P': 'Parent',
+    'B': 'Sibling',
+    'C': 'Child',
+    'R': 'Relative',
+    'F': 'Friend',
+    'W': 'Colleague',
+  }

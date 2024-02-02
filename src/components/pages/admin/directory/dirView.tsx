@@ -181,10 +181,10 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 <Btn txt="APPROVE" onClick={()=>{
                     updateData('verif','1',true)
                 }} width={120} />
-                <Mgin right={20}/>
+                {/* <Mgin right={20}/>
                 <Btn txt="EDIT" onClick={()=>{
                     mainprop.backy(1)
-                }} width={120} outlined/>
+                }} width={120} outlined/> */}
                 <Mgin right={20}/>
                 <Btn txt="DELETE" onClick={()=>{
                     updateData('verif','2')
@@ -195,10 +195,10 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 <Btn txt="DEACTIVATE" onClick={()=>{
                     updateData('verif','0')
                 }} width={120} bkg={mye.mycol.red} />
-                <Mgin right={20}/>
+                {/* <Mgin right={20}/>
                 <Btn txt="EDIT" onClick={()=>{
                     mainprop.backy(1)
-                }} width={120} outlined/>
+                }} width={120} outlined/> */}
                 <Mgin right={20}/>
                 <Btn txt="DELETE" onClick={()=>{
                     updateData('verif','2')
@@ -218,13 +218,30 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                     <InfoLay sub="Last Name" main={mainprop.user.getlastName()} />
                     <InfoLay sub="ADSI Number" main={mainprop.user.getMemberID()} />
                     <InfoLay sub="Phone Number" main={mainprop.user.getPhone()} />
-                    <InfoLay sub="Gender" main={mainprop.user.generalData.getGender()} />
+                    <InfoLay sub="Gender" main={mainprop.user.generalData.getFormattedGender()} />
+                    <InfoLay sub="Marital Status" main={mainprop.user.generalData.getFormattedMarital()} />
                     <InfoLay sub="DOB" main={mainprop.user.generalData.getFormattedDOB()} />
-                    <InfoLay sub="Email" main={mainprop.user.getEmail()} />
                     <InfoLay sub="Residential Address" main={mainprop.user.generalData.getAddr()} />
                     <InfoLay sub="Country" main={mainprop.user.generalData.getFormattedCountry()} />
                     <InfoLay sub="State" main={mainprop.user.generalData.getFormattedState()} />
                     <InfoLay sub="City" main={mainprop.user.generalData.getFormattedLGA()} />
+                    <InfoLay sub="Hometown" main={mainprop.user.generalData.getTown()} />
+                    <InfoLay sub="Occupation" main={mainprop.user.generalData.getJob()} />
+                    <InfoLay sub="Email" main={mainprop.user.getEmail()} />
+                    <div style={{
+                        width:'100%',
+                        margin:'10px 0px'
+                    }}>
+                        <Mgin top={20} />
+                        <mye.HTv text="Next of Kin" size={18} />
+                    </div>
+                    <InfoLay sub="First Name" main={mainprop.user.generalData.getkin_FirstName()} />
+                    <InfoLay sub="Middle Name" main={mainprop.user.generalData.getkin_MiddleName()} />
+                    <InfoLay sub="Last Name" main={mainprop.user.generalData.getkin_LastName()} />
+                    <InfoLay sub="Relationship" main={mainprop.user.generalData.getFormattedKinType()} />
+                    <InfoLay sub="Phone" main={mainprop.user.generalData.getkin_phone()} />
+                    <InfoLay sub="Address" main={mainprop.user.generalData.getkin_Addr()} />
+                    <InfoLay sub="Email" main={mainprop.user.generalData.getkin_Email()} />
                 </div>
                 <Mgin right={dimen.dsk?20:0} top={dimen.dsk?0:20} />
                 <Line vertical={dimen.dsk} col={mye.mycol.btnstrip} height={200}/>

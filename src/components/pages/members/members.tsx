@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
-import { MyProfile } from "./myprofile";
 import { CompleteProfile } from "../completeprofile";
 
 
