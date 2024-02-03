@@ -138,7 +138,7 @@ export function PaystackExplanation(){
     const mye = new myEles(false)
     return <div>
         <Mgin top={5}/>
-        <mye.Tv text="Please note that payment will be processed by our technology partner - STABLE SHIELD SOLUTIONS. Their name and logo will appear as you pay" size={12} color={mye.mycol.hint} />
+        <mye.Tv text="Please pay to the account above and upload the receipt below. It will show on your record once admin verifies it. You can also track pending payments." size={12} color={mye.mycol.hint} />
         <Mgin top={5}/>
     </div>
 }

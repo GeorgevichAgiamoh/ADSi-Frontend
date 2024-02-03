@@ -257,6 +257,18 @@ export class payRecordEle{
     getShares(){
         return this.data['shares']
     }
+    getProof(){
+        if(this.isProofFile()){
+            return this.getMemId()+'_'+this.getTime()
+        }
+        return this.data['proof']
+    }
+    isProofFile(){
+        return this.data['proof'] == 'f'
+    }
+    getRecordId(){
+        return this.data['id']
+    }
     //--CUSTOM
     getAmt(){
         return (this.getRef() as string).split('-')[2]

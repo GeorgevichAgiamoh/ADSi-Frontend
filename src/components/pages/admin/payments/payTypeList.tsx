@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined, MonetizationOnOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined, MonetizationOnOutlined, ReceiptOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare, formatMemId, hexToRgba } from "../../../../helper/general"
@@ -15,7 +15,7 @@ import tabcard from "../../../../assets/tabcard.png"
 
 
 
-export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEle)=>void}){
+export function AdminPayTypes(mainprop:{actiony:(action:number,payType?:payTypeEle)=>void}){
     const dimen = useWindowDimensions()
     const navigate = useNavigate()
     const location = useLocation()
@@ -128,6 +128,32 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType:payTypeEl
         }}>
             <Tab1 icon={MonetizationOnOutlined} title="Total Payment" value={totPays} color={mye.mycol.hs_blue} />
             <Tab1 icon={PersonOutline} title="Number of Payments" value={totCount} color={mye.mycol.hs_blue} />
+        </div>
+        <Mgin top={50} />
+        <div className="hlc" id="lshdw" style={{
+            width:'100%',
+            backgroundColor:mye.mycol.white,
+            borderRadius:10,
+            padding:dimen.dsk?20:10,
+            boxSizing:'border-box'
+        }}>
+            <LrText wrap={!dimen.dsk}
+            left={<div>
+                <div className="hlc">
+                    <ReceiptOutlined style={{
+                        color:mye.mycol.secondarycol,
+                        fontSize:20
+                    }} />
+                    <Mgin right={10}/>
+                    <mye.HTv text="Pending Payments" size={16} color={mye.mycol.secondarycol} />
+                </div>
+                <Mgin top={10} />
+                <mye.Tv text="See a list of pending payments for your approval" />
+            </div>}
+            right={<Btn strip txt="SEE PENDING PAYMENTS" width={200} onClick={()=>{
+                mainprop.actiony(2)
+            }} />}
+            />
         </div>
         <Mgin top={50} />
         <div className="vlc" id='lshdw' style={{

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CircularProgress, IconButton, InputAdornment, SvgIconTypeMap, TextField } from "@mui/material";
-import { Close, Done, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Close, CopyAllOutlined, Done, Visibility, VisibilityOff } from "@mui/icons-material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -747,6 +747,44 @@ export function fixedString(s:string, numDig:number){
   export function getPayRef(payId:string,amt:string,memid:string,uuid?:string){
     return `adsi-${payId}-${amt}-${memid}-${(uuid || Date.now().toString())}`
   }
+
+  export function CopyMan(prop:{text:string,toast:()=>void}){
+    const mye = new myEles(false)
+    const textRef = useRef<HTMLInputElement | null>(null);
+    const[copied,setCopied] = useState(false)
+  
+    const copyToClipboard = () => {
+      textRef.current?.select();
+      document.execCommand('copy');
+      prop.toast()
+      setCopied(true)
+      setTimeout(()=>{
+        setCopied(false)
+      },3000)
+    };
+  
+    return (
+      <div className="hlc">
+        <input
+          type="text"
+          ref={textRef}
+          defaultValue={prop.text}
+          style={{ display: 'none' }}
+        />
+        <CopyAllOutlined id="clk" style={{
+            color: mye.mycol.primarycol,
+            fontSize:20
+        }} onClick={copyToClipboard} />
+        <Mgin right={5} />
+        <div style={{
+            display: copied?undefined:'none'
+        }}>
+            <mye.Tv text="Copied!" color={mye.mycol.green} />
+        </div>
+      </div>
+    );
+  };
+  
 
   export const adsi_recaptcha_key = '6LcSDFUpAAAAACvhXLKW9yeuh9FWvSNHzc4LAovZ'
 

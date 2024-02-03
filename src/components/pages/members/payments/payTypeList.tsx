@@ -1,9 +1,9 @@
 /* eslint-disable eqeqeq */
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, MonetizationOnOutlined, ArrowRightOutlined } from "@mui/icons-material"
-import { useState, useEffect, ChangeEvent } from "react"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, MonetizationOnOutlined, ArrowRightOutlined, CopyAllOutlined } from "@mui/icons-material"
+import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import tabcard from "../../../../assets/tabcard.png"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, hexToRgba, ErrorCont, pricePerShare, isDigit, paystackPK, getPayRef } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, hexToRgba, ErrorCont, pricePerShare, isDigit, paystackPK, getPayRef, CopyMan } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
 import { defVal, memberBasicinfo, payRecordEle, payStat } from "../../../classes/models"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -333,7 +333,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             height:'100%',
             backgroundColor:'rgba(0,0,0,0.1)'
         }}>
-            <MakePayment mbi={mainprop.mbi} makePaymet={makePaymet}  closy={(sp)=>{
+            <MakePayment mbi={mainprop.mbi} makePaymet={makePaymet} outstanding={outstanding}  closy={(sp)=>{
                 setMakePayment(0)
                 if(sp){
                     setShowPP(true)
@@ -564,23 +564,18 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
 
 }
 
-function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:boolean)=>void}) {
+function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:boolean)=>void,outstanding:string[]}) {
     const myKey = Date.now()
     const dimen = useWindowDimensions()
+    const navigate = useNavigate()
     const mye = new myEles(false)
     const[shares,setShares] = useState('')
     const[year,setYear] = useState('')
     const[amt,setAmt] = useState('')
-
-    const[years,setYears] = useState<string[]>([])
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(()=>{
         const cy = new Date().getFullYear()
-        const yrs:string[] = []
-        for(let i = cy; i > 2022; i--){ //Starts at 2023
-            yrs.push(i.toString())
-        }
-        setYears(yrs)
         if(prop.makePaymet==1){
             setAmt('12000')
         }
@@ -593,7 +588,7 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
           };
     },[])
     
-    function payWithPaystack() {
+    /*function payWithPaystack() {
         if((window as any).PaystackPop){
             var handler = (window as any).PaystackPop.setup({
 
@@ -630,7 +625,7 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
         }else{
             toast('An error occured. Please refresh the page',0)
         }
-    }
+    }*/
 
     const[load, setLoad]=useState(false)
     const[loadMsg, setLoadMsg]=useState('Just a sec')
@@ -666,7 +661,7 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
         padding:dimen.dsk?40:20,
         boxSizing:'border-box',
         overflow:'scroll',
-        width:dimen.dsk2?'40%':dimen.dsk?'50%':'70%'
+        width:dimen.dsk2?'40%':dimen.dsk?'50%':'70%',
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
@@ -711,7 +706,7 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
             }}>
                 <option value="">Choose A Year</option>
                 {
-                    years.map((yr,index)=>{
+                    prop.outstanding.map((yr,index)=>{
                         return <option key={myKey+index+1} value={yr}>{yr}</option>
                     })
                 }
@@ -719,7 +714,7 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
         </div>:<div style={{
             width:'100%'
         }}>
-            <mye.Tv text="Shares" />
+            <mye.Tv text="Shares (At least 1000)" />
             <Mgin top={3}/>
             <EditTextFilled hint="No. of share (at 10 naira each)" min={4} digi value={shares} recv={(v)=>{
                 const sh = v.trim()
@@ -740,14 +735,85 @@ function MakePayment(prop:{makePaymet:number,mbi:memberBasicinfo,closy:(showPP?:
             <Mgin top={3}/>
             <mye.BTv text={`NGN ${amt}`} size={16}/>
         </div>
+        <Mgin top={20} />
+        <div style={{
+            width:'100%'
+        }}>
+            <mye.Tv text="Pay To" />
+            <Mgin top={3}/>
+            <div className="hlc">
+                <mye.Tv text="Name" />
+                <Mgin right={3}/>
+                <mye.BTv text={'ADSi Multi-purpose Co-operative Society Ltd'} size={16}/>
+            </div>
+            <Mgin top={2}/>
+            <div className="hlc">
+                <mye.Tv text="Bank" />
+                <Mgin right={3}/>
+                <mye.BTv text={'Zenith'} size={16}/>
+            </div>
+            <Mgin top={3}/>
+            <div className="hlc">
+                <mye.Tv text="Account Number" />
+                <Mgin right={3}/>
+                <mye.BTv text={'1223667317'} size={16}/>
+                <Mgin right={3}/>
+                <CopyMan text="1223667317" toast={()=>{
+                    toast('Copied',1)
+                }} />
+            </div>
+        </div>
         <Mgin top={15} />
         <PaystackExplanation />
-        <Btn txt="PAY" onClick={()=>{
+        <input
+            type="file"
+            onChange={(e)=>{
+                const file = e.target.files?.[0];
+                if(file){
+                    setLoad(true)
+                    const tm = Date.now().toString()
+                    makeRequest.uploadFile('pends',getMemId()+'_'+tm,getMemId(),file, (task)=>{
+                        if(task.isSuccessful()){
+                            makeRequest.post('registerOfflinePayment',{
+                                ref: getPayRef(prop.makePaymet==1?'1':'2',amt,getMemId(),tm),
+                                name: prop.mbi.getFullName(),
+                                time: tm,
+                                proof: 'f',
+                                meta: prop.makePaymet==1?year:shares
+                            },(task)=>{
+                                setLoad(false)
+                                if(task.isSuccessful()){
+                                    prop.closy(true)
+                                }else{
+                                    if(task.isLoggedOut()){
+                                        navigate('/login')
+                                        return
+                                    }
+                                    toast(task.getErrorMsg(),0)
+                                }
+                            })
+                        }else{
+                            setLoad(false)
+                            if(task.isLoggedOut()){
+                                navigate('/login')
+                                return
+                            }
+                            toast(task.getErrorMsg(),0)
+                        }
+                    })
+                }else{
+                    toast('Invalid File. Try again',0)
+                }
+            }}
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+        />
+        <Btn txt="UPLOAD RECEIPT" onClick={()=>{
             if(amt.length==0){
                 toast('Please enter at least 1000 shares',0)
                 return;
             }
-            payWithPaystack()
-        }} />
+            fileInputRef.current?.click()
+        }}  strip={amt.length==0}/>
     </div>
 }

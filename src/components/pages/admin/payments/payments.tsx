@@ -6,6 +6,7 @@ import { CircularProgress } from "@mui/material"
 import { AdminPayTypes } from "./payTypeList"
 import { AdminPayTypesView } from "./payTypeView"
 import { PaymentList } from "./paymentList"
+import { PendingPayments } from "./pendingPayments"
 
 
 
@@ -36,8 +37,10 @@ export function AdminPayments(){
             setStage(-1)
         }} />
     }
-    if(stage == 2 && payType){
-        
+    if(stage == 2){
+        return <PendingPayments backy={()=>{
+            setStage(-1)
+        }} />
     }
     return <div className="ctr" style={{
         width:'100%',

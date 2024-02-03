@@ -140,8 +140,6 @@ export function Register(){
                     setEml(v.trim())
                 }} />
             </div>
-            <Mgin top={5} />
-            <mye.Tv text="For Verification purposes, please use official cooperative email address" color={mye.mycol.hint} size={12} />
             <Mgin top={15} />
             <div style={{
                 width:'100%'
