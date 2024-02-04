@@ -67,8 +67,8 @@ export function AdminNav(mainprop:{currentTab:number,mye:myEles,isMobile:boolean
                 backgroundColor:selpos===prop.pos?'rgba(255,255,255,0.1)':undefined,
                 display:'flex',
                 alignItems:'center',
-                justifyContent:'center'
             }}>
+                <Mgin right={15} />
                 <prop.icon style={{
                     fontSize:20,
                     color:mainprop.mye.mycol.white
@@ -143,8 +143,8 @@ export function MemberNav(mainprop:{currentTab:number,mye:myEles,isMobile:boolea
                 backgroundColor:selpos===prop.pos?'rgba(255,255,255,0.1)':undefined,
                 display:'flex',
                 alignItems:'center',
-                justifyContent:'center'
             }}>
+                <Mgin right={15} />
                 <prop.icon style={{
                     fontSize:20,
                     color:mainprop.mye.mycol.white

@@ -792,7 +792,7 @@ export function fixedString(s:string, numDig:number){
 
   export const pricePerShare = 10
 
-  export const masterID = '11111111'
+  export const masterID = '55555555'
 
   export const spin_genders:{[key:string]:string} = {
     'M': 'Male',

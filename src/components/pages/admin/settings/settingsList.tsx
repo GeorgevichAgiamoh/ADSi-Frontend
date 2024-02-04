@@ -554,7 +554,7 @@ export function SettingsList(){
                 }
                 setLoad(true)
                 makeRequest.post('setAdsiInfo',{
-                    memid:'11111111',
+                    memid:masterID,
                     cname:name,
                     regno:regNo,
                     addr: addr,
