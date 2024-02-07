@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Add, CalendarMonth, InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
-import { CustomCountryTip, MsgAlert, PoweredBySSS } from "../../helper/adsi";
+import { MsgAlert, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
 import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, LrText, DatePicky, IconBtn, LoadLay, spin_genders, spin_marital, spin_nok } from "../../helper/general";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +12,13 @@ import { getMemId, makeRequest } from "../../helper/requesthandler";
 import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../classes/models";
 import { format } from "date-fns";
 import { mLoc } from "monagree-locs/dist/classes";
-import { mCountry, mLga, mState } from "monagree-locs";
+import { mLga, mState } from "monagree-locs";
 import { mBanks } from "monagree-banks";
+import { Country, getByCode, listCountries } from "countries-ts"
 
 
 
-export function CompleteProfile(){
+export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
     const qry = useQuery();
     const myKey = Date.now()
     const rdr = qry.get('rdr') ?? ''
@@ -36,10 +37,9 @@ export function CompleteProfile(){
     const[marital,setMarital] = useState('')
     const[dob,setDob] = useState<Date>()
     const[askdob,setAskDOB] = useState(false)
-    const[nationality,setNationality] = useState<mLoc>()
+    const[nationality,setNationality] = useState<Country>()
     const[state,setState] = useState<mLoc>()
     const[lga,setLga] = useState<mLoc>()
-    const[nationality_custom, setNationality_custom] = useState('')
     const[state_custom, setState_custom] = useState('')
     const[lga_custom, setLga_custom] = useState('')
     const[town,setTown] = useState('')
@@ -62,6 +62,9 @@ export function CompleteProfile(){
     const[id,setId] = useState<File>()
     const[fileExists, setFileExists] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const basicRef = useRef<HTMLDivElement>(null);
+    const genRef = useRef<HTMLDivElement>(null);
         
 
     useEffect(()=>{
@@ -92,12 +95,11 @@ export function CompleteProfile(){
                             setSex(mgi.getGender())
                             setMarital(mgi.getMarital())
                             setDob(new Date(parseFloat(mgi.getDob())))
+                            setNationality(getByCode(mgi.getCountry()))
                             if(mgi.isLocsCustom()){
-                                setNationality_custom(mgi.getCountry())
                                 setState_custom(mgi.getState())
                                 setLga_custom(mgi.getLga())
                             }else{
-                                setNationality(mCountry.getCountryByCode(mgi.getCountry()))
                                 setState(mState.getStateByCode(mgi.getCountry(), mgi.getState()))
                                 setLga(mLga.getLgaByCode(mgi.getCountry(),mgi.getState(),mgi.getLga()))
                             }
@@ -150,6 +152,102 @@ export function CompleteProfile(){
                 setFileExists(true)
             }
         })
+    }
+
+    function basicOk(){
+        if(fname.length < 3 || lname.length < 3){
+            toast('Invalid Name Input',0)
+            return false
+        }
+        if(!isEmlValid(eml)){
+            toast('Invalid Email',0)
+            return false
+        }
+        if(!isPhoneNigOk(phn)){
+            toast('Invalid Phone Number',0)
+            return
+        }
+        return true
+    }
+
+    function finOK(){
+        if(bnk.length == 0){
+            toast('Invalid Bank Input',0)
+            return
+        }
+        if(anum.length < 10){
+            toast('Invalid Account Number',0)
+            return
+        }
+        if(aname.length < 3){
+            toast('Invalid Account Name',0)
+            return
+        }
+        return true
+    }
+
+    function genOk(){
+        if(sex.length == 0){
+            toast('Invalid gender Input',0)
+            return
+        }
+        if(marital.length == 0){
+            toast('Invalid Marital Input',0)
+            return
+        }
+        if(!dob){
+            toast('Invalid Date of Birth Input',0)
+            return
+        }
+        if(!nationality){
+            toast('Invalid Nationality Input',0)
+            return
+        }
+        if(!state && state_custom.length <3){
+            toast('Invalid State location Input',0)
+            return
+        }
+        if(!lga && lga_custom.length <3){
+            toast('Invalid LGA/City Input',0)
+            return
+        }
+        if(town.length < 3){
+            toast('Invalid Town Input',0)
+            return;
+        }
+        if(addr.length < 3){
+            toast('Invalid Address Input',0)
+            return;
+        }
+        if(job.length < 3){
+            toast('Invalid Occupation Input',0)
+            return;
+        }
+        if(kin_fname.length < 3 || kin_lname.length < 3){
+            toast('Invalid Next of Kin Names Input',0)
+            return;
+        }
+        if(kin_type.length == 0){
+            toast('Invalid Next of Kin Relationship',0)
+            return
+        }
+        if(!isPhoneNigOk(kin_phone)){
+            toast('Invalid Next of Kin Phone Number',0)
+            return
+        }
+        if(kin_addr.length < 3){
+            toast('Invalid Next of Kin Address Input',0)
+            return;
+        }
+        if(!isEmlValid(kin_eml)){
+            toast('Invalid Next of Kin Email.',0)
+            return
+        }
+        if(!id && !fileExists){
+            toast('Please upload valid ID',0)
+            return
+        }
+        return true
     }
 
     
@@ -217,7 +315,7 @@ export function CompleteProfile(){
             <Mgin top={20} />
             <mye.BTv size={18} text="Section 1 - Basic Information" />
             <Mgin top={20} />
-            <div className="hlc" style={{
+            <div ref={basicRef} className="hlc" style={{
                 width:'100%'
             }}>
                 <div style={{
@@ -233,9 +331,9 @@ export function CompleteProfile(){
                     flex:1,
                     marginLeft:20
                 }}>
-                    <mye.Tv text="*Middle Name" />
+                    <mye.Tv text="Middle Name" />
                     <Mgin top={5} />
-                    <EditTextFilled hint="Middle Name" value={mname} noSpace min={3} recv={(v)=>{
+                    <EditTextFilled hint="Middle Name" value={mname} noSpace min={0} recv={(v)=>{
                         setMName(v.trim())
                     }} />
                 </div>
@@ -270,47 +368,10 @@ export function CompleteProfile(){
                     setPhn(v.trim())
                 }} />
             </div>
-            <Mgin top={35} />
-            <Btn txt="SAVE BASIC PROFILE" onClick={()=>{
-                if(fname.length < 3 || lname.length < 3 || mname.length < 3){
-                    toast('Invalid Name Input',0)
-                    return;
-                }
-                if(!isEmlValid(eml)){
-                    toast('Invalid Email',0)
-                    return
-                }
-                if(!isPhoneNigOk(phn)){
-                    toast('Invalid Phone Number',0)
-                    return
-                }
-                setLoad(true)
-                makeRequest.post('setMemberBasicInfo',{
-                    memid:getMemId(),
-                    fname:fname,
-                    lname:lname,
-                    mname:mname,
-                    eml:eml,
-                    phn:phn,
-                    verif:'0',
-                    pay: (mbi&&mbi.isPaid())?'1':'0'
-                },(task)=>{
-                    setLoad(false)
-                    if(task.isSuccessful()){
-                        toast('Basic Info update successful',1)
-                    }else{
-                        if(task.isLoggedOut()){
-                            navigate('/login')
-                            return
-                        }
-                        toast(task.getErrorMsg(),0)
-                    }
-                })
-            }} />
-            <Mgin top={40} />
+            <Mgin top={60} />
             <mye.BTv size={18} text="Section 2 - General Profile" />
             <Mgin top={20} />
-            <div style={{
+            <div ref={genRef} style={{
                 width:'100%',
             }}>
                 <mye.Tv text="*Gender" />
@@ -383,23 +444,22 @@ export function CompleteProfile(){
                     </div>
             </div>
             <Mgin top={15} />
-            <CustomCountryTip />
             <Mgin top={5} />
             <div style={{
                 width:'100%'
             }}>
                 <mye.Tv text="*Nationality" />
                 <Mgin top={5}/>
-                <select id="dropdown" name="dropdown" value={nationality?.getId() || ''} onChange={(e)=>{
-                    const ele = mCountry.getCountryByCode(e.target.value)
+                <select id="dropdown" name="dropdown" value={nationality?.code || ''} onChange={(e)=>{
+                    const ele = getByCode(e.target.value)
                     setNationality(ele)
                     setState(undefined)
                     setLga(undefined)
                 }}>
-                    <option value="">Let me input manually</option>
+                    <option value="">Choose Country</option>
                     {
-                        mCountry.getAllCountries(true).map((ele, index)=>{
-                            return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
+                        listCountries().map((ele, index)=>{
+                            return <option key={myKey+index+10000} value={ele.code}>{ele.label}</option>
                         })
                     }
                 </select>
@@ -407,62 +467,51 @@ export function CompleteProfile(){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality==undefined?'none':undefined
+                display:nationality?.code!='NG'?'none':undefined
             }}>
                 <mye.Tv text="*State Of Origin" />
                 <Mgin top={5}/>
                 <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
-                    if(nationality){
-                        const ele = mState.getStateByCode(nationality!.getId(),e.target.value)
+                    if(nationality?.code == 'NG'){
+                        const ele = mState.getStateByCode('00',e.target.value)
                         setState(ele)
                         setLga(undefined)
                     }
                     
                 }}>
-                    <option value="">Click to Choose</option>
+                    <option value="">Let me input manually</option>
                     {
-                        nationality?mState.getStatesByCountry(nationality!.getId(),true).map((ele, index)=>{
+                        nationality?nationality?.code == 'NG'?mState.getStatesByCountry('00',true).map((ele, index)=>{
                             return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
-                        }):<option value="option1">Choose Country First</option>
+                        }):undefined:<option value="option1">Choose Country First</option>
                     }
                 </select>
             </div>
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality==undefined?'none':undefined
+                display:nationality?.code!='NG'?'none':undefined
             }}>
                 <mye.Tv text="*Local Government Area" />
                 <Mgin top={5}/>
                 <select id="dropdown" name="dropdown" value={lga?.getId()||''} onChange={(e)=>{
-                    if(nationality && state){
-                        const ele = mLga.getLgaByCode(nationality!.getId(),state!.getId(),e.target.value)
+                    if(nationality?.code == 'NG' && state){
+                        const ele = mLga.getLgaByCode('00',state!.getId(),e.target.value)
                         setLga(ele)
                     }
                 }}>
-                    <option value="">Click to Choose</option>
+                    <option value="">Let me input manually</option>
                     {
-                        (nationality&& state)?mLga.getLgasByState(nationality!.getId(),state!.getId(),true).map((ele, index)=>{
+                        (nationality&& state)?nationality?.code == 'NG'?mLga.getLgasByState('00',state!.getId(),true).map((ele, index)=>{
                             return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
-                        }):<option value="option1">Choose Country & State First</option>
+                        }):undefined:<option value="option1">Choose Country & State First</option>
                     }
                 </select>
             </div>
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality==undefined?undefined:'none'
-            }}>
-                <mye.Tv text="Type Country" />
-                <Mgin top={5}/>
-                <EditTextFilled hint="Your Country" min={3} value={nationality_custom} recv={(v)=>{
-                    setNationality_custom(v)
-                }} />
-            </div>
-            <div style={{
-                width:'100%',
-                marginTop:15,
-                display:nationality==undefined?undefined:'none'
+                display:nationality?.code!='NG'?undefined:'none'
             }}>
                 <mye.Tv text="Type State" />
                 <Mgin top={5}/>
@@ -473,7 +522,7 @@ export function CompleteProfile(){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality==undefined?undefined:'none'
+                display:nationality?.code!='NG'?undefined:'none'
             }}>
                 <mye.Tv text="Type City" />
                 <Mgin top={5}/>
@@ -566,9 +615,9 @@ export function CompleteProfile(){
                     flex:1,
                     marginLeft:20
                 }}>
-                    <mye.Tv text="*Middle Name" />
+                    <mye.Tv text="Middle Name" />
                     <Mgin top={5} />
-                    <EditTextFilled hint="Middle Name" value={kin_mname} noSpace min={3} recv={(v)=>{
+                    <EditTextFilled hint="Middle Name" value={kin_mname} noSpace min={0} recv={(v)=>{
                         setkinMname(v.trim())
                     }} />
                 </div>
@@ -628,120 +677,7 @@ export function CompleteProfile(){
                     setkinEml(v.trim())
                 }} />
             </div>
-            <Mgin top={35} />
-            <Btn txt="SAVE GENERAL PROFILE" onClick={()=>{
-                if(sex.length == 0){
-                    toast('Invalid gender Input',0)
-                    return
-                }
-                if(marital.length == 0){
-                    toast('Invalid Marital Input',0)
-                    return
-                }
-                if(!dob){
-                    toast('Invalid Date of Birth Input',0)
-                    return
-                }
-                if(!nationality && nationality_custom.length <3){
-                    toast('Invalid Nationality Input',0)
-                    return
-                }
-                if(!state && state_custom.length <3){
-                    toast('Invalid State location Input',0)
-                    return
-                }
-                if(!lga && lga_custom.length <3){
-                    toast('Invalid LGA/City Input',0)
-                    return
-                }
-                if(town.length < 3){
-                    toast('Invalid Town Input',0)
-                    return;
-                }
-                if(addr.length < 3){
-                    toast('Invalid Address Input',0)
-                    return;
-                }
-                if(job.length < 3){
-                    toast('Invalid Occupation Input',0)
-                    return;
-                }
-                if(kin_fname.length < 3 || kin_mname.length < 3 || kin_lname.length < 3){
-                    toast('Invalid Next of Kin Names Input',0)
-                    return;
-                }
-                if(kin_type.length == 0){
-                    toast('Invalid Next of Kin Relationship',0)
-                    return
-                }
-                if(!isPhoneNigOk(kin_phone)){
-                    toast('Invalid Next of Kin Phone Number',0)
-                    return
-                }
-                if(kin_addr.length < 3){
-                    toast('Invalid Next of Kin Address Input',0)
-                    return;
-                }
-                if(!isEmlValid(kin_eml)){
-                    toast('Invalid Next of Kin Email.',0)
-                    return
-                }
-                if(!id && !fileExists){
-                    toast('Please upload valid ID',0)
-                    return
-                }
-                setLoad(true)
-                makeRequest.post('setMemberGeneralInfo',{
-                    memid:getMemId(),
-                    sex:sex,
-                    marital:marital,
-                    dob:dob.getTime().toString(),
-                    nationality:nationality?nationality.getId():nationality_custom,
-                    state:state?state.getId():state_custom,
-                    lga:lga?lga.getId():lga_custom,
-                    town:town,
-                    addr:addr,
-                    job:job,
-                    kin_fname:kin_fname,
-                    kin_lname:kin_lname,
-                    kin_mname:kin_mname,
-                    kin_type:kin_type,
-                    kin_phn:kin_phone,
-                    kin_addr:kin_addr,
-                    kin_eml:kin_eml
-                },(task)=>{
-                    if(task.isSuccessful()){
-                        if(!id && fileExists){
-                            setLoad(false)
-                                toast('General Info update successful',1)
-                            return
-                        }
-                        console.log('--------Upld id');
-                        toast('Uploading ID',2)
-                        makeRequest.uploadFile('id',getMemId(),getMemId(),id!, (task)=>{
-                            if(task.isSuccessful()){
-                                setLoad(false)
-                                toast('General Info update successful',1)
-                            }else{
-                                setLoad(false)
-                                if(task.isLoggedOut()){
-                                    navigate('/login')
-                                    return
-                                }
-                                toast(task.getErrorMsg(),0)
-                            }
-                        })
-                    }else{
-                        setLoad(false)
-                        if(task.isLoggedOut()){
-                            navigate('/login')
-                            return
-                        }
-                        toast(task.getErrorMsg(),0)
-                    }
-                })
-            }} />
-            <Mgin top={40} />
+            <Mgin top={60} />
             <mye.BTv size={18} text="Section 3 - Financial Information" />
             <Mgin top={20} />
             <div style={{
@@ -781,30 +717,101 @@ export function CompleteProfile(){
                 }} />
             </div>
             <Mgin top={35} />
-            <Btn txt="SAVE FINANCIAL INFO" onClick={()=>{
-                if(bnk.length == 0){
-                    toast('Invalid Bank Input',0)
+            <Btn txt="SUBMIT ALL" onClick={()=>{
+                if(!basicOk()){
+                    if (basicRef.current) {
+                        basicRef.current.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    return;
+                }
+                if(!genOk()){
+                    if (genRef.current) {
+                        genRef.current.scrollIntoView({ behavior: 'smooth' });
+                    }
                     return
                 }
-                if(anum.length < 10){
-                    toast('Invalid Account Number',0)
-                    return
-                }
-                if(aname.length < 3){
-                    toast('Invalid Account Name',0)
+                if(!finOK()){
                     return
                 }
                 setLoad(true)
-                makeRequest.post('setMemberFinancialInfo',{
+                makeRequest.post('setMemberBasicInfo',{
                     memid:getMemId(),
-                    bnk:bnk,
-                    anum:anum,
-                    aname:aname,
+                    fname:fname,
+                    lname:lname,
+                    mname:mname,
+                    eml:eml,
+                    phn:phn,
+                    verif:'0',
+                    pay: (mbi&&mbi.isPaid())?'1':'0'
                 },(task)=>{
-                    setLoad(false)
                     if(task.isSuccessful()){
-                        toast('Financial Info update successful',1)
+                        makeRequest.post('setMemberGeneralInfo',{
+                            memid:getMemId(),
+                            sex:sex,
+                            marital:marital,
+                            dob:dob!.getTime().toString(),
+                            nationality:nationality!.code,
+                            state:state?state.getId():state_custom,
+                            lga:lga?lga.getId():lga_custom,
+                            town:town,
+                            addr:addr,
+                            job:job,
+                            kin_fname:kin_fname,
+                            kin_lname:kin_lname,
+                            kin_mname:kin_mname,
+                            kin_type:kin_type,
+                            kin_phn:kin_phone,
+                            kin_addr:kin_addr,
+                            kin_eml:kin_eml
+                        },(task)=>{
+                            function finFinish(){
+                                makeRequest.post('setMemberFinancialInfo',{
+                                    memid:getMemId(),
+                                    bnk:bnk,
+                                    anum:anum,
+                                    aname:aname,
+                                },(task)=>{
+                                    setLoad(false)
+                                    if(task.isSuccessful()){
+                                        mainprop.goto(0)
+                                    }else{
+                                        if(task.isLoggedOut()){
+                                            navigate('/login')
+                                            return
+                                        }
+                                        toast(task.getErrorMsg(),0)
+                                    }
+                                })
+                            }
+                            if(task.isSuccessful()){
+                                if(!id && fileExists){
+                                    finFinish()
+                                    return
+                                }
+                                toast('Almost there...',2)
+                                makeRequest.uploadFile('id',getMemId(),getMemId(),id!, (task)=>{
+                                    if(task.isSuccessful()){
+                                        finFinish()
+                                    }else{
+                                        setLoad(false)
+                                        if(task.isLoggedOut()){
+                                            navigate('/login')
+                                            return
+                                        }
+                                        toast(task.getErrorMsg(),0)
+                                    }
+                                })
+                            }else{
+                                setLoad(false)
+                                if(task.isLoggedOut()){
+                                    navigate('/login')
+                                    return
+                                }
+                                toast(task.getErrorMsg(),0)
+                            }
+                        })
                     }else{
+                        setLoad(false)
                         if(task.isLoggedOut()){
                             navigate('/login')
                             return

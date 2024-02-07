@@ -9,10 +9,11 @@ import { AdminMessaging } from "./messages/messages";
 import { MemberPayments } from "./payments/payments";
 import { endpoint, getMemId, makeRequest } from "../../../helper/requesthandler";
 import { useNavigate } from "react-router-dom";
-import { memberBasicinfo, memberGeneralinfo } from "../../classes/models";
+import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { CompleteProfile } from "../completeprofile";
+import { AdminDirView } from "../admin/directory/dirView";
 
 
 export function Members(){
@@ -21,9 +22,11 @@ export function Members(){
     const navigate = useNavigate()
     const dimen = useWindowDimensions();
     const[showNav, setShowNav] = useState(false)
+    const[forceProfileEdit, setForceProfileEdit] = useState(false)
     const[tabPos, setTabPos] = useState(0)
     const[mbi, setMBI] = useState<memberBasicinfo>()
     const[mgi, setMGI] = useState<memberGeneralinfo>()
+    const[mfi, setMFI] = useState<memberFinancialinfo>()
     const[yearsOwing, setYearsOwing] = useState<string[]>([])
     const[ppic,setPpic] = useState('')
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,11 +55,18 @@ export function Members(){
         makeRequest.get(`getMemberBasicInfo/${getMemId()}`,{},(task)=>{
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData())
-                /*if(!mbi.isPaid()){
-                    navigate('/payregfee')
-                    return;
-                }*/
                 setMBI(mbi)
+                setMyKey(Date.now())
+            }else{
+                setError(true)
+            }
+        })
+        makeRequest.get(`getMemberFinancialInfo/${getMemId()}`,{},(task)=>{
+            if(task.isSuccessful()){
+                if(task.exists()){
+                    setMFI(new memberFinancialinfo(task.getData()))
+                    setMyKey(Date.now())
+                }
             }else{
                 setError(true)
             }
@@ -65,6 +75,7 @@ export function Members(){
             if(task.isSuccessful()){
                 if(task.exists()){
                     setMGI(new memberGeneralinfo(task.getData()))
+                    setMyKey(Date.now())
                 }
             }else{
                 setError(true)
@@ -271,7 +282,12 @@ export function Members(){
                     {(mbi && mbi.isDeleted())?<ShowProfileDeleted />:(mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
                         setMyKey(Date.now())
-                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?<CompleteProfile />:LoadLay():LoadLay()}
+                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?(mbi && mgi && mfi && !forceProfileEdit)?<AdminDirView user={mbi} backy={()=>{}} isMemAccess genU={mgi} finU={mfi} editClbk={()=>{
+                        setForceProfileEdit(true)
+                    }}  />:<CompleteProfile goto={(a)=>{
+                        setTabPos(a)
+                        setMyKey(Date.now())
+                    }} />:LoadLay():LoadLay()}
                 </div>
             </div>
         </div>

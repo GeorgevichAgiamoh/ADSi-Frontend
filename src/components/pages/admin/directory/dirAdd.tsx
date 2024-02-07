@@ -4,14 +4,14 @@ import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid, formatMemId } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
-import { mCountry, mLga, mState } from "monagree-locs"
+import { mLga, mState } from "monagree-locs"
 import { defVal, memberGeneralinfo } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import { CustomCountryTip, PoweredBySSS } from "../../../../helper/adsi"
+import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 export function AdminDirAdd(mainprop:{backy:(action:number)=>void}){

@@ -4,12 +4,11 @@ import coin from '../../assets/coin.png'
 import thumb from '../../assets/thumbs.png'
 import { MsgAlert, PaystackExplanation, PoweredBySSS } from "../../helper/adsi";
 import useWindowDimensions from "../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, adsi_recaptcha_key, formatMemId, getPayRef, paystackPK } from "../../helper/general";
+import { myEles, setTitle, appName, Mgin, EditTextFilled, Btn, useQuery, ErrorCont, isEmlValid, isPhoneNigOk, formatMemId, getPayRef, MyCB } from "../../helper/general";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import Toast from "../toast/toast";
 import { getMemId, makeRequest, resHandler, saveMemId } from "../../helper/requesthandler";
-import ReCAPTCHA from "react-google-recaptcha";
 import { defVal, memberBasicinfo } from "../classes/models";
 
 
@@ -27,7 +26,7 @@ export function Register(){
     const[pwd1,setPwd1] = useState('')
     const[pwd2,setPwd2] = useState('')
     const[memid,setMemid] = useState(qry.get('mid') ?? '')
-    const recaptchaRef = useRef<ReCAPTCHA>(null);
+    const[nar,setNar] = useState(false)
 
     useEffect(()=>{
         setTitle(`Create Account - ${appName}`)
@@ -181,10 +180,14 @@ export function Register(){
                 }} />
             </div>
             <Mgin top={20} />
-            <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={adsi_recaptcha_key}
-            />
+            <div className="hlc" style={{
+                alignSelf:'flex-start'
+            }}>
+                <MyCB checked={nar} mye={mye} ocl={()=>{
+                    setNar(!nar)
+                }} />
+                <mye.BTv text="I am not a robot" size={14} />
+            </div>
             <Mgin top={15} />
             <Btn txt="CREATE ACCOUNT" onClick={()=>{
                 if(fname.length < 3){
@@ -215,7 +218,7 @@ export function Register(){
                     toast('Enter ADSI Number',0)
                     return
                 }
-                if(!recaptchaRef.current?.getValue()){
+                if(!nar){
                     toast('Please confirm you are not a robot',0)
                     return
                 }
@@ -348,7 +351,7 @@ export function MakePayment(){
 }
 
 
-
+/*
 export function PayRegFee(){
     const navigate = useNavigate()
     const location = useLocation()
@@ -538,5 +541,6 @@ export function PayRegFee(){
 
 }
 
+*/
 
 

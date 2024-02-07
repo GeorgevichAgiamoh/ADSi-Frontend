@@ -788,7 +788,7 @@ export function fixedString(s:string, numDig:number){
 
   export const adsi_recaptcha_key = '6LcSDFUpAAAAACvhXLKW9yeuh9FWvSNHzc4LAovZ'
 
-  export const paystackPK = 'pk_live_39b85ea0d5511afec94de96966c1bf60f4b3ad37'
+  //export const paystackPK = 'pk_live_39b85ea0d5511afec94de96966c1bf60f4b3ad37'
 
   export const pricePerShare = 10
 

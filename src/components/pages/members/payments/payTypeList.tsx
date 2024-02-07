@@ -3,7 +3,7 @@ import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOut
 import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import tabcard from "../../../../assets/tabcard.png"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, hexToRgba, ErrorCont, pricePerShare, isDigit, paystackPK, getPayRef, CopyMan } from "../../../../helper/general"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, hexToRgba, ErrorCont, pricePerShare, isDigit, getPayRef, CopyMan } from "../../../../helper/general"
 import { indivEle, payTypeEle } from "../../../classes/classes"
 import { defVal, memberBasicinfo, payRecordEle, payStat } from "../../../classes/models"
 import { useLocation, useNavigate } from "react-router-dom"

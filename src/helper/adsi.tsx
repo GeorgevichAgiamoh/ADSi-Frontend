@@ -123,16 +123,16 @@ export function getGreeting(){
     }
   };
 
-
+/*
 export function CustomCountryTip(){
     const mye = new myEles(false)
     return <div style={{
         width:'100%',
         marginLeft:20
     }}>
-        <mye.Tv text="If your country is not on the list, leave it at 'Let me input manually' and continue" size={12} color={mye.mycol.primarycol}/>
+        <mye.Tv text="If your state is not on the list, leave it at 'Let me input manually' and continue" size={12} color={mye.mycol.primarycol}/>
     </div>
-}
+}*/
 
 export function PaystackExplanation(){
     const mye = new myEles(false)

@@ -1,7 +1,8 @@
 import { format } from "date-fns"
-import { mCountry, mLga, mState } from "monagree-locs"
+import { mLga, mState } from "monagree-locs"
 import { formatMemId, myEles, spin_genders, spin_marital, spin_nok } from "../../helper/general"
 import { mBanks } from "monagree-banks"
+import { getByCode } from "countries-ts"
 
 
 export class memberBasicinfo{
@@ -79,7 +80,7 @@ export class memberGeneralinfo{
         return !this.data?defVal:this.data['dob']
     }
     isLocsCustom(){
-        return mCountry.getCountryByCode(this.getCountry()) == undefined
+        return mState.getStateByCode('00',this.getState()) == undefined
     }
     getCountry(){
         return !this.data?defVal:this.data['nationality']
@@ -127,7 +128,7 @@ export class memberGeneralinfo{
         return  !this.data?defVal:format(new Date(parseFloat(this.getDob())), 'dd/MM/yy')
     }
     getFormattedCountry(){
-        return !this.data?defVal:(mCountry.getCountryByCode(this.getCountry())?.getName() || (this.getCountry() as string))
+        return !this.data?defVal:getByCode(this.getCountry())?.label
     }
     getFormattedState(){
         return !this.data?defVal:(mState.getStateByCode(this.getCountry(),this.getState())?.getName() || (this.getState() as string))
@@ -309,7 +310,7 @@ export class adsiInfoEle{
         return this.data['addr']
     }
     isLocsCustom(){
-        return mCountry.getCountryByCode(this.getNationality()) == undefined
+        return mState.getStateByCode('00',this.getState()) == undefined
     }
     getNationality(){
         return this.data['nationality']

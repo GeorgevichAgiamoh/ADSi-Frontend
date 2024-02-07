@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Btn, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
-import { defVal, fileEle, getCreatedTime, memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
+import { defVal, fileEle, getCreatedTime, memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { endpoint, getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
 
-export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number)=>void}){
+export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number)=>void,isMemAccess?:boolean, editClbk?:()=>void,genU?:memberGeneralinfo,finU?:memberFinancialinfo}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -20,6 +20,12 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
 
     useEffect(()=>{
         setTitle(`Member Details - ${appName}`)
+        if(mainprop.genU){
+            mainprop.user.setGeneralData(mainprop.genU)
+        }
+        if(mainprop.finU){
+            mainprop.user.setFinData(mainprop.finU)
+        }
         getMemFiles()
     },[])
 
@@ -148,6 +154,8 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
             }} />
         <div id="clk" className="hlc" onClick={()=>{
             mainprop.backy(-1)
+        }} style={{
+            display: mainprop.isMemAccess?'none':undefined
         }}>
             <ArrowBack className="icon" />
             <Mgin right={10} />
@@ -160,7 +168,7 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 color:mye.mycol.secondarycol
             }} />
             <Mgin right={10} />
-            <mye.HTv size={14} text="Personal Information" color={mye.mycol.secondarycol} />
+            <mye.HTv size={14} text={`${mainprop.isMemAccess?'Your':'Personal'} Information`} color={mye.mycol.secondarycol} />
         </div>
         <Mgin top={20} />
         <div id="lshdw" className="vlc" style={{
@@ -169,7 +177,13 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
             boxSizing:'border-box',
             padding:dimen.dsk?20:10
         }}>
-            {mainprop.user.isDeleted()?<div className="hlc" style={{
+            {mainprop.isMemAccess?<div className="hlc" style={{
+                alignSelf:'flex-end'
+            }}>
+                <Btn txt="EDIT" onClick={()=>{
+                    mainprop.editClbk!()
+                }} width={120} outlined />
+            </div>:mainprop.user.isDeleted()?<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="RESTORE" onClick={()=>{
@@ -222,7 +236,7 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                     <InfoLay sub="Marital Status" main={mainprop.user.generalData.getFormattedMarital()} />
                     <InfoLay sub="DOB" main={mainprop.user.generalData.getFormattedDOB()} />
                     <InfoLay sub="Residential Address" main={mainprop.user.generalData.getAddr()} />
-                    <InfoLay sub="Country" main={mainprop.user.generalData.getFormattedCountry()} />
+                    <InfoLay sub="Country" main={mainprop.user.generalData.getFormattedCountry() || ''} />
                     <InfoLay sub="State" main={mainprop.user.generalData.getFormattedState()} />
                     <InfoLay sub="City" main={mainprop.user.generalData.getFormattedLGA()} />
                     <InfoLay sub="Hometown" main={mainprop.user.generalData.getTown()} />
@@ -270,7 +284,7 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                                         color:mye.mycol.secondarycol
                                     }} />
                                     <Mgin right={5} />
-                                    <mye.Tv text={mf.getName()} size={14} onClick={()=>{
+                                    <mye.Tv text={mf.getFolder()+'/'+mf.getName()} size={14} onClick={()=>{
                                         goUrl(`${endpoint}/getFile/${mf.getFolder()}/${mf.getName()}`)
                                     }} />
                                 </div>
