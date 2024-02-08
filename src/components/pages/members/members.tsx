@@ -178,6 +178,7 @@ export function Members(){
             }}>
                 <MemberNav  key={myKey+0.2} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
                     setTabPos(pos)
+                    setForceProfileEdit(false)
                     if(pos==4){
                         makeRequest.get('logout',{},(task)=>{
                             navigate('/login')
@@ -285,6 +286,9 @@ export function Members(){
                     }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?(mbi && mgi && mfi && !forceProfileEdit)?<AdminDirView user={mbi} backy={()=>{}} isMemAccess genU={mgi} finU={mfi} editClbk={()=>{
                         setForceProfileEdit(true)
                     }}  />:<CompleteProfile goto={(a)=>{
+                        if(a==0){
+                            getMemInfo()
+                        }
                         setTabPos(a)
                         setMyKey(Date.now())
                     }} />:LoadLay():LoadLay()}
@@ -300,6 +304,7 @@ export function Members(){
             display: (!dimen.dsk && showNav) ? undefined:'none'
         }}>
             <MemberNav key={myKey+0.3} currentTab={tabPos} mye={mye} isMobile={!dimen.dsk} ocl={(pos)=>{
+                setForceProfileEdit(false)
                 setShowNav(false)
                 setTabPos(pos)
                 if(pos==4){

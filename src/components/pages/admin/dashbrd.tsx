@@ -1,20 +1,21 @@
-import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail, PieChart, MonetizationOnOutlined } from "@mui/icons-material";
+import { PersonOutline, SavingsOutlined, VolumeUpOutlined, ArrowRightOutlined, Close, AttachFile, Mail } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import useWindowDimensions from "../../../helper/dimension";
-import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn, ErrorCont, MyPieChart, hexToRgba } from "../../../helper/general";
-import { annEle, highlightEle } from "../../classes/models";
+import { myEles, setTitle, appName, Mgin, LrText, BtnIcn, icony, IconBtn, ErrorCont, MyPieChart, hexToRgba, masterID } from "../../../helper/general";
+import { adminUserEle, annEle, highlightEle, payStat } from "../../classes/models";
 import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { makeRequest, resHandler } from "../../../helper/requesthandler";
 import { useLocation, useNavigate } from "react-router-dom";
 import tabcard from "../../../assets/tabcard.png"
 import { PoweredBySSS, getGreeting } from "../../../helper/adsi";
+import naira from "../../../assets/naira.png"
 
 
 
 
 
-export function AdminDashboard(){
+export function AdminDashboard(mainprop:{me:adminUserEle}){
     const location = useLocation()
     const navigate = useNavigate()
     const mye = new myEles(false);
@@ -25,6 +26,7 @@ export function AdminDashboard(){
     const[anns,setAnns] = useState<annEle[]>([])
     const[atitle, setATitle] = useState('')
     const[amsg, setAMsg] = useState('')
+    const[totRev, setTotRev] = useState('...')
 
     useEffect(()=>{
         setTitle(`Admin Dashboard - ${appName}`)
@@ -43,13 +45,29 @@ export function AdminDashboard(){
 
     function getHgl(){
         setError(false)
-        setLoad(true)
+        getAnns()
         makeRequest.get('getHighlights',{},(task)=>{
             if(task.isSuccessful()){
                 setHele(new highlightEle(task.getData()))
-                getAnns()
             }else{
                 handleError(task)
+            }
+        })
+        makeRequest.get(`getRevenue/0`,{},(task)=>{
+            if(task.isSuccessful()){
+                const st0 = new payStat(task.getData())
+                makeRequest.get(`getRevenue/1`,{},(task)=>{
+                    if(task.isSuccessful()){
+                        const st1 = new payStat(task.getData())
+                        makeRequest.get(`getRevenue/2`,{},(task)=>{
+                            if(task.isSuccessful()){
+                                const st2 = new payStat(task.getData())
+                                setTotRev((parseInt(st0.getTotal())+parseInt(st1.getTotal())+parseInt(st2.getTotal())).toString())
+                            }
+                        })
+                           
+                    }
+                })
             }
         })
     }
@@ -140,7 +158,7 @@ export function AdminDashboard(){
             alignItems:'center'
         }}>
             <Tab1 icon={PersonOutline} title="Members" value={hele?hele.getTotalUsers():'...'} color={mye.mycol.primarycol} />
-            <Tab1 icon={MonetizationOnOutlined} title="Total Revenue" value="..." color={mye.mycol.hs_blue} />
+            <Tab1  title="Total Revenue" value={totRev} color={mye.mycol.hs_blue} />
             <Tab2 />
         </div>
         <Mgin top={20} />
@@ -167,14 +185,22 @@ export function AdminDashboard(){
             }
              <Mgin top={20} />
              <LrText 
-             left={<div id="clk" className="hlc" onClick={()=>{
+             left={<div style={{
+                display:'none'
+             }} id="clk" className="hlc" onClick={()=>{
 
              }}>
                 <mye.HTv text="View All" color={mye.mycol.primarycol} size={12} />
                 <Mgin right={10} />
                 <ArrowRightOutlined className="icon" />
              </div>}
-             right={<div id="clk" className="hlc" onClick={()=>{
+             right={<div id="clk" style={{
+                display:mainprop.me.getMemId()!= masterID?'none':undefined
+             }} className="hlc" onClick={()=>{
+                if(mainprop.me.getMemId()!= masterID){
+                    toast('Only super admins can make announcement',0)
+                    return
+                }
                 setShowNewAnn(true)
              }}>
                 <mye.HTv text="Make Announcement" color={mye.mycol.primarycol} size={12} />
@@ -328,7 +354,7 @@ export function AdminDashboard(){
         </div>
     }
 
-    function Tab1(prop:{title:string, value:string, icon:icony, color:string}) {
+    function Tab1(prop:{title:string, value:string, icon?:icony, color:string}) {
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -349,10 +375,10 @@ export function AdminDashboard(){
                 top:20,
                 right:20
             }}>
-                <prop.icon style={{
+                {prop.icon?<prop.icon style={{
                     fontSize:20,
                     color: prop.color
-                }} />
+                }} />:<img src={naira} height={20} alt="." color={prop.color} />}
             </div>
             <div style={{
                 position:'absolute',

@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, MonetizationOnOutlined, ArrowRightOutlined, CopyAllOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, ArrowRightOutlined, CopyAllOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import tabcard from "../../../../assets/tabcard.png"
@@ -12,7 +12,7 @@ import Toast from "../../../toast/toast"
 import { getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
 import Barcode from "react-barcode"
 import { PaystackExplanation, PoweredBySSS } from "../../../../helper/adsi"
-
+import naira from "../../../../assets/naira.png"
 
 
 export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:number, outstanding:string[],payRecord?:payRecordEle)=>void}){
@@ -189,13 +189,13 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
         }}>
             <Tab1 ocl={()=>{
                 mainprop.actiony(0,outstanding)
-            }}  icon={MonetizationOnOutlined} title="Total Share Capital" value={invStat?(invStat.getTotal()+'/'+(invStat.getTotal()/10)+' shares'):'...'} color={mye.mycol.green} />
+            }}   title="Total Share Capital" value={invStat?(invStat.getTotal()+'/'+(invStat.getTotal()/10)+' shares'):'...'} color={mye.mycol.green} />
             <Tab1 ocl={()=>{
                 mainprop.actiony(1,outstanding)
-            }} icon={MonetizationOnOutlined} title="Total Dues Paid" value={dueStat?dueStat.getTotal():'...'} color={mye.mycol.hs_blue} />
+            }}  title="Total Dues Paid" value={dueStat?dueStat.getTotal():'...'} color={mye.mycol.hs_blue} />
             <Tab1 ocl={()=>{
                 mainprop.actiony(2,outstanding)
-            }} icon={MonetizationOnOutlined} title="Outstanding Payment" value={`N${outstanding.length*12000}`} color={mye.mycol.red} />
+            }}  title="Outstanding Payment" value={`N${outstanding.length*12000}`} color={mye.mycol.red} />
         </div>
         <Mgin top={30} />
         <div id='lshdw' style={{
@@ -209,10 +209,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             left={<div className="hlc" style={{
                 alignSelf:'flex-start'
             }}>
-                <MonetizationOnOutlined style={{
-                    color:mye.mycol.secondarycol,
-                    fontSize:20
-                }} />
+                <img src={naira} height={20} alt="." color={mye.mycol.secondarycol} />
                 <Mgin right={10}/>
                 <mye.HTv text="Share Capital" size={16} color={mye.mycol.secondarycol} />
             </div>}
@@ -272,10 +269,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
             left={<div className="hlc" style={{
                 alignSelf:'flex-start'
             }}>
-                <MonetizationOnOutlined style={{
-                    color:mye.mycol.secondarycol,
-                    fontSize:20
-                }} />
+                <img src={naira} height={20} alt="." color={mye.mycol.secondarycol} />
                 <Mgin right={10}/>
                 <mye.HTv text="Dues History" size={16} color={mye.mycol.secondarycol} />
             </div>}
@@ -524,7 +518,7 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
     }
 
 
-    function Tab1(prop:{title:string, value:string, icon:icony, color:string, ocl:()=>void}) {
+    function Tab1(prop:{title:string, value:string, icon?:icony, color:string, ocl:()=>void}) {
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -545,10 +539,10 @@ export function MemberPayTypes(mainprop:{mbi:memberBasicinfo,actiony:(action:num
                 top:20,
                 right:20
             }}>
-                <prop.icon style={{
+                {prop.icon?<prop.icon style={{
                     fontSize:20,
                     color: prop.color
-                }} />
+                }} />:<img src={naira} height={20} alt="." color={prop.color} />}
             </div>
             <div style={{
                 position:'absolute',

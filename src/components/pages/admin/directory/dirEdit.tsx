@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, EditTextFilled, LrText, DatePicky, Btn, ErrorCont, isPhoneNigOk, isEmlValid } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
-import { mLga, mState } from "monagree-locs"
+import { mCountry, mLga, mState } from "monagree-locs"
 import { defVal, memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
 import { CircularProgress } from "@mui/material"
@@ -12,7 +12,6 @@ import Toast from "../../../toast/toast"
 import { makeRequest } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
-import { listCountries, Country, getByCode } from "countries-ts"
 
 
 export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBasicinfo}){
@@ -33,7 +32,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
     const[bank, setBank] = useState('')
 
     const[gender, setGender] = useState('')
-    const[country, setCountry] = useState<Country>()
+    const[country, setCountry] = useState<mLoc>()
     const[state, setState] = useState<mLoc>()
     const[city, setCity] = useState<mLoc>()
     const[state_custom, setState_custom] = useState('')
@@ -57,13 +56,13 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
         setBank(mainprop.user.finData!.getBankCode())
 
         setGender(mainprop.user.generalData.getGender())
-        setCountry(getByCode(mainprop.user.generalData.getCountry()))
+        setCountry(mCountry.getCountryByCode(mainprop.user.generalData.getCountry()))
         if(mainprop.user.generalData.isLocsCustom()){
             setState_custom(mainprop.user.generalData.getState())
             setCity_custom(mainprop.user.generalData.getLga())
         }else{
-            setState(mState.getStateByCode('00',mainprop.user.generalData.getState()))
-            setCity(mLga.getLgaByCode('00',mainprop.user.generalData.getState(),mainprop.user.generalData.getLga()))
+            setState(mState.getStateByCode('NG',mainprop.user.generalData.getState()))
+            setCity(mLga.getLgaByCode('NG',mainprop.user.generalData.getState(),mainprop.user.generalData.getLga()))
         }
         
         
@@ -289,16 +288,16 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                 }}>
                     <mye.Tv text="Country" />
                     <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={country?.code || ''} onChange={(e)=>{
-                        const ele = getByCode(e.target.value)
+                    <select id="dropdown" name="dropdown" value={country?.getId() || ''} onChange={(e)=>{
+                        const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
                         setState(undefined)
                         setCity(undefined)
                     }}>
                         <option value="">Choose Country</option>
                         {
-                            listCountries().map((ele, index)=>{
-                                return <option key={myKey+index+10000} value={ele.code}>{ele.label}</option>
+                            mCountry.getAllCountries().map((ele, index)=>{
+                                return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                             })
                         }
                     </select>
@@ -306,21 +305,21 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?'none':undefined
+                    display:country?.getId()!='NG'?'none':undefined
                 }}>
                     <mye.Tv text="State" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
-                        if(country?.code == 'NG'){
-                            const ele = mState.getStateByCode('00',e.target.value)
+                        if(country?.getId() == 'NG'){
+                            const ele = mState.getStateByCode('NG',e.target.value)
                             setState(ele)
                             setCity(undefined)
                         }
                         
                     }}>
-                        <option value="">Let me input manually</option>
+                        <option value="">Choose One</option>
                         {
-                            country?country?.code == 'NG'?mState.getStatesByCountry('00',true).map((ele, index)=>{
+                            country?country?.getId() == 'NG'?mState.getStatesByCountry('NG',true).map((ele, index)=>{
                                 return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                             }):undefined:<option value="option1">Choose Country First</option>
                         }
@@ -329,19 +328,19 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?'none':undefined
+                    display:country?.getId()!='NG'?'none':undefined
                 }}>
                     <mye.Tv text="City" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={city?.getId()||''} onChange={(e)=>{
-                        if(country?.code == 'NG' && state){
-                            const ele = mLga.getLgaByCode('00',state!.getId(),e.target.value)
+                        if(country?.getId() == 'NG' && state){
+                            const ele = mLga.getLgaByCode('NG',state!.getId(),e.target.value)
                             setCity(ele)
                         }
                     }}>
                         <option value="">Choose One</option>
                         {
-                            (country&& state)?mLga.getLgasByState('00',state!.getId(),true).map((ele, index)=>{
+                            (country&& state)?mLga.getLgasByState('NG',state!.getId(),true).map((ele, index)=>{
                                 return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                             }):<option value="option1">Choose Country & State First</option>
                         }
@@ -350,7 +349,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?undefined:'none'
+                    display:country?.getId()!='NG'?undefined:'none'
                 }}>
                     <mye.Tv text="Type State" />
                     <Mgin top={5}/>
@@ -361,7 +360,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?undefined:'none'
+                    display:country?.getId()!='NG'?undefined:'none'
                 }}>
                     <mye.Tv text="Type City" />
                     <Mgin top={5}/>
@@ -499,7 +498,7 @@ export function AdminDirEdit(mainprop:{backy:(action:number)=>void,user:memberBa
                                     sex:gender,
                                     marital:mainprop.user.generalData.getMarital(),
                                     dob:dob.getTime().toString(),
-                                    nationality:country!.code,
+                                    nationality:country!.getId(),
                                     state:state?state.getId():state_custom,
                                     lga:city?city.getId():city_custom,
                                     town:mainprop.user.generalData.getTown(),

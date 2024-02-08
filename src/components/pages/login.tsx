@@ -89,7 +89,7 @@ export function ForgotPassword(){
             <Mgin top={10} />
             <mye.BTv text="Reset Email Sent" size={18} />
             <Mgin top={10} />
-            <mye.Tv text="Go and click the password reset link sent to your email" />
+            <mye.Tv text="Go and click the password reset link sent to your email. Please allow up to 5 minutes for it to arrive" />
         </div>:<div className="vlc" style={{
             width:dimen.dsk?500:'100%',
             padding:dimen.dsk?0:20,

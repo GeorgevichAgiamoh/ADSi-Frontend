@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useWindowDimensions from "../../../helper/dimension";
-import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, myEles, setTitle } from "../../../helper/general";
+import { Btn, BtnIcn, ErrorCont, LoadLay, LrText, Mgin, appName, icony, masterID, myEles, setTitle } from "../../../helper/general";
 import { AdminNav } from "../nav";
 import { Add, Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, Close, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import { annEle } from "../../classes/classes";
@@ -260,10 +260,11 @@ export function Admin(){
                     overflowY:'scroll',
                     backgroundColor:'rgba(0,0,0,0.02)'
                 }}>
-                    {tabPos===0?((me && me.getRole()=='0')?<AdminDashboard />:<NotAllowed />):tabPos===1?(isPermGranted(1)?<AdminDirectory />:<NotAllowed/>)
+                    {tabPos===0?((me && me.getRole()=='0')?<AdminDashboard me={me} />:<NotAllowed />):
+                    tabPos===1?((isPermGranted(1) && me)?<AdminDirectory me={me}/>:<NotAllowed/>)
                     :tabPos===2?(isPermGranted(2)?<AdminPayments />:<NotAllowed />)
                     :tabPos===3?(isPermGranted(3)?<MsgTBD />:<NotAllowed />)
-                    :tabPos===4?((me && me.getRole()=='0')?<AdminSettings />:<NotAllowed />):<LoadLay />}
+                    :tabPos===4?((me && me.getRole()=='0' && me.getMemId()==masterID)?<AdminSettings />:<NotAllowed />):<LoadLay />}
                 </div>
             </div>
         </div>

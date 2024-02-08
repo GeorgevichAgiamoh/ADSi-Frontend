@@ -1,4 +1,4 @@
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, MonetizationOnOutlined, PrintOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, PrintOutlined } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont } from "../../../../helper/general"
@@ -10,6 +10,7 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
+import naira from "../../../../assets/naira.png"
 
 
 
@@ -268,10 +269,7 @@ export function MemberPaymentList(mainprop:{tabPos:number,outstanding?:string[],
             <div className="hlc" style={{
                 alignSelf:'flex-start'
             }}>
-                <MonetizationOnOutlined style={{
-                    color:mye.mycol.secondarycol,
-                    fontSize:20
-                }} />
+                <img src={naira} height={20} alt="." color={mye.mycol.secondarycol} />
                 <Mgin right={10}/>
                 <mye.HTv text={`${tabPos==0?'Investments':'Dues'} History`} size={16} color={mye.mycol.secondarycol} />
             </div>

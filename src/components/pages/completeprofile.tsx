@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import { useEffect, useRef, useState } from "react";
 import { Add, CalendarMonth, InfoOutlined } from "@mui/icons-material";
 import coin from '../../assets/coin.png'
@@ -12,9 +13,8 @@ import { getMemId, makeRequest } from "../../helper/requesthandler";
 import { memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../classes/models";
 import { format } from "date-fns";
 import { mLoc } from "monagree-locs/dist/classes";
-import { mLga, mState } from "monagree-locs";
+import { mCountry, mLga, mState } from "monagree-locs";
 import { mBanks } from "monagree-banks";
-import { Country, getByCode, listCountries } from "countries-ts"
 
 
 
@@ -37,7 +37,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
     const[marital,setMarital] = useState('')
     const[dob,setDob] = useState<Date>()
     const[askdob,setAskDOB] = useState(false)
-    const[nationality,setNationality] = useState<Country>()
+    const[nationality,setNationality] = useState<mLoc>()
     const[state,setState] = useState<mLoc>()
     const[lga,setLga] = useState<mLoc>()
     const[state_custom, setState_custom] = useState('')
@@ -95,7 +95,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
                             setSex(mgi.getGender())
                             setMarital(mgi.getMarital())
                             setDob(new Date(parseFloat(mgi.getDob())))
-                            setNationality(getByCode(mgi.getCountry()))
+                            setNationality(mCountry.getCountryByCode(mgi.getCountry()))
                             if(mgi.isLocsCustom()){
                                 setState_custom(mgi.getState())
                                 setLga_custom(mgi.getLga())
@@ -450,16 +450,16 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             }}>
                 <mye.Tv text="*Nationality" />
                 <Mgin top={5}/>
-                <select id="dropdown" name="dropdown" value={nationality?.code || ''} onChange={(e)=>{
-                    const ele = getByCode(e.target.value)
+                <select id="dropdown" name="dropdown" value={nationality?.getId() || ''} onChange={(e)=>{
+                    const ele = mCountry.getCountryByCode(e.target.value)
                     setNationality(ele)
                     setState(undefined)
                     setLga(undefined)
                 }}>
                     <option value="">Choose Country</option>
                     {
-                        listCountries().map((ele, index)=>{
-                            return <option key={myKey+index+10000} value={ele.code}>{ele.label}</option>
+                        mCountry.getAllCountries().map((ele, index)=>{
+                            return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                         })
                     }
                 </select>
@@ -467,21 +467,21 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality?.code!='NG'?'none':undefined
+                display:nationality?.getId()!='NG'?'none':undefined
             }}>
                 <mye.Tv text="*State Of Origin" />
                 <Mgin top={5}/>
                 <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
-                    if(nationality?.code == 'NG'){
-                        const ele = mState.getStateByCode('00',e.target.value)
+                    if(nationality?.getId() == 'NG'){
+                        const ele = mState.getStateByCode(nationality!.getId(),e.target.value)
                         setState(ele)
                         setLga(undefined)
                     }
                     
                 }}>
-                    <option value="">Let me input manually</option>
+                    <option value="">Choose One</option>
                     {
-                        nationality?nationality?.code == 'NG'?mState.getStatesByCountry('00',true).map((ele, index)=>{
+                        nationality?nationality?.getId() == 'NG'?mState.getStatesByCountry(nationality!.getId(),true).map((ele, index)=>{
                             return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                         }):undefined:<option value="option1">Choose Country First</option>
                     }
@@ -490,19 +490,19 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality?.code!='NG'?'none':undefined
+                display:nationality?.getId()!='NG'?'none':undefined
             }}>
                 <mye.Tv text="*Local Government Area" />
                 <Mgin top={5}/>
                 <select id="dropdown" name="dropdown" value={lga?.getId()||''} onChange={(e)=>{
-                    if(nationality?.code == 'NG' && state){
-                        const ele = mLga.getLgaByCode('00',state!.getId(),e.target.value)
+                    if(nationality?.getId() == 'NG' && state){
+                        const ele = mLga.getLgaByCode(nationality!.getId(),state!.getId(),e.target.value)
                         setLga(ele)
                     }
                 }}>
-                    <option value="">Let me input manually</option>
+                    <option value="">Choose One</option>
                     {
-                        (nationality&& state)?nationality?.code == 'NG'?mLga.getLgasByState('00',state!.getId(),true).map((ele, index)=>{
+                        (nationality&& state)?nationality?.getId() == 'NG'?mLga.getLgasByState(nationality!.getId(),state!.getId(),true).map((ele, index)=>{
                             return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                         }):undefined:<option value="option1">Choose Country & State First</option>
                     }
@@ -511,7 +511,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality?.code!='NG'?undefined:'none'
+                display:nationality?.getId()!='NG'?undefined:'none'
             }}>
                 <mye.Tv text="Type State" />
                 <Mgin top={5}/>
@@ -522,7 +522,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             <div style={{
                 width:'100%',
                 marginTop:15,
-                display:nationality?.code!='NG'?undefined:'none'
+                display:nationality?.getId()!='NG'?undefined:'none'
             }}>
                 <mye.Tv text="Type City" />
                 <Mgin top={5}/>
@@ -565,27 +565,29 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             left={<div>
                 <mye.Tv text="*VALID MEANS OF IDENTIFICATION"  />
                 <Mgin top={5} />
-                <mye.Tv text="Official Government Issued Certificate" size={12} />
+                <mye.Tv text="eg. Driver licence, Voter card, NIN.." size={12} />
                 <div style={{
                     display:fileExists?undefined:'none'
                 }}>
                     <Mgin top={5} />
-                    <mye.Tv text="Uploaded, can change" size={12} color={mye.mycol.green} />
+                    <mye.Tv text="Uploaded, but you can change" size={12} color={mye.mycol.green} />
                 </div>
                 <div style={{
                     display:id?undefined:'none'
                 }}>
                     <Mgin top={5} />
-                    <mye.Tv text={`${id?id.name:''} added`} size={12} color={mye.mycol.primarycol} />
+                    <mye.Tv text={`${id?id.name:''} added`} size={14} color={mye.mycol.primarycol} />
                 </div>
             </div>}
             right={<div>
                 <input
                     type="file"
+                    accept=".pdf, .jpg, .jpeg, .png"
                     onChange={(e)=>{
                         const file = e.target.files?.[0];
                         if(file){
                             setId(file)
+                            toast('File Added',1)
                         }
                     }}
                     ref={fileInputRef}
@@ -750,7 +752,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
                             sex:sex,
                             marital:marital,
                             dob:dob!.getTime().toString(),
-                            nationality:nationality!.code,
+                            nationality:nationality!.getId(),
                             state:state?state.getId():state_custom,
                             lga:lga?lga.getId():lga_custom,
                             town:town,

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, ErrorCont, isEmlValid, isMemID, formatMemId, masterID } from "../../../../helper/general"
 import { mLoc } from "monagree-locs/dist/classes"
-import { mLga, mState } from "monagree-locs"
+import { mCountry, mLga, mState } from "monagree-locs"
 import { useLocation, useNavigate } from "react-router-dom"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
@@ -11,7 +11,6 @@ import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { adminUserEle, adsiInfoEle, permHelp } from "../../../classes/models"
 import { mBanks } from "monagree-banks"
 import {  PoweredBySSS } from "../../../../helper/adsi"
-import { getByCode, Country, listCountries } from "countries-ts"
 
 
 
@@ -48,8 +47,8 @@ export function SettingsList(){
     const[users, setUsers] = useState<adminUserEle[]>([])
 
     const[permies,setPermies] = useState([
-        new permHelp('View Directory','pd1'),
-        new permHelp('Edit Directory','pd2'),
+        new permHelp('Create Member','pd1'),
+        new permHelp('Approve / Delete Member','pd2'),
         new permHelp('View Payments','pp1'),
         new permHelp('Verify Payments','pp2'),
         new permHelp('View Messages','pm1'),
@@ -57,7 +56,7 @@ export function SettingsList(){
     ])
     
 
-    const[country, setCountry] = useState<Country>()
+    const[country, setCountry] = useState<mLoc>()
     const[state, setState] = useState<mLoc>()
     const[city, setCity] = useState<mLoc>()
     const[state_custom, setState_custom] = useState('')
@@ -79,7 +78,7 @@ export function SettingsList(){
                 setName(adsi.getName())
                 setRegNo(adsi.getRegNo())
                 setAddr(adsi.getAddr())
-                setCountry(getByCode(adsi.getNationality()))
+                setCountry(mCountry.getCountryByCode(adsi.getNationality()))
                 if(adsi.isLocsCustom()){
                     setState_custom(adsi.getState())
                     setCity_custom(adsi.getLga())
@@ -301,16 +300,16 @@ export function SettingsList(){
                 }}>
                     <mye.Tv text="Country" />
                     <Mgin top={5}/>
-                    <select id="dropdown" name="dropdown" value={country?.code || ''} onChange={(e)=>{
-                        const ele = getByCode(e.target.value)
+                    <select id="dropdown" name="dropdown" value={country?.getId() || ''} onChange={(e)=>{
+                        const ele = mCountry.getCountryByCode(e.target.value)
                         setCountry(ele)
                         setState(undefined)
                         setCity(undefined)
                     }}>
                         <option value="">Choose Country</option>
                         {
-                            listCountries().map((ele, index)=>{
-                                return <option key={myKey+index+10000} value={ele.code}>{ele.label}</option>
+                            mCountry.getAllCountries().map((ele, index)=>{
+                                return <option key={myKey+index+10000} value={ele.getId()}>{ele.getName()}</option>
                             })
                         }
                     </select>
@@ -318,21 +317,21 @@ export function SettingsList(){
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?'none':undefined
+                    display:country?.getId()!='NG'?'none':undefined
                 }}>
                     <mye.Tv text="State" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={state?.getId()||''} onChange={(e)=>{
-                        if(country?.code == 'NG'){
-                            const ele = mState.getStateByCode('00',e.target.value)
+                        if(country?.getId() == 'NG'){
+                            const ele = mState.getStateByCode('NG',e.target.value)
                             setState(ele)
                             setCity(undefined)
                         }
                         
                     }}>
-                        <option value="">Let me input manually</option>
+                        <option value="">Choose One</option>
                         {
-                            country?country?.code == 'NG'?mState.getStatesByCountry('00',true).map((ele, index)=>{
+                            country?country?.getId() == 'NG'?mState.getStatesByCountry('NG',true).map((ele, index)=>{
                                 return <option key={myKey+index+1000} value={ele.getId()}>{ele.getName()}</option>
                             }):undefined:<option value="option1">Choose Country First</option>
                         }
@@ -341,19 +340,19 @@ export function SettingsList(){
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?'none':undefined
+                    display:country?.getId()!='NG'?'none':undefined
                 }}>
                     <mye.Tv text="City" />
                     <Mgin top={5}/>
                     <select id="dropdown" name="dropdown" value={city?.getId()||''} onChange={(e)=>{
-                        if(country?.code == 'NG' && state){
-                            const ele = mLga.getLgaByCode('00',state!.getId(),e.target.value)
+                        if(country?.getId() == 'NG' && state){
+                            const ele = mLga.getLgaByCode('NG',state!.getId(),e.target.value)
                             setCity(ele)
                         }
                     }}>
-                        <option value="">Let me input manually</option>
+                        <option value="">Choose One</option>
                         {
-                            (country&& state)?country?.code == 'NG'?mLga.getLgasByState('00',state!.getId()).map((ele, index)=>{
+                            (country&& state)?country?.getId() == 'NG'?mLga.getLgasByState('NG',state!.getId()).map((ele, index)=>{
                                 return <option key={myKey+index+100} value={ele.getId()}>{ele.getName()}</option>
                             }):undefined:<option value="option1">Choose Country & State First</option>
                         }
@@ -362,7 +361,7 @@ export function SettingsList(){
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?undefined:'none'
+                    display:country?.getId()!='NG'?undefined:'none'
                 }}>
                     <mye.Tv text="Type State" />
                     <Mgin top={5}/>
@@ -373,7 +372,7 @@ export function SettingsList(){
                 <div style={{
                     width:gimmeWidth(),
                     margin:dimen.dsk?20:5,
-                    display:country?.code!='NG'?undefined:'none'
+                    display:country?.getId()!='NG'?undefined:'none'
                 }}>
                     <mye.Tv text="Type City" />
                     <Mgin top={5}/>
@@ -545,7 +544,7 @@ export function SettingsList(){
                     cname:name,
                     regno:regNo,
                     addr: addr,
-                    nationality: country.code,
+                    nationality: country.getId(),
                     state: state?state.getId():state_custom,
                     lga: city?city.getId():city_custom,
                     aname: aname,
@@ -654,7 +653,7 @@ export function SettingsList(){
                             toast('Please enter last name',0)
                             return;
                         }
-                        if(oname.length<6){
+                        if(oname.length<3){
                             toast('Please enter other names',0)
                             return;
                         }
@@ -675,7 +674,7 @@ export function SettingsList(){
                             memid:formatMemId(sid),
                             lname:lname,
                             oname:oname,
-                            eml:email,
+                            eml:eml,
                             role:role,
                             pd1:permies[0].val,
                             pd2:permies[1].val,
@@ -716,7 +715,7 @@ export function SettingsList(){
                             <div style={{
                                 flex:1
                             }}>
-                                <EditTextFilled hint="Other Names" min={6} value={oname} recv={(v)=>{
+                                <EditTextFilled hint="Other Names" min={3} value={oname} recv={(v)=>{
                                     setOname(v)
                                 }} />
                             </div>
@@ -737,7 +736,7 @@ export function SettingsList(){
                         width:gimmeWidth(),
                         margin:dimen.dsk?20:5
                     }}>
-                        <mye.Tv text="Assign ID" />
+                        <mye.Tv text="ADSI Number" />
                         <Mgin top={5}/>
                         <EditTextFilled hint="00000000" min={1} digi value={sid} recv={(v)=>{
                             setSid(v)
@@ -748,13 +747,15 @@ export function SettingsList(){
                         margin:dimen.dsk?20:5
                     }}>
                         <mye.Tv text="Role" />
-                        <Mgin top={5}/>
+                        <Mgin top={2}/>
+                        <mye.Tv text="NOTE: All admins can see the dashboard" size={12}/>
+                        <Mgin top={2}/>
                         <select id="dropdown" name="dropdown" value={role} onChange={(e)=>{
                             setRole(e.target.value)
                         }}>
                             <option value={''}>Choose One</option>
                             <option value={'0'}>Admin</option>
-                            <option value={'1'}>Accountant</option>
+                            <option value={'1'}>Others</option>
                         </select>
                     </div>
                 </div>
@@ -872,13 +873,11 @@ export function SettingsList(){
                 }} onClick={()=>{
                     setOptToShow(-1)
                 }} />
-                <MyCell text="View" ocl={()=>{
-                    prepPerms(prop.user)
-                    setCUser(prop.user)
-                    setShowStage(2)
-                }} alignStart special />
-                <Line />
                 <MyCell text="Edit" ocl={()=>{
+                     if(prop.user.getMemId()==masterID){
+                        toast('Cannot edit master Admin',0)
+                        return;
+                    }
                     prepPerms(prop.user)
                     setCUser(prop.user)
                     setShowStage(2)

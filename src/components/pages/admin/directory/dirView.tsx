@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Btn, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
-import { defVal, fileEle, getCreatedTime, memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../../classes/models"
+import { adminUserEle, defVal, fileEle, getCreatedTime, memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { endpoint, getMemId, makeRequest, resHandler } from "../../../../helper/requesthandler"
@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
 
-export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number)=>void,isMemAccess?:boolean, editClbk?:()=>void,genU?:memberGeneralinfo,finU?:memberFinancialinfo}){
+export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number)=>void,isMemAccess?:boolean, editClbk?:()=>void,genU?:memberGeneralinfo,finU?:memberFinancialinfo, me?:adminUserEle}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -187,12 +187,20 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="RESTORE" onClick={()=>{
+                    if(mainprop.me!.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     updateData('verif','0',true)
                 }} width={120} />
             </div>:!mainprop.user.isVerified()?<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="APPROVE" onClick={()=>{
+                    if(mainprop.me!.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     updateData('verif','1',true)
                 }} width={120} />
                 {/* <Mgin right={20}/>
@@ -201,12 +209,20 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 }} width={120} outlined/> */}
                 <Mgin right={20}/>
                 <Btn txt="DELETE" onClick={()=>{
+                    if(mainprop.me!.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     updateData('verif','2')
                 }} width={120} outlined/>
             </div>:<div className="hlc" style={{
                 alignSelf:'flex-end'
             }}>
                 <Btn txt="DEACTIVATE" onClick={()=>{
+                    if(mainprop.me!.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     updateData('verif','0')
                 }} width={120} bkg={mye.mycol.red} />
                 {/* <Mgin right={20}/>
@@ -215,6 +231,10 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
                 }} width={120} outlined/> */}
                 <Mgin right={20}/>
                 <Btn txt="DELETE" onClick={()=>{
+                    if(mainprop.me!.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     updateData('verif','2')
                 }} width={120} outlined/>
             </div>}

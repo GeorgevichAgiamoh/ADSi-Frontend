@@ -7,13 +7,13 @@ import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
 import { makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
-import { defVal, memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
+import { adminUserEle, defVal, memberBasicinfo, memberFinancialinfo, memberGeneralinfo, verifStat } from "../../../classes/models"
 import { format } from "date-fns"
 import { PoweredBySSS } from "../../../../helper/adsi"
 
 
 
-export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasicinfo)=>void}){
+export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasicinfo)=>void,me:adminUserEle}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
@@ -269,6 +269,10 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasici
         right={<div className="flexi">
             <div>
                 <OlnBtnPlus text="New User" ocl={()=>{
+                    if(mainprop.me.getPerm('pd1')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     mainprop.actiony(3)
                 }} />
             </div>
@@ -455,6 +459,10 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasici
                     }} alignStart special/>
                     <Line /> */}
                     <MyCell text={prop.user.isVerified()?"Deactivate":"Approve"} ocl={()=>{
+                        if(mainprop.me.getPerm('pd2')!='1'){
+                            toast('You dont have permission to do this',0)
+                            return
+                        }
                         setLoad(true)
                         const ndata = {...prop.user.data}
                         const value = prop.user.isVerified()?'0':'1'
@@ -503,6 +511,10 @@ export function AdminDirList(mainprop:{actiony:(action:number,user?:memberBasici
                     <Line />
                 </div>
                 <MyCell text={prop.user.isDeleted()?"Restore":"Delete"} ocl={()=>{
+                    if(mainprop.me.getPerm('pd2')!='1'){
+                        toast('You dont have permission to do this',0)
+                        return
+                    }
                     setLoad(true)
                     const ndata = {...prop.user.data}
                     const value = prop.user.isDeleted()?'0':'2'

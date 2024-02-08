@@ -157,7 +157,7 @@ export class payInfo{
 export class adminUserEle{
     name:string 
     email:string 
-    role:number;//0-Admin 1- Accountant
+    role:number;//0-Admin 1- Others
     constructor(name:string, email:string, role:number){
         this.name = name
         this.email = email
@@ -168,7 +168,7 @@ export class adminUserEle{
             return 'Admin'
         }
         if(this.role==1){
-            return 'Accountant'
+            return 'Others'
         }
         return 'Unknown'
     }

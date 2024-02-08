@@ -6,12 +6,12 @@ import { AdminDirEdit } from "./dirEdit"
 import { AdminDirList } from "./dirList"
 import { AdminDirView } from "./dirView"
 import { CircularProgress } from "@mui/material"
-import { memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
+import { adminUserEle, memberBasicinfo, memberGeneralinfo } from "../../../classes/models"
 import { AdminDirAdd } from "./dirAdd"
 
 
 
-export function AdminDirectory(){
+export function AdminDirectory(mainprop:{me:adminUserEle}){
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[user, setUser] = useState<memberBasicinfo>()
@@ -23,14 +23,14 @@ export function AdminDirectory(){
 
 
     if(stage == -1){
-        return <AdminDirList actiony={(action,user)=>{ // The `user` must have been prepared (gen and fin) on click
+        return <AdminDirList me={mainprop.me} actiony={(action,user)=>{ // The `user` must have been prepared (gen and fin) on click
             setUser(user)
             setStage(action)
             console.log(action)
         }} />
     }
     if((stage == 0 || stage == 2) && user){
-        return <AdminDirView user={user} backy={(action)=>{
+        return <AdminDirView me={mainprop.me} user={user} backy={(action)=>{
             setStage(action)
         }}/>
     }

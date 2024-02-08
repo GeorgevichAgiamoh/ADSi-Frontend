@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined, MonetizationOnOutlined, ReceiptOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, Savings, PaymentOutlined, SavingsOutlined, AddOutlined, CalendarMonthOutlined, ReceiptOutlined } from "@mui/icons-material"
 import { useState, useEffect, ChangeEvent, useRef } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, EditTextFilled, MyCB, DatePicky, ErrorCont, getPayRef, pricePerShare, formatMemId, hexToRgba } from "../../../../helper/general"
@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { memberBasicinfo, payStat } from "../../../classes/models"
 import { PoweredBySSS } from "../../../../helper/adsi"
 import tabcard from "../../../../assets/tabcard.png"
+import naira from "../../../../assets/naira.png"
 
 
 
@@ -126,7 +127,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType?:payTypeE
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={MonetizationOnOutlined} title="Total Payment" value={totPays} color={mye.mycol.hs_blue} />
+            <Tab1 title="Total Payment" value={totPays} color={mye.mycol.hs_blue} />
             <Tab1 icon={PersonOutline} title="Number of Payments" value={totCount} color={mye.mycol.hs_blue} />
         </div>
         <Mgin top={50} />
@@ -308,7 +309,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType?:payTypeE
     }
 
 
-    function Tab1(prop:{title:string, value:string, icon:icony, color:string}) {
+    function Tab1(prop:{title:string, value:string, icon?:icony, color:string}) {
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -329,10 +330,10 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType?:payTypeE
                 top:20,
                 right:20
             }}>
-                <prop.icon style={{
+                {prop.icon?<prop.icon style={{
                     fontSize:20,
                     color: prop.color
-                }} />
+                }} />:<img src={naira} height={20} alt="." color={prop.color} />}
             </div>
             <div style={{
                 position:'absolute',

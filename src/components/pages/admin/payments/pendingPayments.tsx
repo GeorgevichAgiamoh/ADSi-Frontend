@@ -1,4 +1,4 @@
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, MonetizationOnOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
 import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont, hexToRgba, goUrl } from "../../../../helper/general"
@@ -11,6 +11,7 @@ import { endpoint, makeRequest, resHandler } from "../../../../helper/requesthan
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 import tabcard from "../../../../assets/tabcard.png"
+import naira from "../../../../assets/naira.png"
 
 
 
@@ -216,7 +217,7 @@ export function PendingPayments(mainprop:{backy:()=>void}){
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 icon={MonetizationOnOutlined} title="Total Payment" value={stat?stat.getTotal():'...'} color={mye.mycol.hs_blue} />
+            <Tab1 title="Total Payment" value={stat?stat.getTotal():'...'} color={mye.mycol.hs_blue} />
         </div>
         <Mgin top={20} />
         <mye.HTv text={'Pending Payments'} color={mye.mycol.primarycol} size={25} />
@@ -509,7 +510,7 @@ export function PendingPayments(mainprop:{backy:()=>void}){
     }
 
 
-    function Tab1(prop:{title:string, value:string, icon:icony, color:string}) {
+    function Tab1(prop:{title:string, value:string, icon?:icony, color:string}) {
         
         return <div id="lshdw" style={{
             width: dimen.dsk?300:'100%',
@@ -530,10 +531,10 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 top:20,
                 right:20
             }}>
-                <prop.icon style={{
+                {prop.icon?<prop.icon style={{
                     fontSize:20,
                     color: prop.color
-                }} />
+                }} />:<img src={naira} height={20} alt="." color={prop.color} />}
             </div>
             <div style={{
                 position:'absolute',
