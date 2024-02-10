@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Btn, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
+import { Btn, EditTextFilled, ErrorCont, Line, Mgin, appName, goUrl, myEles, setTitle } from "../../../../helper/general"
 import useWindowDimensions from "../../../../helper/dimension"
 import { ArrowBack, FileOpenOutlined, PersonOutline } from "@mui/icons-material"
 import { adminUserEle, defVal, fileEle, getCreatedTime, memberBasicinfo, memberFinancialinfo, memberGeneralinfo } from "../../../classes/models"
@@ -17,6 +17,8 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
     const mye = new myEles(false)
     const [mykey,setMyKey] = useState(Date.now())
     const[memFiles,setMemfiles] = useState<fileEle[]>([])
+    const[newPwd,setNewPwd] = useState('')
+    const[newPwdKey,setNewPwdKey] = useState(Date.now())
 
     useEffect(()=>{
         setTitle(`Member Details - ${appName}`)
@@ -315,8 +317,55 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
             </div>
 
         </div>
+        {(!mainprop.isMemAccess && mainprop.me?.getRole()=='0')?<div id="lshdw" className="vlc" style={{
+            backgroundColor:mye.mycol.white,
+            borderRadius:10,
+            marginTop:20,
+            boxSizing:'border-box',
+            padding:dimen.dsk?20:10,
+            alignItems:'flex-start'
+        }}>
+            <mye.HTv text="Reset Password" size={20} />
+            <Mgin top={10}/>
+            <mye.Tv text="As super-admin, you can change a member's password." />
+            <Mgin top={20}/>
+            <div style={{
+                width: dimen.dsk?300:'100%'
+            }}>
+                <EditTextFilled key={newPwdKey} pwd hint="New Password" noSpace value={newPwd} finise={(v)=>{
+                    setNewPassword()
+                }} recv={(v)=>{
+                    setNewPwd(v.trim())
+                }} />
+                <Mgin top={10} />
+                <Btn txt="SET NEW PASSWORD" onClick={()=>{
+                    setNewPassword()
+                }} />
+            </div>
+        </div>:<div></div>}
         <PoweredBySSS floaatIt />
     </div>
+
+    function setNewPassword() {
+        if(newPwd.length<6){
+            toast('Password too short',0)
+            return
+        }
+        setLoad(true)
+        makeRequest.post('resetMemberPassword',{
+            email: mainprop.user.getEmail(),
+            pwd: newPwd
+        },(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                setNewPwd('')
+                setNewPwdKey(Date.now())
+                toast('Password changed successfully',1)
+            }else{
+                handleError(task)
+            }
+        })
+    }
 
     function InfoLay(prop:{sub:string, main:string}) {
         return <div style={{

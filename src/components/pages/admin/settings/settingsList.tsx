@@ -64,11 +64,11 @@ export function SettingsList(){
 
     useEffect(()=>{
         setTitle(`Settings - ${appName}`)
-        begin()
+        getUsers()
     },[])
 
-    function begin(){
-        setShowStage(0)
+    function getAdsiInfo(){
+        setShowStage(1)
         setLoad(true)
         setError(false)
         makeRequest.get('getAsdiInfo',{},(task)=>{
@@ -106,7 +106,7 @@ export function SettingsList(){
     }
 
     function getUsers(){
-        setShowStage(1)
+        setShowStage(0)
         setLoad(true)
         setError(false)
         makeRequest.get('getAdmins',{},(task)=>{
@@ -170,7 +170,7 @@ export function SettingsList(){
     }}>
         <ErrorCont isNgt={false} visible={error} retry={()=>{
             setError(false)
-            begin()
+            getUsers()
         }}/>
         <div className="prgcont" style={{display:load?"flex":"none"}}>
             <div className="hlc" style={{
@@ -198,21 +198,77 @@ export function SettingsList(){
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Account" round onClick={()=>{
-                    setShowStage(0)
+                <Btn txt="Identity Management" round onClick={()=>{
+                    getUsers()
                 }} transparent={showStage!=0} />
             </div>
             <Mgin right={20} />
             <div style={{
                 flex:1
             }}>
-                <Btn txt="Identity Management" round onClick={()=>{
-                    getUsers()
-                }} transparent={showStage==0}/>
+                <Btn txt="Account" round onClick={()=>{
+                    getAdsiInfo()
+                }} transparent={showStage!=1}/>
             </div>
         </div>
         <Mgin top={15} />
-        {showStage==0?<div id='lshdw' style={{
+        {showStage==0?<div className="vlc" id='lshdw' style={{
+            width:'100%',
+            backgroundColor:mye.mycol.white,
+            borderRadius:10,
+            padding:dimen.dsk?20:10,
+            boxSizing:'border-box'
+        }}>
+            <div className="hlc" style={{
+                alignSelf:'flex-start'
+            }}>
+                <PersonOutline style={{
+                    color:mye.mycol.secondarycol,
+                    fontSize:20
+                }} />
+                <Mgin right={10}/>
+                <mye.HTv text="Identity Management" size={16} color={mye.mycol.secondarycol} />
+            </div>
+            <Mgin top={20} />
+            <div className="hlc" style={{
+                width:dimen.dsk2?'100%':dimen.dsk?dimen.width-450:dimen.width-60,
+                overflowX:'scroll'
+            }}>
+                <div style={{
+                    width:dimen.dsk2?'100%':undefined,
+                    paddingBottom:optToShow!=-1?150:0,
+                }}>
+                    <div className="hlc">
+                        <MyCell text="S/N"  isBold/>
+                        <MyCell text="Name"  isBold/>
+                        <MyCell text="Email Address"  isBold/>
+                        <MyCell text="Role"  isBold/>
+                        <MyCell text="Action"  isBold/>
+                    </div>
+                    {
+                        users.map((ele,index)=>{
+                            return <div className="hlc" key={myKey+index+0.01}>
+                                <MyCell text={(index+1).toString()} />
+                                <MyCell text={ele.getNames()} />
+                                <MyCell text={ele.getEmail()} />
+                                <MyCell text={ele.getFormattedRole()} />
+                                <Opts index={index} user={ele} />
+                            </div>
+                        })
+                    }
+                </div>
+            </div>
+            <Mgin top={20} />
+            <div style={{
+                alignSelf:'flex-end'
+            }}>
+                <IconBtn icon={Add} mye={mye} text="Add Staff" ocl={()=>{
+                    prepPerms()
+                    setCUser(undefined)
+                    setShowStage(2)
+                }} />
+            </div>
+        </div>:showStage==1?<div id='lshdw' style={{
             width:'100%',
             backgroundColor:mye.mycol.white,
             borderRadius:10,
@@ -558,7 +614,7 @@ export function SettingsList(){
                     setLoad(false)
                     if(task.isSuccessful()){
                         toast('Info updated',1)
-                        begin()
+                        getAdsiInfo()
                     }else{
                         if(task.isLoggedOut()){
                             navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
@@ -568,62 +624,6 @@ export function SettingsList(){
                     }
                 })
             }} />
-        </div>:showStage==1?<div className="vlc" id='lshdw' style={{
-            width:'100%',
-            backgroundColor:mye.mycol.white,
-            borderRadius:10,
-            padding:dimen.dsk?20:10,
-            boxSizing:'border-box'
-        }}>
-            <div className="hlc" style={{
-                alignSelf:'flex-start'
-            }}>
-                <PersonOutline style={{
-                    color:mye.mycol.secondarycol,
-                    fontSize:20
-                }} />
-                <Mgin right={10}/>
-                <mye.HTv text="Identity Management" size={16} color={mye.mycol.secondarycol} />
-            </div>
-            <Mgin top={20} />
-            <div className="hlc" style={{
-                width:dimen.dsk2?'100%':dimen.dsk?dimen.width-450:dimen.width-60,
-                overflowX:'scroll'
-            }}>
-                <div style={{
-                    width:dimen.dsk2?'100%':undefined,
-                    paddingBottom:optToShow!=-1?150:0,
-                }}>
-                    <div className="hlc">
-                        <MyCell text="S/N"  isBold/>
-                        <MyCell text="Name"  isBold/>
-                        <MyCell text="Email Address"  isBold/>
-                        <MyCell text="Role"  isBold/>
-                        <MyCell text="Action"  isBold/>
-                    </div>
-                    {
-                        users.map((ele,index)=>{
-                            return <div className="hlc" key={myKey+index+0.01}>
-                                <MyCell text={(index+1).toString()} />
-                                <MyCell text={ele.getNames()} />
-                                <MyCell text={ele.getEmail()} />
-                                <MyCell text={ele.getFormattedRole()} />
-                                <Opts index={index} user={ele} />
-                            </div>
-                        })
-                    }
-                </div>
-            </div>
-            <Mgin top={20} />
-            <div style={{
-                alignSelf:'flex-end'
-            }}>
-                <IconBtn icon={Add} mye={mye} text="Add Staff" ocl={()=>{
-                    prepPerms()
-                    setCUser(undefined)
-                    setShowStage(2)
-                }} />
-            </div>
         </div>:<div id='lshdw' style={{
             width:'100%',
             backgroundColor:mye.mycol.white,
@@ -632,7 +632,7 @@ export function SettingsList(){
             boxSizing:'border-box'
         }}>
                 <div id="clk" className="hlc" onClick={()=>{
-                    setShowStage(1)
+                    setShowStage(0)
                 }}>
                     <ArrowBack className="icon" />
                     <Mgin right={10} />
@@ -754,7 +754,7 @@ export function SettingsList(){
                             setRole(e.target.value)
                         }}>
                             <option value={''}>Choose One</option>
-                            <option value={'0'}>Admin</option>
+                            <option value={'0'}>Super Admin</option>
                             <option value={'1'}>Others</option>
                         </select>
                     </div>

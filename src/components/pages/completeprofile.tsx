@@ -565,7 +565,7 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
             left={<div>
                 <mye.Tv text="*VALID MEANS OF IDENTIFICATION"  />
                 <Mgin top={5} />
-                <mye.Tv text="eg. Driver licence, Voter card, NIN.." size={12} />
+                <mye.Tv text="eg. Driver licence, Voter card..." size={12} />
                 <div style={{
                     display:fileExists?undefined:'none'
                 }}>
