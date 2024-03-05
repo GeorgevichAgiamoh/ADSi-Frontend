@@ -1,7 +1,8 @@
 import { format } from "date-fns"
 import { mCountry, mLga, mState } from "monagree-locs"
-import { formatMemId, myEles, spin_genders, spin_marital, spin_nok } from "../../helper/general"
+import { formatMemId, masterID, myEles, spin_genders, spin_marital, spin_nok } from "../../helper/general"
 import { mBanks } from "monagree-banks"
+import { endpoint } from "../../helper/requesthandler"
 
 
 export class memberBasicinfo{
@@ -424,3 +425,111 @@ export class payStat{
     }
 }
 
+
+export class msgStat{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getTotalMessages(){
+        return this.data['totalMessages']
+    }
+}
+
+
+
+export class msgThread{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    
+    getThreadId(){
+        return this.data['id']
+    }
+    getFromName(){
+        return this.data['from']
+    }
+    getToName(){
+        return this.data['to']
+    }
+    getFromMail(){
+        return this.data['from_mail']
+    }
+    getToMail(){
+        return this.data['to_mail']
+    }
+    getFromId(){
+        return this.data['from_uid']
+    }
+    getToId(){
+        return this.data['to_uid']
+    }
+    getLastMsg(){
+        return this.data['last_msg']
+    }
+    getSubject(){
+        return this.data['subject']
+    }
+
+    //--CUSTOM
+    amFrom(myId:string,isAdmin?:boolean){
+        return this.data['from_uid'] == (isAdmin?masterID:myId)
+    }
+    getLastUpdated(){
+        return getUpdatedTime(this.data)
+    }
+    getNameById(id:string){
+        if(id == this.getFromId()){
+            return this.getFromName()
+        }
+        return this.getToName()
+    }
+}
+
+
+
+export class msgEle{
+    data:any
+    constructor(data:any){
+        this.data = data
+    }
+    getThreadId(){
+        return this.data['tid']
+    }
+    getBody(){
+        return this.data['body']
+    }
+    getWho(){
+        return this.data['who']
+    }
+    getArt(){
+        return this.data['art']
+    }
+
+    //-- CUSTOM
+    getArtUrl(){
+        return `${endpoint}/getFile/msg/${this.getArt()}`
+    }
+    isArtImage(){
+        return (this.data['art'] as string).startsWith('img')
+    }
+    hasArt(){
+        return this.data['art'] != '_'
+    }
+    isMe(myId:string,isAdmin?:boolean){
+        return this.data['who'] == (isAdmin?masterID:myId)
+    }
+    getTime(){
+        return getCreatedTime(this.data)
+    }
+}
+
+
+export function getUpdatedTime(data:any,includeTime?:boolean){
+    const ct = data['updated_at'] as string
+    const createdAtDate = new Date(ct);
+    const formattedDate = format(createdAtDate, 'dd/MM/yy');
+    const formattedTime = format(createdAtDate, 'HH:mm:ss');
+    return includeTime?formattedDate+' '+formattedTime:formattedDate
+}

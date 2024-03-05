@@ -5,7 +5,7 @@ import { AdminNav, MemberNav } from "../nav";
 import { Add, Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutlined, ArrowRightRounded, AttachFile, BuildOutlined, Close, DeveloperModeOutlined, LockOutlined, Mail, Menu, NotificationImportant, NotificationsActive, NotificationsActiveOutlined, PersonOutline, PieChart, SavingsOutlined, VolumeUpOutlined } from "@mui/icons-material";
 import { annEle } from "../../classes/classes";
 import { MemberDashboard } from "./dashbrd";
-import { AdminMessaging } from "./messages/messages";
+import { MemberMessages } from "./messages/messages";
 import { MemberPayments } from "./payments/payments";
 import { endpoint, getMemId, makeRequest } from "../../../helper/requesthandler";
 import { useNavigate } from "react-router-dom";
@@ -56,7 +56,6 @@ export function Members(){
             if(task.isSuccessful()){
                 const mbi = new memberBasicinfo(task.getData())
                 setMBI(mbi)
-                setMyKey(Date.now())
             }else{
                 setError(true)
             }
@@ -65,7 +64,6 @@ export function Members(){
             if(task.isSuccessful()){
                 if(task.exists()){
                     setMFI(new memberFinancialinfo(task.getData()))
-                    setMyKey(Date.now())
                 }
             }else{
                 setError(true)
@@ -75,7 +73,6 @@ export function Members(){
             if(task.isSuccessful()){
                 if(task.exists()){
                     setMGI(new memberGeneralinfo(task.getData()))
-                    setMyKey(Date.now())
                 }
             }else{
                 setError(true)
@@ -283,7 +280,7 @@ export function Members(){
                     {(mbi && mbi.isDeleted())?<ShowProfileDeleted />:(mbi && !mbi!.isVerified() && tabPos!=3)?<AskToVerif />:mbi?tabPos===0?<MemberDashboard goto={(a)=>{
                         setTabPos(a)
                         setMyKey(Date.now())
-                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<MemberPayments mbi={mbi} />:tabPos==2?<MsgTBD />:tabPos==3?(mbi && mgi && mfi && !forceProfileEdit)?<AdminDirView user={mbi} backy={()=>{}} isMemAccess genU={mgi} finU={mfi} editClbk={()=>{
+                    }} yearsOwed={yearsOwing} mbi={mbi!} mgi={mgi}/>:tabPos==1?<AvailShortly />:tabPos==2?<MemberMessages mbi={mbi} />:tabPos==3?(mbi && mgi && mfi && !forceProfileEdit)?<AdminDirView user={mbi} backy={()=>{}} isMemAccess genU={mgi} finU={mfi} editClbk={()=>{
                         setForceProfileEdit(true)
                     }}  />:<CompleteProfile goto={(a)=>{
                         if(a==0){
@@ -382,6 +379,27 @@ export function MsgTBD() {
             <mye.HTv text={'Coming Soon'} />
             <Mgin top={10} />
             <mye.Tv text={'Messaging is coming soon'} />
+        </div>
+    </div>
+}
+
+
+export function AvailShortly() {
+    const mye = new myEles(false)
+    
+    return <div className="ctr" style={{
+        width:'100%',
+        height:'100%'
+    }}>
+        <div className="vlc">
+            <DeveloperModeOutlined style={{
+                fontSize:30,
+                color:mye.mycol.primarycol
+            }} />
+            <Mgin top={20} />
+            <mye.HTv text={'Coming Soon'} />
+            <Mgin top={10} />
+            <mye.Tv text={'This page will be available soon'} />
         </div>
     </div>
 }

@@ -304,7 +304,7 @@ export function AdminPayTypes(mainprop:{actiony:(action:number,payType?:payTypeE
                 prop.ocl()
             }
         }}>
-            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv text={prop.text} size={14} color={mye.mycol.imghint} />}
+            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv hideOverflow text={prop.text} size={14} color={mye.mycol.imghint} />}
         </div>
     }
 

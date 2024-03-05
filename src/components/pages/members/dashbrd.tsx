@@ -39,9 +39,7 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
 
     function getAnns(){
         setError(false)
-        setLoad(true)
         makeRequest.get('getAnnouncements',{},(task)=>{
-            setLoad(false)
             if(task.isSuccessful()){
                 const tem:annEle[] = []
                 for(const key in task.getData()){
@@ -124,7 +122,7 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
         }} bkg={mainprop.mgi?mye.mycol.btnstrip:mye.mycol.primarycol} tcol={mainprop.mgi?mye.mycol.primarycol:mye.mycol.white} /> }
         />
         <Mgin top={30} />
-        <div id="lshdw" style={{
+        {/* <div id="lshdw" style={{
             backgroundColor:mye.mycol.white,
             borderRadius:10,
             padding:dimen.dsk?40:20,
@@ -183,7 +181,7 @@ export function MemberDashboard(mainprop:{mbi:memberBasicinfo,mgi?:memberGeneral
                 />
             </div>
         </div>}
-        <Mgin top={20} />
+        <Mgin top={20} /> */}
         <div id="lshdw" style={{
             width:'100%',
             padding:20,

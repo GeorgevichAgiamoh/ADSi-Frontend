@@ -353,7 +353,7 @@ export function AdminDirView(mainprop:{user:memberBasicinfo,backy:(action:number
         }
         setLoad(true)
         makeRequest.post('resetMemberPassword',{
-            email: mainprop.user.getEmail(),
+            memid: mainprop.user.getMemberID(),
             pwd: newPwd
         },(task)=>{
             setLoad(false)

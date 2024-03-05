@@ -380,8 +380,8 @@ export function CompleteProfile(mainprop:{goto:(action:number)=>void}){
                     setSex(e.target.value)
                 }}>
                     <option value="">Click to Choose</option>
-                    {Object.entries(spin_genders).map(([key,value])=>{
-                        return <option value={key}>{value}</option>
+                    {Object.entries(spin_genders).map(([key,value],i)=>{
+                        return <option key={myKey+i+0.2123} value={key}>{value}</option>
                     })}
                 </select>
             </div>

@@ -1,13 +1,12 @@
-import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined } from "@mui/icons-material"
+import { PersonOutline, FilterOutlined, SortOutlined, SearchOutlined, ListAltOutlined, CloudDownloadOutlined, ArrowBack, ArrowForward, MoreVert, Close, Add, KeyboardArrowDown, SavingsOutlined, MessageOutlined, AddOutlined, ArrowRight } from "@mui/icons-material"
 import { useState, useEffect } from "react"
 import useWindowDimensions from "../../../../helper/dimension"
-import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont, hexToRgba, goUrl } from "../../../../helper/general"
-import { payTypeEle } from "../../../classes/classes"
+import { myEles, setTitle, appName, Mgin, Btn, LrText, IconBtn, Line, icony, ErrorCont, hexToRgba, EditTextFilled, masterID } from "../../../../helper/general"
 import Barcode from "react-barcode"
-import { payRecordEle, payStat } from "../../../classes/models"
+import { adminUserEle, msgStat, msgThread, memberBasicinfo, } from "../../../classes/models"
 import { CircularProgress } from "@mui/material"
 import Toast from "../../../toast/toast"
-import { endpoint, makeRequest, resHandler } from "../../../../helper/requesthandler"
+import {  makeRequest, resHandler } from "../../../../helper/requesthandler"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PoweredBySSS } from "../../../../helper/adsi"
 import tabcard from "../../../../assets/tabcard.png"
@@ -15,26 +14,23 @@ import naira from "../../../../assets/naira.png"
 
 
 
-
-export function PendingPayments(mainprop:{backy:()=>void}){
+export function AdminMessagesList(mainprop:{me:adminUserEle,actiony:(thread:msgThread, action:number)=>void, backy:()=>void}){
     const location = useLocation()
     const navigate = useNavigate()
     const dimen = useWindowDimensions()
     const mye = new myEles(false)
     const[search, setSearch] = useState('')
     const[showSearch, setShowSearch] = useState(false)
-    const[cpay, setCPay] = useState<payRecordEle>()
-    const[showReminder, setShowReminder] = useState(false)
+    const[showPicker, setShowPicker] = useState(false)
     const myKey = Date.now()
     const[optToShow,setOptToShow] = useState(-1)
     const[showingIndex,setShowingIndex] = useState(0)
-    const[pays,setPays] = useState<payRecordEle[]>([])
-    const[outstandings,setOutstandings] = useState<payRecordEle[]>([])
-    const[stat,setStat] = useState<payStat>()
+    const[threads,setThreads] = useState<msgThread[]>([])
+    const[stat,setStat] = useState<msgStat>()
     
 
     useEffect(()=>{
-        setTitle(`Pending Payments - ${appName}`)
+        setTitle(`My Messages - ${appName}`)
         getStats()
     },[])
 
@@ -42,47 +38,44 @@ export function PendingPayments(mainprop:{backy:()=>void}){
         setLoad(false)
         setError(true)
         if(task.isLoggedOut()){
-            navigate(`/adminlogin?rdr=${location.pathname.substring(1)}`)
+            navigate(`/adminLogin?rdr=${location.pathname.substring(1)}`)
         }else{
             toast(task.getErrorMsg(),0)
         }
     }
 
-    function getStats(dontGetPays?:boolean){
-        function fins(){
-            if(dontGetPays){
-                setLoad(false)
-            }else{
-                getThePays(0)
-            }
-        }
-
+    function getStats(dontGetMsgs?:boolean){
         setLoad(true)
         setError(false)
-        makeRequest.get(`getRevenue/9`,{},(task)=>{
+        makeRequest.get(`getMyMessagesStat/${masterID}`,{},(task)=>{
             if(task.isSuccessful()){
-                setStat(new payStat(task.getData()))
-                fins()
+                setStat(new msgStat(task.getData()))
+                if(dontGetMsgs){
+                    setLoad(false)
+                }else{
+                    getThreads(0)
+                }
             }else{
                 handleError(task)
             }
         })
     }
 
-    function getThePays(index:number){
+    function getThreads(index:number){
+        setShowSearch(false)
         setError(false)
         setLoad(true)
-        makeRequest.get(`getPayments/9`,{
+        makeRequest.get(`getMyMessages/${masterID}`,{
             start:(index*20),
             count:20
         },(task)=>{
             setLoad(false)
             if(task.isSuccessful()){
-                const tem:payRecordEle[] = []
+                const tem:msgThread[] = []
                 for(const key in task.getData()){
-                    tem.push(new payRecordEle(task.getData()[key]))
+                    tem.push(new msgThread(task.getData()[key]))
                 }
-                setPays(tem)
+                setThreads(tem)
                 setShowingIndex(index)
             }else{
                 handleError(task)
@@ -146,13 +139,13 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                     invoked:0,
                 })
             }} />
-        <div id="clk" className="hlc" onClick={()=>{
+        {/* <div id="clk" className="hlc" onClick={()=>{
             mainprop.backy()
         }}>
             <ArrowBack className="icon" />
             <Mgin right={10} />
             <mye.HTv text="Go Back" size={14} />
-        </div>
+        </div> */}
         <Mgin top={20} />
         <div style={{
             width:dimen.dsk?500:'100%',
@@ -173,9 +166,14 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 <input className="tinp"
                     type="text"
                     value={search}
-                    placeholder="Search"
+                    placeholder="Search Message By Subject"
                     onChange={(e)=>{
                         setSearch(e.target.value)
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            searchIt()
+                        }
                     }}
                     style={{
                         width:'100%',
@@ -187,26 +185,7 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 width:100
             }}>
                 <Btn txt="Search" onClick={()=>{
-                    const sc = search.trim()
-                    if(sc.length < 5){
-                        toast('Enter at least 5 characters',0)
-                        return;
-                    }
-                    setLoad(true)
-                    makeRequest.get(`searchPayment/9`,{search:search},(task)=>{
-                        setLoad(false)
-                        if(task.isSuccessful()){
-                            setShowSearch(true)
-                            const tem:payRecordEle[] = []
-                            for(const key in task.getData()){
-                                tem.push(new payRecordEle(task.getData()[key]))
-                            }
-                            setPays(tem)
-                            setShowingIndex(0)
-                        }else{
-                            toast('No Result',0)
-                        }
-                    })
+                    searchIt()
                 }} strip={search.length < 5} />
             </div>
         </div>
@@ -217,10 +196,8 @@ export function PendingPayments(mainprop:{backy:()=>void}){
             flexWrap:'wrap',
             alignItems:'center'
         }}>
-            <Tab1 title="Total Payment" value={stat?stat.getTotal():'...'} color={mye.mycol.hs_blue} />
+            <Tab1 icon={MessageOutlined} title="Total Messages" value={stat?stat.getTotalMessages():'...'} color={mye.mycol.hs_blue} />
         </div>
-        <Mgin top={20} />
-        <mye.HTv text={'Pending Payments'} color={mye.mycol.primarycol} size={25} />
         <Mgin top={20} />
         <LrText wrap={!dimen.dsk}
         left={showSearch?<div style={{
@@ -239,13 +216,16 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 flex:1
             }}>
                 <Btn txt="Close Search" round onClick={()=>{
-                    setShowSearch(false)
+                    getThreads(0)
                 }}  width={120}/>
             </div>
-        </div>:<div></div>}
+        </div>:<div style={{
+            width:250,
+            display:'flex'
+        }}></div>}
         right={<div className="flexi">
-            <IconBtn icon={CloudDownloadOutlined} mye={mye} text="Download CSV" ocl={()=>{
-
+            <IconBtn icon={AddOutlined} mye={mye} text="New Message" ocl={()=>{
+                setShowPicker(true)
             }} width={140} />
         </div>}
         />
@@ -260,82 +240,60 @@ export function PendingPayments(mainprop:{backy:()=>void}){
             <div className="hlc" style={{
                 alignSelf:'flex-start'
             }}>
-                <SavingsOutlined style={{
+                <MessageOutlined style={{
                     color:mye.mycol.secondarycol,
                     fontSize:20
                 }} />
                 <Mgin right={10}/>
-                <mye.HTv text={'Verify Or Delete'} size={16} color={mye.mycol.secondarycol} />
+                <mye.HTv text={'Messages'} size={16} color={mye.mycol.secondarycol} />
             </div>
             <Mgin top={20} />
             <div className="hlc" style={{
                 width:dimen.dsk2?'100%':dimen.dsk?dimen.width-450:dimen.width-60,
                 overflowX:'scroll'
             }}>
-                {
-                    <div style={{
-                        width:dimen.dsk2?'100%':undefined,
-                        paddingBottom:optToShow!=-1?150:0,
-                    }}>
-                        <div className="hlc">
-                            <MyCell text="S/N"  isBold/>
-                            <MyCell text="Name"  isBold/>
-                            <MyCell text="Amount"  isBold/>
-                            <MyCell text="Identity No."  isBold/>
-                            <MyCell text="Type"  isBold/>
-                            <MyCell text="Date"  isBold/>
-                            <MyCell text="Action"  isBold/>
-                        </div>
-                        {
-                            pays.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
-                                return <div className="hlc" key={myKey+index+showingIndex*20}>
-                                    <MyCell text={(index+1+showingIndex*20).toString()} />
-                                    <MyCell text={ele.getName()} />
-                                    <MyCell text={`N${ele.getAmt()}`} />
-                                    <MyCell text={ele.getMemId()} />
-                                    <MyCell text={ele.getType()} tCol={ele.getColor(mye)} />
-                                    <MyCell text={ele.getDate()} />
-                                    <Opts index={index} pay={ele} doId={(approved,pay)=>{
-                                        setLoad(true)
-                                        makeRequest.post(approved?'approveOfflinePayment':'deleteOfflinePayment',{
-                                            id: pay.getRecordId()
-                                        },(task)=>{
-                                            setLoad(false)
-                                            if(task.isSuccessful()){
-                                                toast(`Payment ${approved?'approved':'deleted'} successfully`,1)
-                                                const i = index+showingIndex*20
-                                                const al = [...pays.slice(0, i), ...pays.slice(i + 1)]
-                                                setPays(al)
-                                                getStats(true)
-                                            }else{
-                                                toast(`Payment ${approved?'approval':'delete'} failed`,0)
-                                            }
-                                        })
-                                    }} />
-                                </div>
-                            })
-                        }
+                <div style={{
+                    width:dimen.dsk2?'100%':undefined,
+                    paddingBottom:optToShow!=-1?150:0,
+                }}>
+                    <div className="hlc">
+                        <MyCell text="Chat"  isBold/>
+                        <MyCell text="Message"  isBold  special/>
+                        <MyCell text="Date"  isBold/>
+                        <MyCell text="Action"  isBold/>
                     </div>
-                }
+                    {
+                        threads.slice((showingIndex*20),(showingIndex*20+20)).map((ele,index)=>{
+                            return <div id="clk" className="hlc" key={myKey+index+showingIndex*20} onClick={()=>{
+                                mainprop.actiony(ele,1)
+                            }}>
+                                <MyCell text={ele.amFrom(masterID,true)?ele.getToName():ele.getFromName()} />
+                                <MyCell text={ele.getLastMsg()} special/>
+                                <MyCell text={ele.getLastUpdated()} />
+                                <Opts index={index} thread={ele} />
+                            </div>
+                        })
+                    }
+                </div>
             </div>
             <Mgin top={20} />
             <div className="hlc">
                 <ArrowBack id="clk" className="icon" onClick={()=>{
                     if(showingIndex >0){
                         const index = showingIndex-1
-                        getThePays(index)
+                        getThreads(index)
                     }
                 }} />
                 <Mgin right={10} />
                 {
-                    Array.from({length:Math.floor(pays.length/20)+1},(_,index)=>{
+                    Array.from({length:Math.floor((stat?stat.getTotalMessages():0)/20)+1},(_,index)=>{
                         return <div id="clk" key={myKey+index+10000} className="ctr" style={{
                             width:25,
                             height:25,
                             backgroundColor:showingIndex==index?mye.mycol.black:'transparent',
                             borderRadius:'50%'
                         }} onClick={()=>{
-                            getThePays(index)
+                            getThreads(index)
                         }}>
                             <mye.BTv text={(index+1).toString()} color={showingIndex==index?mye.mycol.white:mye.mycol.black} size={16}/>
                         </div>
@@ -343,20 +301,20 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 }
                 <Mgin right={10} />
                 <ArrowForward id="clk" className="icon" onClick={()=>{
-                    const len = Math.floor(pays.length/20)
+                    const len = Math.floor((stat?stat.getTotalMessages():0)/20)
                     console.log(len)
                     console.log(showingIndex)
                     if(showingIndex < len){
                         const index = showingIndex+1
-                        getThePays(index)
+                        getThreads(index)
                     }
                 }} />
             </div>
         </div>
         <PoweredBySSS />
-         {/* Absolutely positioned (dialog) */}
-         <div className="ctr" style={{
-            display:showReminder?undefined:'none',
+        {/* Absolutely positioned (dialog) */}
+        <div className="ctr" style={{
+            display:showPicker?undefined:'none',
             position:'absolute',
             top:0,
             left:0,
@@ -366,55 +324,59 @@ export function PendingPayments(mainprop:{backy:()=>void}){
             backgroundColor:'rgba(0,0,0,0.1)',
             padding: dimen.dsk?'10% 25%':0
         }}>
-            <SendReminder />
+            <PickMsgReceiver closy={()=>{
+                setShowPicker(false)
+            }} rdy={(name,id,email, subject)=>{
+                setLoad(true)
+                makeRequest.post('createMsgThread',{
+                    from: mainprop.me.getLastName(),
+                    from_uid: masterID,
+                    to: name,
+                    to_uid: id,
+                    last_msg:'New Message',
+                    subject: subject,
+                    from_mail: mainprop.me.getEmail(),
+                    to_mail:email
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        const thread = new msgThread(task.getData())
+                        mainprop.actiony(thread,1)
+                    }else{
+                        toast(task.getErrorMsg(),0)
+                    }
+                })
+            }} />
         </div>
     </div>
 
-    function SendReminder(prop:{}) {
-        return <div className="vlc" style={{
-            width:'100%',
-            height:'100%',
-            backgroundColor:mye.mycol.bkg,
-            borderRadius:10,
-            padding:20
-        }}>
-            <div id="clk" style={{
-                alignSelf:'flex-end'
-            }} onClick={()=>{
-                setShowReminder(false)
-            }}>
-                <Close className="icon" />
-            </div>
-            <div className="ctr" style={{
-                flex:1
-            }}>
-                <mye.Tv text="Send Reminder" color={mye.mycol.primarycol} size={16} />
-                <Mgin top={20} />
-                <div className="hlc">
-                    <Tab text="SMS" ocl={()=>{
-
-                    }} />
-                    <Mgin right={15} />
-                    <Tab text="Email" ocl={()=>{
-
-                    }} />
-                </div>
-            </div>
-        </div>
-
-        function Tab(prop:{text:string, ocl:()=>void}) {
-            return <div id="clk" className="ctr" style={{
-                width:80,
-                height:100,
-                borderRadius:5,
-                backgroundColor:mye.mycol.btnstrip
-            }} onClick={prop.ocl}>
-                <mye.Tv text={prop.text} />
-            </div>
+    function searchIt() {
+        const sc = search.trim()
+        if(sc.length < 5){
+            toast('Enter at least 5 characters',0)
+            return;
         }
+        setLoad(true)
+        makeRequest.get('searchMsgThread',{search:search},(task)=>{
+            setLoad(false)
+            if(task.isSuccessful()){
+                console.log(task.getData())
+                const tem:msgThread[] = []
+                for(const key in task.getData()){
+                    const thread = new msgThread(task.getData()[key])
+                    tem.push(thread)
+                }
+                setThreads(tem)
+                setShowSearch(true)
+            }else{
+                toast('No Result',0)
+            }
+        })
     }
 
-    function Opts(prop:{index:number,pay:payRecordEle,doId:(approved:boolean,pay:payRecordEle)=>void}) {
+    
+
+    function Opts(prop:{index:number,thread:msgThread}) {
         return <div className="ctr" style={{
             flex:(dimen.dsk2)?1:undefined,
             width:(dimen.dsk2)?undefined:100,
@@ -447,21 +409,9 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 }} onClick={()=>{
                     setOptToShow(-1)
                 }} />
-                <MyCell text="See Receipt" ocl={()=>{
-                    if(prop.pay.isProofFile()){
-                        goUrl(`${endpoint}/getFile/pends/${prop.pay.getProof()}`)
-                    }else{
-                        toast(prop.pay.getProof(),2)
-                    }
+                <MyCell text="View" ocl={()=>{
+                    mainprop.actiony(prop.thread,1)
                 }} alignStart special />
-                <Line />
-                <MyCell text="Approve" ocl={()=>{
-                    prop.doId(true,prop.pay)
-                }} alignStart special/>
-                <Line />
-                <MyCell text="Delete" ocl={()=>{
-                    prop.doId(false,prop.pay)
-                }} alignStart special/>
             </div>
         </div>
     }
@@ -480,7 +430,7 @@ export function PendingPayments(mainprop:{backy:()=>void}){
                 prop.ocl()
             }
         }}>
-            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv hideOverflow text={prop.text} size={14} color={prop.tCol||mye.mycol.imghint} />}
+            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv text={prop.text} maxLines={2} size={14} color={prop.tCol||mye.mycol.imghint} hideOverflow />}
         </div>
     }
 
@@ -550,3 +500,162 @@ export function PendingPayments(mainprop:{backy:()=>void}){
 
 }
 
+function PickMsgReceiver(prop:{closy:()=>void, rdy:(name:string,id:string,email:string,subject:string)=>void} ) {
+    const mye = new myEles(false)
+    const myKey = Date.now()
+    const[search, setSearch] = useState('')
+    const[subject, setSubject] = useState('')
+    const[members,setMembers] = useState<memberBasicinfo[]>([])
+
+
+
+    const[load, setLoad]=useState(false)
+    const[loadMsg, setLoadMsg]=useState('Just a sec')
+    const[error, setError]=useState(false)
+    const[toastMeta, setToastMeta] = useState({visible: false,msg: "",action:2,invoked:0})
+    const[timy, setTimy] = useState<{timer?:NodeJS.Timeout}>({timer:undefined});
+    function toast(msg:string, action:number,delay?:number){
+    var _delay = delay || 5000
+    setToastMeta({
+        action: action,
+        msg: msg,
+        visible:true,
+        invoked: Date.now()
+    })
+    clearTimeout(timy.timer)
+    setTimy({
+        timer:setTimeout(()=>{
+            if(Date.now()-toastMeta.invoked > 4000){
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked: 0
+                })
+            }
+        },_delay)
+    });
+    }
+
+    return <div style={{
+        width:'100%',
+        height:'100%',
+        backgroundColor:mye.mycol.bkg,
+        borderRadius:10,
+        padding:20,
+        display:'flex',
+        flexDirection:'column'
+    }}>
+        <ErrorCont isNgt={false} visible={error} retry={()=>{
+            setError(false)
+        }}/>
+        <div className="prgcont" style={{display:load?"flex":"none"}}>
+            <div className="hlc" style={{
+                backgroundColor:mye.mycol.bkg,
+                borderRadius:10,
+                padding:20,
+            }}>
+                <CircularProgress style={{color:mye.mycol.primarycol}}/>
+                <Mgin right={20} />
+                <mye.Tv text={loadMsg} />
+            </div>
+        </div>
+        <Toast isNgt={false} msg= {toastMeta.msg} action={toastMeta.action} visible={toastMeta.visible} canc={()=>{
+                setToastMeta({
+                    action:2,
+                    msg:"",
+                    visible:false,
+                    invoked:0,
+                })
+            }} />
+        <div className="vlc">
+            <div id="clk" style={{
+                alignSelf:'flex-end'
+            }} onClick={()=>{
+                prop.closy()
+            }}>
+                <Close className="icon" />
+            </div>
+        </div>
+        <mye.Tv text="Message Subject" size={14} />
+        <Mgin top={10} />
+        <EditTextFilled hint="Message Subject" value={subject} min={3} recv={(v)=>{
+            setSubject(v)
+        }} />
+        <Mgin top={10} />
+        <mye.Tv text="Search" size={14} />
+        <Mgin top={10} />
+        <div className="hlc" style={{
+            width:'100%'
+        }}>
+           <div style={{
+             flex:1
+           }}>
+             <EditTextFilled hint={`Search member by name`} value={search} min={5} recv={(v)=>{
+                    setSearch(v)
+                }} />
+           </div>
+            <Mgin right={10}/>
+            <Btn txt="Search" width={100} onClick={()=>{
+                if(subject.length < 3){
+                    toast('Please add message subject first',0)
+                    return
+                }
+                const sc = search.trim()
+                if(sc.length < 5){
+                    toast('Enter at least 5 characters',0)
+                    return;
+                }
+                setLoad(true)
+                makeRequest.get('searchMember',{
+                    search:search
+                },(task)=>{
+                    setLoad(false)
+                    if(task.isSuccessful()){
+                        const tem:memberBasicinfo[] = []
+                        for(const key in task.getData()){
+                            tem.push(new memberBasicinfo(task.getData()[key]['b']))
+                        }
+                        setMembers(tem)
+                    }else{
+                        toast(task.getErrorMsg(),0)
+                    }
+                })
+            }} strip={search.length < 5} />
+        </div>
+        <Mgin top={20}/>
+        <mye.Tv text={`Choose Member`} size={14} />
+        <Mgin top={10}/>
+        <div style={{
+            width:'100%',
+            flex:1,
+        }}>
+            {
+                (members.length==0)?<div style={{
+                    width:'100%',
+                    height:'100%',
+                    backgroundColor:mye.mycol.btnstrip5
+                }} className="ctr">
+                    <mye.Tv text="Search Result Will Show Here" size={12} color={mye.mycol.hint}/>
+                </div>:
+                members.map((ele,i)=>{
+                    return <div id="clk" key={myKey+i+0.121} onClick={()=>{
+                        prop.rdy(ele.getFirstName(),ele.getMemberID(),ele.getEmail(),subject)
+                    }} style={{
+                        width:'100%',
+                        marginBottom:10,
+                        backgroundColor: mye.mycol.imghintr2,
+                        borderRadius:5,
+                        boxSizing:'border-box',
+                        padding:10
+                    }}>
+                        <LrText 
+                        left={<mye.BTv text={ele.getFullName()} size={14} />}
+                        right={<ArrowRight className="icon" />}
+                        />
+                    </div>
+                })
+            }
+        </div>
+    </div>
+}

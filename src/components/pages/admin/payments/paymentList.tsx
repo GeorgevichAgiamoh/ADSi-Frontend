@@ -616,7 +616,7 @@ export function PaymentList(mainprop:{payType:payTypeEle, backy:()=>void}){
                 prop.ocl()
             }
         }}>
-            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv text={prop.text} size={14} color={prop.tCol||mye.mycol.imghint} />}
+            {prop.isBold?<mye.BTv text={prop.text} size={14} color={mye.mycol.primarycol}  />:<mye.Tv hideOverflow text={prop.text} size={14} color={prop.tCol||mye.mycol.imghint} />}
         </div>
     }
 

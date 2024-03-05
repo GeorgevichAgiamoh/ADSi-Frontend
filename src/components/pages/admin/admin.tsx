@@ -6,7 +6,6 @@ import { Add, Announcement, ArrowDropDown, ArrowRightAltRounded, ArrowRightOutli
 import { annEle } from "../../classes/classes";
 import { AdminDashboard } from "./dashbrd";
 import { AdminDirectory } from "./directory/directory";
-import { AdminMessaging } from "./messages/messages";
 import { AdminPayments } from "./payments/payments";
 import { AdminSettings } from "./settings/settings";
 import { endpoint, getMemId, makeRequest, resHandler } from "../../../helper/requesthandler";
@@ -15,6 +14,7 @@ import { CircularProgress } from "@mui/material";
 import Toast from "../../toast/toast";
 import { adminUserEle, highlightEle } from "../../classes/models";
 import { MsgTBD } from "../members/members";
+import { AdminMessages } from "./messages/messages";
 
 
 export function Admin(){
@@ -263,7 +263,7 @@ export function Admin(){
                     {tabPos===0?((me && me.getRole()=='0')?<AdminDashboard me={me} />:<NotAllowed />):
                     tabPos===1?((isPermGranted(1) && me)?<AdminDirectory me={me}/>:<NotAllowed/>)
                     :tabPos===2?(isPermGranted(2)?<AdminPayments />:<NotAllowed />)
-                    :tabPos===3?(isPermGranted(3)?<MsgTBD />:<NotAllowed />)
+                    :tabPos===3?((isPermGranted(3) && me)?<AdminMessages me={me}  />:<NotAllowed />)
                     :tabPos===4?((me && me.getRole()=='0' && me.getMemId()==masterID)?<AdminSettings />:<NotAllowed />):<LoadLay />}
                 </div>
             </div>
